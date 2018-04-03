@@ -1,6 +1,6 @@
 {
   "name": "domapic-test-runner",
-  "version": "0.0.1-alpha.1",
+  "version": "0.0.1-alpha.10",
   "description": "Tests runner for Domapic packages",
   "main": "index.js",
   "keywords": [
@@ -12,7 +12,7 @@
     "testing",
     "unit test",
     "integration test",
-    "end to end test"
+    "end to end test",
     "standardjs",
     "coverage"
   ],
@@ -20,8 +20,10 @@
     "test-runner": "./bin/test-runner"
   },
   "dependencies": {
-  },
-  "devDependencies": {
+    "js-yaml": "3.11.0",
+    "commander": "2.15.1",
+    "standard": "10.0.3",
+    "mocha-sinon-chai": "2.0.0"
   },
   "engines": {
     "node": "8.9.4",
