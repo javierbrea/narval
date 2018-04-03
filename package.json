@@ -1,0 +1,38 @@
+{
+  "name": "domapic-test",
+  "version": "0.0.1-alpha.1",
+  "description": "Run standard, integration, and end-to-end tests with a single configuration file",
+  "main": "index.js",
+  "keywords": [
+    "docker",
+    "mocha",
+    "sinon",
+    "chai",
+    "test",
+    "testing",
+    "unit test",
+    "integration test",
+    "end to end test",
+    "standardjs",
+    "coverage"
+  ],
+  "bin": {
+    "domapic-test": "./bin/domapic-test"
+  },
+  "dependencies": {
+    "js-yaml": "3.11.0",
+    "commander": "2.15.1",
+    "standard": "10.0.3",
+    "mocha-sinon-chai": "2.0.0"
+  },
+  "engines": {
+    "node": "8.9.4",
+    "npm": "5.6.0"
+  },
+  "author": {
+    "name": "Javier Brea",
+    "url": "http://javierbrea.com"
+  },
+  "license": "MIT",
+  "repository": "https://github.com/domapic/domapic-test-runner"
+}
