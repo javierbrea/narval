@@ -19,6 +19,9 @@
   "bin": {
     "austral-whale": "./bin/austral-whale"
   },
+  "scripts": {
+    "test": "./bin/austral-whale"
+  },
   "dependencies": {
     "lodash": "4.17.5",
     "bluebird": "3.5.1",
