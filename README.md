@@ -1,3 +1,3 @@
-# domapic-tests-runner
+# Right Whale
 
-Tests runner for Domapic packages
+Test runner

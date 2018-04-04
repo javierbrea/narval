@@ -1,7 +1,7 @@
 {
-  "name": "domapic-test",
-  "version": "0.0.1-alpha.3",
-  "description": "Run standard, integration, and end-to-end tests with a single configuration file",
+  "name": "right-whale",
+  "version": "0.0.1-alpha.2",
+  "description": "Run standard, unit, integration, and end-to-end tests with a single configuration file",
   "main": "index.js",
   "keywords": [
     "docker",
@@ -17,7 +17,7 @@
     "coverage"
   ],
   "bin": {
-    "domapic-test": "./bin/domapic-test"
+    "right-whale": "./bin/right-whale"
   },
   "dependencies": {
     "js-yaml": "3.11.0",
@@ -34,5 +34,5 @@
     "url": "http://javierbrea.com"
   },
   "license": "MIT",
-  "repository": "https://github.com/domapic/domapic-test-runner"
+  "repository": "https://github.com/javierbrea/right-whale"
 }
