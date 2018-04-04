@@ -1,0 +1,22 @@
+# From image
+FROM {{from}}
+
+ARG cmd_options
+ENV cmd_options=$cmd_options
+
+# Set the working directory
+WORKDIR /app
+
+# Copy resources
+ADD ./install-resources .
+ADD ./docker-resources .
+
+# Copy resources
+RUN ["chmod", "+x", ".narval-run-cmd.sh"]
+RUN ["chmod", "+x", ".narval-install.sh"]
+RUN ["chmod", "+x", ".narval-wait-for-it.sh"]
+
+RUN ./.narval-install.sh
+
+# Start service
+CMD ["sh", "-c", "./.narval-run-cmd.sh ${cmd_options}"]

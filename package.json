@@ -1,6 +1,6 @@
 {
   "name": "narval",
-  "version": "0.0.1-alpha.2",
+  "version": "0.0.1-alpha.4",
   "description": "Run standard, unit, integration, and end-to-end tests with a single configuration file",
   "main": "index.js",
   "keywords": [
@@ -23,14 +23,16 @@
     "test": "./bin/narval"
   },
   "dependencies": {
-    "lodash": "4.17.5",
     "bluebird": "3.5.1",
-    "js-yaml": "3.11.0",
+    "boom": "7.2.0",
     "commander": "2.15.1",
-    "standard": "10.0.3",
+    "fs-extra": "5.0.0",
+    "handlebars": "4.0.11",
+    "js-yaml": "3.11.0",
+    "lodash": "4.17.5",
     "mocha-sinon-chai": "2.0.0-alpha.20",
-    "tracer": "0.8.12",
-    "boom": "7.2.0"
+    "standard": "10.0.3",
+    "tracer": "0.8.12"
   },
   "engines": {
     "node": "8.9.4",
