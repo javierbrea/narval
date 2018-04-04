@@ -1,6 +1,6 @@
 {
-  "name": "austral-whale",
-  "version": "0.0.1-alpha.4",
+  "name": "narval",
+  "version": "0.0.1-alpha.2",
   "description": "Run standard, unit, integration, and end-to-end tests with a single configuration file",
   "main": "index.js",
   "keywords": [
@@ -17,10 +17,10 @@
     "coverage"
   ],
   "bin": {
-    "austral-whale": "./bin/austral-whale"
+    "narval": "./bin/narval"
   },
   "scripts": {
-    "test": "./bin/austral-whale"
+    "test": "./bin/narval"
   },
   "dependencies": {
     "lodash": "4.17.5",
