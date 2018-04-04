@@ -1,5 +1,5 @@
 {
-  "name": "right-whale",
+  "name": "austral-whale",
   "version": "0.0.1-alpha.2",
   "description": "Run standard, unit, integration, and end-to-end tests with a single configuration file",
   "main": "index.js",
@@ -17,7 +17,7 @@
     "coverage"
   ],
   "bin": {
-    "right-whale": "./bin/right-whale"
+    "right-whale": "./bin/austral-whale"
   },
   "dependencies": {
     "js-yaml": "3.11.0",
@@ -34,5 +34,5 @@
     "url": "http://javierbrea.com"
   },
   "license": "MIT",
-  "repository": "https://github.com/javierbrea/right-whale"
+  "repository": "https://github.com/javierbrea/austral-whale"
 }
