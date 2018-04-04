@@ -1,6 +1,6 @@
 {
   "name": "domapic-test",
-  "version": "0.0.1-alpha.1",
+  "version": "0.0.1-alpha.3",
   "description": "Run standard, integration, and end-to-end tests with a single configuration file",
   "main": "index.js",
   "keywords": [
@@ -23,7 +23,7 @@
     "js-yaml": "3.11.0",
     "commander": "2.15.1",
     "standard": "10.0.3",
-    "mocha-sinon-chai": "2.0.0"
+    "mocha-sinon-chai": "2.0.0-alpha.20"
   },
   "engines": {
     "node": "8.9.4",
