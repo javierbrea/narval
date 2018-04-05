@@ -16,7 +16,13 @@ RUN ["chmod", "+x", ".narval-run-cmd.sh"]
 RUN ["chmod", "+x", ".narval-install.sh"]
 RUN ["chmod", "+x", ".narval-wait-for-it.sh"]
 
+# Run install script
 RUN ./.narval-install.sh
+
+# Expose ports
+{{#each expose}}
+EXPOSE {{this}}
+{{/each}}
 
 # Start service
 CMD ["sh", "-c", "./.narval-run-cmd.sh ${cmd_options}"]
