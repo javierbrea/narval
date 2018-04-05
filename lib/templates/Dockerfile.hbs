@@ -1,15 +1,6 @@
 # From image
 FROM {{from}}
 
-ARG command_to_run
-ENV command_to_run=$command_to_run
-
-ARG test_specs
-ENV test_specs=$test_specs
-
-ARG coverage_dir
-ENV coverage_dir=$coverage_dir
-
 # Set the working directory
 WORKDIR /app
 
@@ -30,4 +21,4 @@ EXPOSE {{this}}
 {{/each}}
 
 # Start service
-CMD ["sh", "-c", "./.narval-run-cmd.sh ${command_to_run} ${test_specs} ${coverage_dir}"]
+CMD ["sh", "-c", "./.narval-run-cmd.sh ${command_to_run} ${test_specs} ${coverage_dir} ${wait_for}"]

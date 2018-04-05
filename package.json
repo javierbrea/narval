@@ -1,6 +1,6 @@
 {
   "name": "narval",
-  "version": "0.0.1-alpha.5",
+  "version": "0.0.1-alpha.7",
   "description": "Run standard, unit, integration, and end-to-end tests with a single configuration file",
   "main": "index.js",
   "keywords": [
@@ -30,7 +30,7 @@
     "handlebars": "4.0.11",
     "js-yaml": "3.11.0",
     "lodash": "4.17.5",
-    "mocha-sinon-chai": "2.0.0-alpha.20",
+    "mocha-sinon-chai": "2.0.0-alpha.21",
     "standard": "10.0.3",
     "tracer": "0.8.12"
   },
