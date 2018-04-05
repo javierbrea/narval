@@ -1,6 +1,6 @@
 {
   "name": "narval",
-  "version": "0.0.1-alpha.4",
+  "version": "0.0.1-alpha.5",
   "description": "Run standard, unit, integration, and end-to-end tests with a single configuration file",
   "main": "index.js",
   "keywords": [
