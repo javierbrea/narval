@@ -21,4 +21,4 @@ EXPOSE {{this}}
 {{/each}}
 
 # Start service
-CMD ["sh", "-c", "./.narval-run-cmd.sh ${command_to_run} ${test_specs} ${coverage_dir} ${wait_for}"]
+CMD ["sh", "-c", "./.narval-run-cmd.sh ${command_to_run} ${test_specs} ${coverage_options} ${coverage_enabled} ${wait_for}"]
