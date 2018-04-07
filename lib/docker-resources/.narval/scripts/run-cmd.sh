@@ -23,7 +23,7 @@ if [ -z "$command_to_run" ]; then
   echo "Please define a command to be run"
 else
   if [ "$command_to_run" == "narval-default-test-command" ]; then
-    command_to_run="node_modules/.bin/_mocha"
+    command_to_run="node_modules/.bin/narval-msc_mocha"
   fi
 
   if [ "$exit_after" != "" ]; then
@@ -35,7 +35,7 @@ else
   command_to_run="$command_to_run $command_params"
 
   if [ "$coverage_enabled" == "true" ]; then
-    command_to_run="node_modules/istanbul/lib/cli.js $coverage_options cover ./$command_to_run"
+    command_to_run="node_modules/.bin/narval-msc-istanbul $coverage_options cover ./$command_to_run"
   fi
 
   if [ "$wait_for" != "" ]; then
