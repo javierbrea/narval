@@ -11,12 +11,16 @@ echo 'RUN COMMAND COVERAGE'
 echo $coverage_options
 echo $wait_for
 
-command_to_run="node_modules/istanbul/lib/cli.js $coverage_options cover $command_to_run"
+export command_to_coverage=$command_to_run
+export kill_after=20000
 
-echo "Running custom command \"$command_to_run\" with coverage."
+command_to_run="node_modules/istanbul/lib/cli.js $coverage_options cover ./.run-js-command.js"
+
+echo "Running custom command \"$command_to_run  --name=service --path=/app/.shared --host=service\" with coverage."
 
 if [ "$wait_for" != "" ]; then
-  ./.narval-wait-for-it.sh $wait_for -- ./$command_to_run
+  ./.narval-wait-for-it.sh $wait_for -- ./$command_to_run -- --name=service --path=/app/.shared --host=service
 else
-  ./$command_to_run
+  echo "./$command_to_run --name=service --path=/app/.shared --host=service"
+  ./$command_to_run -- --name=service --path=/app/.shared --host=service
 fi
