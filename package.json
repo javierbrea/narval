@@ -24,7 +24,8 @@
     "narval-msc-istanbul": "./bin/narval-msc-istanbul"
   },
   "scripts": {
-    "test": "./bin/narval"
+    "test": "./bin/narval",
+    "coveralls": "cat ./.coverage/unit/lcov.info | coveralls"
   },
   "dependencies": {
     "bluebird": "3.5.1",
@@ -37,6 +38,9 @@
     "mocha-sinon-chai": "2.0.0",
     "standard": "10.0.3",
     "tracer": "0.8.12"
+  },
+  "devDependencies": {
+    "coveralls": "3.0.0"
   },
   "engines": {
     "node": "8.9.4",
