@@ -27,8 +27,6 @@ addons:
     organization: "javierbrea"
     token:
       secure: "$SONAR_TOKEN"
-    branch:
-      name: ci-build
 
 script:
   - npm test
