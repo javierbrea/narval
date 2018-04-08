@@ -6,7 +6,7 @@ Node.js packages multi test suites runner. Docker based.
 
 [![Node version][node-version-image]][node-version-url] [![NPM version][npm-image]][npm-url] [![NPM dependencies][npm-dependencies-image]][npm-dependencies-url] [![Last commit][last-commit-image]][last-commit-url] [![Last release][release-image]][release-url] 
 
-[![NPM downloads][npm-downloads-image]][npm-downloads-url] [![Website][website-image]][website-url] [![License][license-image]][license-url]
+[![NPM downloads][npm-downloads-image]][npm-downloads-url] [![License][license-image]][license-url]
 
 ## TODO before first release:
   * Write documentation.
