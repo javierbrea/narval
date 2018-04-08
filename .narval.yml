@@ -1,0 +1,8 @@
+suites:
+  unit: 
+    - name: unit
+      test:
+        specs: test/unit
+      coverage:
+        config:
+          dir: .coverage/unit
