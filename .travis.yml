@@ -27,6 +27,8 @@ addons:
     organization: "javierbrea"
     token:
       secure: "$SONAR_TOKEN"
+    branch:
+      name: master
 
 script:
   - npm test
