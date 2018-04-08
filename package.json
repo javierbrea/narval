@@ -39,6 +39,9 @@
     "standard": "10.0.3",
     "tracer": "0.8.12"
   },
+  "devDependencies": {
+    "coveralls": "3.0.0"
+  },
   "engines": {
     "node": "8.9.4",
     "npm": "5.6.0"
