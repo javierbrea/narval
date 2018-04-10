@@ -1,6 +1,6 @@
 # Narval
 
-Node.js packages multi test suites runner. Docker based.
+Multi test suites runner for Node.js packages. Docker based.
 
 [![Build status][travisci-image]][travisci-url] [![Coverage Status][coveralls-image]][coveralls-url] [![Quality Gate][quality-gate-image]][quality-gate-url] [![js-standard-style][standard-image]][standard-url]
 
@@ -9,15 +9,14 @@ Node.js packages multi test suites runner. Docker based.
 [![NPM downloads][npm-downloads-image]][npm-downloads-url] [![License][license-image]][license-url]
 
 ## TODO before first release:
-  * Write documentation.
-  * Ensure that narval dependency is installed in docker containers.
-  * Test it on windows.
-  * Add unit and integration tests
-  * Add default options for some configurations.
-  * Improve configuration validation, and traces.
   * Local execution of desired test or service, to improve tests development flow.
   * Start test suite services using PM2, for environments with no docker available.
   * Add "Check coverage" using istanbul option.
+  * Write documentation.
+  * Ensure that narval dependency is installed in docker containers.
+  * Add unit and integration tests
+  * Add default options for some configurations.
+  * Improve configuration, validation, and traces.
 
 [coveralls-image]: https://coveralls.io/repos/github/javierbrea/narval/badge.svg
 [coveralls-url]: https://coveralls.io/github/javierbrea/narval
