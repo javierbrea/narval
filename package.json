@@ -1,7 +1,7 @@
 {
   "name": "narval",
-  "version": "0.0.1-beta.1",
-  "description": "Node.js packages multi test suites runner. Docker based",
+  "version": "0.0.1-beta.2",
+  "description": "Multi test suites runner for Node.js packages. Docker based",
   "main": "index.js",
   "keywords": [
     "docker",
@@ -35,7 +35,7 @@
     "handlebars": "4.0.11",
     "js-yaml": "3.11.0",
     "lodash": "4.17.5",
-    "mocha-sinon-chai": "2.0.0",
+    "mocha-sinon-chai": "2.1.0",
     "standard": "10.0.3",
     "tracer": "0.8.12"
   },

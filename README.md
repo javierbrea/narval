@@ -1,6 +1,6 @@
 # Narval
 
-Node.js packages multi test suites runner. Docker based.
+Multi test suites runner for Node.js packages. Docker based.
 
 [![Build status][travisci-image]][travisci-url] [![Coverage Status][coveralls-image]][coveralls-url] [![Quality Gate][quality-gate-image]][quality-gate-url] [![js-standard-style][standard-image]][standard-url]
 
