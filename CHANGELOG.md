@@ -6,8 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.0.1-beta.3] - 2018-04-11
 ### Changed
-- Wait for standard execution finish
-- Wait for istanbul-mocha execution finish
+- Run standard as a child process. Wait until it has finished before resolving or rejecting the promise.
+- Wait until istanbul-mocha execution has finished before resolving or rejecting the promise.
+- Improve logs before and after running each test suite.
 
 ## [0.0.1-beta.2] - 2018-04-10
 ### Changed
