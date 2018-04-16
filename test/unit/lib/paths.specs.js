@@ -9,8 +9,6 @@ const test = require('../../../index')
 
 const paths = require('../../../lib/paths')
 
-
-
 const ReadFileMock = function () {
   let errorToReturn
   let dataToReturn
@@ -24,7 +22,7 @@ const ReadFileMock = function () {
     dataToReturn = data
   }
 
-  return  {
+  return {
     stub: stub,
     returns: returns
   }
