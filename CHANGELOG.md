@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [unreleased]
+### Added
+- Documentation to README.md file.
+
+### Fixed
+- Fix default configuration. Was not being read from "default-config.yml" file.
+
 ## [0.0.1-beta.4] - 2018-04-16
 ### Added
 - Can start only one local service, and generate coverage when process is finished using CTRL-C.
