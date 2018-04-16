@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
+{{#if install}}
+# Custom install command
 ./{{install}}
+{{/if}}
 
-# TODO, install narval to run tests if it is not already installed
+if [ ! -f ./node_modules/.bin/narval-msc-istanbul ]; then
+   echo "Narval dependency not found. Installing..."
+   npm i narval
+fi
