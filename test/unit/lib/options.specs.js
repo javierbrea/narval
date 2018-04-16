@@ -71,7 +71,7 @@ test.describe('options', () => {
 
     test.it('should set "allSuites" options as false if any of "standard", "suite" or "type" options are received', () => {
       commanderMock.returns({
-        standard:true
+        standard: true
       })
       return options.get()
         .then((opts) => {
