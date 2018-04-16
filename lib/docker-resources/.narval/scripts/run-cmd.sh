@@ -20,7 +20,12 @@ log_sep="================================"
 # echo "$log_title exit_after: $exit_after"
 
 if [ -z "$command_to_run" ]; then
-  echo "Please define a command to be run"
+  if [ "$exit_after" == "" ]; then
+    echo "There is no command defined to be run. Container will wait until killed"
+    ./.narval/scripts/empty-interval.js
+  else
+    echo "There is no command defined to be run. Exiting..."
+  fi
 else
   if [ "$command_to_run" == "narval-default-test-command" ]; then
     command_to_run="node_modules/.bin/narval-msc_mocha"
