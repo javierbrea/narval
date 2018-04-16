@@ -38,12 +38,12 @@ Add narval to your package.json dependencies, and an npm script to run the tests
 
 ```json
 {
-	"scripts": {
-		"test": "narval" 
-	},
-	"devDependencies": {
-		"narval": "1.x"
-	}
+  "scripts": {
+    "test": "narval" 
+  },
+  "devDependencies": {
+    "narval": "1.x"
+  }
 }
 ```
 
