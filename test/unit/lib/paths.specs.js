@@ -28,6 +28,25 @@ const ReadFileMock = function () {
   }
 }
 
+const WriteFileMock = function () {
+  let errorToReturn
+  let dataToReturn
+
+  const stub = function (filePath, content, encoding, cb) {
+    cb(errorToReturn, dataToReturn)
+  }
+
+  const returns = function (error, data) {
+    errorToReturn = error
+    dataToReturn = data
+  }
+
+  return {
+    stub: stub,
+    returns: returns
+  }
+}
+
 test.describe('paths', () => {
   let resolveSpy
   test.beforeEach(() => {
@@ -40,22 +59,17 @@ test.describe('paths', () => {
 
   const testRelativePathUtils = function (utilName, basePath, baseDescription) {
     test.describe(utilName, () => {
-      let readFileMock
-      let ensureDirStub
-      let readFileStub
-
-      test.beforeEach(() => {
-        readFileMock = new ReadFileMock()
-        ensureDirStub = test.sinon.stub(fsExtra, 'ensureDir').usingPromise().resolves()
-        readFileStub = test.sinon.stub(fs, 'readFile').callsFake(readFileMock.stub)
-      })
-
-      test.afterEach(() => {
-        fsExtra.ensureDir.restore()
-        fs.readFile.restore()
-      })
-
       test.describe('ensureDir method', () => {
+        let ensureDirStub
+
+        test.beforeEach(() => {
+          ensureDirStub = test.sinon.stub(fsExtra, 'ensureDir').usingPromise().resolves()
+        })
+
+        test.afterEach(() => {
+          fsExtra.ensureDir.restore()
+        })
+
         test.it('should return a Promise', () => {
           return test.expect(paths[utilName].ensureDir('fooPath')).to.be.an.instanceof(Promise)
         })
@@ -89,6 +103,18 @@ test.describe('paths', () => {
       })
 
       test.describe('readFile method', () => {
+        let readFileMock
+        let readFileStub
+
+        test.beforeEach(() => {
+          readFileMock = new ReadFileMock()
+          readFileStub = test.sinon.stub(fs, 'readFile').callsFake(readFileMock.stub)
+        })
+
+        test.afterEach(() => {
+          fs.readFile.restore()
+        })
+
         test.it('should return a bluebird Promise', () => {
           return test.expect(paths[utilName].readFile('fooPath')).to.be.an.instanceof(Bluebird)
         })
@@ -120,11 +146,74 @@ test.describe('paths', () => {
             })
         })
       })
+
+      test.describe('writeFile method', () => {
+        let writeFileMock
+        let writeFileStub
+
+        test.beforeEach(() => {
+          writeFileMock = new WriteFileMock()
+          writeFileStub = test.sinon.stub(fs, 'writeFile').callsFake(writeFileMock.stub)
+        })
+
+        test.afterEach(() => {
+          fs.writeFile.restore()
+        })
+
+        test.it('should return a bluebird Promise', () => {
+          return test.expect(paths[utilName].writeFile('fooFile')).to.be.an.instanceof(Bluebird)
+        })
+
+        test.it(`should call to write file, passing to it the resolved path, taking as base ${baseDescription}`, () => {
+          const fooTargetPath = 'fooFile'
+          const fooContent = 'fooContent'
+          const fooResolvedPath = path.resolve(basePath, fooTargetPath)
+          return paths[utilName].writeFile(fooTargetPath, fooContent)
+            .then(() => {
+              return Promise.all([
+                test.expect(writeFileStub.getCall(0).args[0]).to.equal(fooResolvedPath),
+                test.expect(writeFileStub.getCall(0).args[1]).to.equal(fooContent)
+              ])
+            })
+        })
+
+        test.it(`should resolve the promise with the data that write file function returns`, () => {
+          const fooContent = 'fooFileContent'
+          writeFileMock.returns(null, fooContent)
+          return paths[utilName].writeFile('fooFile', fooContent)
+            .then((result) => {
+              return test.expect(result).to.equal(fooContent)
+            })
+        })
+
+        test.it(`should reject the promise if write file function returns and error`, () => {
+          const error = new Error('fooWriteError')
+          writeFileMock.returns(error)
+          return paths[utilName].writeFile('fooFile')
+            .catch((err) => {
+              return test.expect(err).to.deep.equal(error)
+            })
+        })
+      })
     })
   }
 
   testRelativePathUtils('cwd', process.cwd(), 'the process current working directory')
   testRelativePathUtils('package', path.resolve(__dirname, '..', '..', '..'), 'the process current working directory')
+
+  test.describe('defaultConfig method', () => {
+    test.it('should return the absolute path to the default configuration file, located in this package', () => {
+      const defaultConfigPath = path.resolve(__dirname, '..', '..', '..', 'default-config.yml')
+      return test.expect(paths.defaultConfig()).to.equal(defaultConfigPath)
+    })
+  })
+
+  test.describe('customConfig method', () => {
+    test.it('should return the absolute path to the configuration file found in the current working directory path', () => {
+      const customConfigPath = path.resolve(process.cwd(), '.narval.yml')
+      return test.expect(paths.customConfig()).to.equal(customConfigPath)
+    })
+  })
 
   test.describe('findDependencyFile method', () => {
     test.it('should find and return the absolute path to the provided file path in "node_modules/" self or parents folders', () => {
