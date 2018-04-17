@@ -80,6 +80,17 @@ Create a `.narval.yml` file at the root of your project.
 
 `<Array>` of [docker-image objects](#docker-image). Configure your base Docker image or images that will be used to instanciate the different Docker containers used to start the services or tests.
 
+#### docker-image
+
+`<Object>`. Configuration for creating a Docker image. It is a subset of DockerFile configuration.
+
+* `name` `<String>`. Reference for the base image.
+* `from` `<String>`. Docker image to create this image from.
+* `add` `<Array> of <String>`. Array of folders or files to be copied inside the image, at Docker build time. Paths are relative to the project root.
+* `expose` `<Array> of <Number>`. Array of ports to be exposed. This ports will be available for other Docker containers (for other Narval "services", consequently).
+* `install` `<String>`. Path to a script that will be executed in Docker build time. Use it to install your needed dependencies. It will executed only once, when Docker image is built. Narval will check for its own installation after this command runs, so, if you don´t install Narval dependency inside Docker, it will do it for you.
+
+> *Partial example of docker-images configuration*
 ```yml
 docker-images:
   - name: basic-image
@@ -91,46 +102,9 @@ docker-images:
     install: test/docker/install
 ```
 
-#### docker-image
-
-`<Object>`. Configuration for creating the Docker image. It is a subset of DockerFile configuration.
-
-* `name` `<String>`. Reference for the base image.
-* `from` `<String>`. Docker image to create this image from.
-* `add` `<Array> of <String>`. Array of folders or files to be copied inside the image, at Docker build time. Paths are relative to the project root.
-* `expose` `<Array> of <Number>`. Array of ports to be exposed. This ports will be available for other Docker containers (for other Narval "services", consequently).
-* `install` `<String>`. Path to a script that will be executed in Docker build time. Use it to install your needed dependencies. It will executed only once, when Docker image is built. Narval will check for its own installation after this command runs, so, if you don´t install Narval dependency inside Docker, it will do it for you.
-
-*Following the previous example, the "test/docker/install" script in your project could contain:*
-
-```bash
-#!/usr/bin/env bash
-
-npm install
-```
-
-*So, in Docker build time, the "package.json" file will be copied into the docker image, and "npm install" will be executed. Now you have all your needed dependencies ready to be used by your services or tests (Docker containers).*
-
 ### docker-containers
 
 `<Array>` of [docker-container objects](#docker-container). Configure your Docker container or containers in which your services and tests will run.
-
-```yml
-docker-containers:
-  - name: service-container
-    build: basic-image
-    bind:
-      - lib
-      - index.js
-  - name: test-container
-    build: basic-image
-    bind:
-      - lib
-      - test
-      - index.js
-    depends_on:
-      - service
-```
 
 #### docker-container
 
@@ -141,49 +115,31 @@ docker-containers:
 * `bind` `<Array> of <String>`. Array of paths to be binded into the docker container. This "resources" will be "shared" from the local file system directly to the docker container, so if there are changes in the resources, there is no need to rebuild the Docker images to refresh changes.
 * `depends_on` `<String>`. Reference name of another docker-container. This container will be started only after the other one is started. (Caution, because this does not implies that services inside the other container are ready as well)
 
+> *Partial example of docker-containers configuration*
+```yml
+docker-containers:
+  - name: service-container # Docker container 1
+    build: basic-image
+    bind:
+      - lib
+      - index.js
+  - name: test-container # Docker container 2
+    build: basic-image
+    bind:
+      - lib
+      - test
+      - index.js
+    depends_on:
+      - service
+```
+
 ### suites
 
 `<Object>`. Object containing [suites types](#suites-type) as keys. Define a key for each test suite "type", or "family". In this way, you can categorize your suites and run them separately using the option `--type` from the command line.
 
-```yml
-suites:
-  unit: # Suite type
-    - name: unitary # Test suite of type "unit"
-      test:
-        specs: test/unit
-  integration: # Suite type
-    - name: api # Test suite of type "integration"
-      services:
-        - name: api-service
-          docker: 
-            container: service-container
-            command: test/services/app/server.js
-      test:
-        specs: test/integration/api
-        docker:
-          container: test-container
-          wait-for: api-service:3000
-```
-
 #### suites type
 
 `<Array>` of [suite objects](#suite). The key of the suite type will be the reference for running it independently using the `--type` option from command line.
-
-```yml
-suites:
-  unit: # Suite type
-    - name: unitary1 # Tests suite of type "unit"
-        test:
-          specs: test/unit1
-    - name: unitary2 # Tests suite if type "unit"
-        test:
-          specs: test/unit2
-```
-
-```shell
-npm run test -- --type=unit
-# Both suites "unitary1" and "unitary2" will be executed.
-```
 
 #### suite
 
@@ -195,6 +151,29 @@ npm run test -- --type=unit
 * `test` `<Object>`. [test object](#test) containing configuration of the test to be runned by this suite.
 * `coverage` `<Object>`. [coverage object](#coverage) containing configuration of coverage report of this suite.
 
+> *Partial example of test suites configuration*
+```yml
+suites:
+  unit: # Suite type
+    - name: unitary # suite called "unitary", of type "unit"
+      test:
+        specs: test/unit
+  integration: # Suite type
+    - name: api # suite called "api", of type "integration"
+      before:
+        local:
+          command: test/commands/local/clean
+      services:
+        - name: api-service
+          local:
+            command: test/commands/local/start-api
+      test:
+        specs: test/integration/api
+      coverage:
+        config:
+          verbose: true
+```
+
 ##### before
 
 `<Object>`. Object containing configuration for commands that will be executed before running the test suite. Useful to clean or prepare your environment.
@@ -204,6 +183,18 @@ npm run test -- --type=unit
 * `local` `<Object>`. Contains instructions to be executed when running locally before executing the suite.
 	* `command` `<String>`. Path to a file containing a script that will be executed before running suite.
 
+> *Partial example of a test suite "before" property*
+```yml
+suites:
+  integration:
+    - name: api
+      before: # before configuration
+        docker:
+          down-volumes: true
+        local:
+          command: test/commands/local/clean
+```
+
 ##### service
 
 `<Object>`. Object containing configuration for starting a test suite service.
@@ -212,13 +203,34 @@ npm run test -- --type=unit
 * `docker` `<Object>`. If test suite is going to be executed using Docker, this objects contains the needed configuration for the service.
 	* `container` `<String>`. Reference name of the [docker-container](#docker-container) in which the service is going to be executed.
 	* `command` `<String>`. Path to the command that will start the service.
-	* `exit_after` `<Number>` of miliseconds. When [coverage](#coverage) is executed over a service instead of tests, in Docker is needed to define a time out for stopping the service and get the resultant coverage after running tests. This setting only applies if `coverage.from` property is set to this service name.
+	* `exit_after` `<Number>` of miliseconds `default: 30000`. When [coverage](#coverage) is executed over a service instead of tests, in Docker is needed to define a time out for stopping the service and get the resultant coverage after running tests. This setting only applies if `coverage.from` property is set to this service name.
 * `local` `<Object>`. Contains instructions to execute the service locally.
-	* `command` `<String>`. Path to the command that will start the service when suite is executed locally. Usually this command is executed using "shell", but, when [coverage](#coverage) is executed over this service instead of tests, it has to be a path to a javascript file that can be executed by `istanbul cover` command. In this case, it is possible to include parameters in the command, and javascript execution will receive them.
+	* `command` `<String>`. Path to the command that will start the service.
+
+> *Partial example of a test suite "services" property*
+```yml
+suites:
+  integration:
+    - name: api
+      services:
+        - name: ddbb-service # service configuration
+          docker: 
+            container: ddbb-container
+            command: test/commands/docker/start-mongo
+          local:
+            command: test/commands/local/start-mongo
+        - name: api-service # service configuration
+          docker: 
+            container: service-container
+            command: test/services/app/start.js --name=service --path=/app/.shared --host=service
+            exit_after: 10000
+          local:
+            command: test/services/app/start.js --name=service --path=.test
+```
 
 ##### test
 
-`<Object>`. Object containing configuration of the test to be runned by a suite.
+`<Object>`. Object containing configuration for the test to be runned by a suite.
 
 * `specs` `<String>`. Path to the folder where the specs to be executed are. Relative to the root of the project.
 * `docker` `<Object>`. If test suite is going to be executed using Docker, this objects contains the needed configuration.
@@ -231,9 +243,26 @@ npm run test -- --type=unit
 	* `reporter` `<String>` `default: spec` Mocha reporter to be used. Can be one of "spec", "dot", "nyan", "landing", "list", "progress", ...
 	* `grep` `<String>`. Will trigger Mocha to only run tests matching the given pattern which is internally compiled to a RegExp.
 
+> *Partial example of a test suite "test" property*
+```yml
+suites:
+  integration:
+    - name: api
+      test: # test configuration
+        specs: test/integration/api
+        docker:
+          container: test-container
+          wait-for: api-service:3000
+        local:
+          wait-for: tcp:localhost:3000
+        config:
+        	recursive: false
+        	report: list
+```
+
 ##### coverage
 
-`<Object>`. Configuration of coverage report of a suite.
+`<Object>`. Object containing configuration for coverage report of a suite.
 
 * `enabled` `<Boolean>` `default:true`. Enable or disable coverage for this suite.
 * `from` `<String>`. By default, coverage will be executed over the [test](#test) defined in a suite, but, it is possible to get coverage from a service. Use this property to define a [service] name from which execution the coverage will be generated.
@@ -242,10 +271,24 @@ npm run test -- --type=unit
 	* `include-all-sources` `<Boolean>` `default:true`. Show 0% coverage for files with no tests executed.
 	* `dir` `<String>` `default:.coverage/[suite-type]/[suite-name]`. Path to folder in which reports will be created.
 	* `reports` `<String>` `default:lcov/html`. Type of Istanbul reports to generate.
-	* `print` `<String>` `default:summary`. Type of Istanbul reports to print.
+	* `print` `<String>` `default:summary`. Type of Istanbul reports to print. You can use types as "detail", "both", etc..
 	* `verbose` `<Boolean>` `default:false`. Run Istanbul in "verbose" mode.  
 	* `default-excludes` `<Boolean>` `default:true`. Use Istanbul default excludes (node_modules, etc...)
 	* `preserve-comments` `<Boolean>` `default:false`. Preserve comments in coverage reports.
+
+> *Partial example of a test suite "coverage" property*
+```yml
+suites:
+  integration:
+    - name: api
+      coverage: # coverage configuration
+        enabled: true
+        from: api-service
+        config:
+        	print: both
+```
+
+
 
 [back to top](#table-of-contents)
 
@@ -258,6 +301,16 @@ npm run test -- --type=unit
 [back to top](#table-of-contents)
 
 ## Tutorial
+
+*Following the previous example, the "test/docker/install" script in your project could contain:*
+
+```bash
+#!/usr/bin/env bash
+
+npm install
+```
+
+*So, in Docker build time, the "package.json" file will be copied into the docker image, and "npm install" will be executed. Now you have all your needed dependencies ready to be used by your services or tests (Docker containers).*
 
 [back to top](#table-of-contents)
 
