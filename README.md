@@ -23,8 +23,11 @@ Multi test suites runner for Node.js packages. Docker based.
 * [Examples](#examples)
 * [Usage](#usage)
 	* [Command line options](#command-line-options)
-  * [Developing commands](#developing-commands)
-  * [Docker shared volume](#docker-shared-volume)
+	* [Developing commands](#developing-commands)
+		* [Commands languages](#command-languages)
+		* [Working directory](#command-languages)
+		* [Docker absolute paths](#docker-absolute-paths)
+		* [Docker shared volume](#docker-shared-volume)
 
 ## Introduction
 
@@ -458,6 +461,8 @@ console.log('This script is written in nodejs')
 
 In the local environment, commands are executed through nodejs child processes using `execFile` with the `shell` option enabled [(read the nodejs docs for further info)][child-process-url]. So, the availability of the script language that you have to choose will depend of the platform in which you are going to run the suites locally.\
 In Unix systems, the mentioned in the examples above still applies for local commands.
+
+> When a service is executed with "coverage" option, the command must be a path to a nodejs file, because it is executed using Istanbul.
 
 #### Working directory
 
