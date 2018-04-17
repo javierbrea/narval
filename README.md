@@ -13,6 +13,16 @@ Multi test suites runner for Node.js packages. Docker based.
 * [Introduction](#introduction)
 * [Quick Start](#quick-start)
 * [Configuration](#configuration)
+	* [docker-images](#docker-images)
+	* [docker-containers](#docker-containers)
+	* [suites](#suites)
+		* [before](#before)
+		* [services](#service)
+		* [test](#test)
+		* [coverage](#coverage)
+* [Examples](#examples)
+* [Usage](#usage)
+* [Tutorial](#tutorial)
 
 ## Introduction
 
@@ -47,11 +57,11 @@ Add narval to your package.json dependencies, and an npm script to run the tests
 }
 ```
 
-If no configuration file `.narval.yml` is provided, by default Narval will search for test files inside of a folder `/test` in your project root, and run the Standard javascript linter. A coverage report will be generated at `/.coverage` folder.
+If no configuration file `.narval.yml` is provided, by default Narval will search for test files inside of a folder `/test` in your project root, and Execute Istanbul/Mocha over them. A coverage report will be generated at `/.coverage` folder. Aditionally, the Standard javascript linter will be executed over all project sources.
 
 ```shell
 npm run test
-# Run Standard linter over all project sources, and unit tests found inside "/test" folder
+# Run Standard linter over all project sources, and launch unit tests found inside "/test" folder
 
 npm run test -- --standard
 # Run only Standard
@@ -68,7 +78,7 @@ Create a `.narval.yml` file at the root of your project.
 
 ### docker-images
 
-`<Array>` of [docker-image objects](#docker-image). Configure your base Docker image or images that will be used to instanciate the different Docker containers used to start the services.
+`<Array>` of [docker-image objects](#docker-image). Configure your base Docker image or images that will be used to instanciate the different Docker containers used to start the services or tests.
 
 ```yml
 docker-images:
@@ -99,7 +109,7 @@ docker-images:
 npm install
 ```
 
-*So, in Docker build time, the "package.json" file will be copied into the docker image, and "npm install" will be executed. Now you have all your needed dependencies ready to be used by your services (Docker containers).*
+*So, in Docker build time, the "package.json" file will be copied into the docker image, and "npm install" will be executed. Now you have all your needed dependencies ready to be used by your services or tests (Docker containers).*
 
 ### docker-containers
 
@@ -131,7 +141,126 @@ docker-containers:
 * `bind` `<Array> of <String>`. Array of paths to be binded into the docker container. This "resources" will be "shared" from the local file system directly to the docker container, so if there are changes in the resources, there is no need to rebuild the Docker images to refresh changes.
 * `depends_on` `<String>`. Reference name of another docker-container. This container will be started only after the other one is started. (Caution, because this does not implies that services inside the other container are ready as well)
 
+### suites
+
+`<Object>`. Object containing [suites types](#suites-type) as keys. Define a key for each test suite "type", or "family". In this way, you can categorize your suites and run them separately using the option `--type` from the command line.
+
+```yml
+suites:
+  unit: # Suite type
+    - name: unitary # Test suite of type "unit"
+      test:
+        specs: test/unit
+  integration: # Suite type
+    - name: api # Test suite of type "integration"
+      services:
+        - name: api-service
+          docker: 
+            container: service-container
+            command: test/services/app/server.js
+      test:
+        specs: test/integration/api
+        docker:
+          container: test-container
+          wait-for: api-service:3000
+```
+
+#### suites type
+
+`<Array>` of [suite objects](#suite). The key of the suite type will be the reference for running it independently using the `--type` option from command line.
+
+```yml
+suites:
+  unit: # Suite type
+    - name: unitary1 # Tests suite of type "unit"
+        test:
+          specs: test/unit1
+    - name: unitary2 # Tests suite if type "unit"
+        test:
+          specs: test/unit2
+```
+
+```shell
+npm run test -- --type=unit
+# Both suites "unitary1" and "unitary2" will be executed.
+```
+
+#### suite
+
+`<Object>`. Object containing the test suite configuration.
+
+* `name` `<String>`. Reference for the test suite.
+* `before` `<Object>`. [before object](#before) containing configuration for commands that will be executed before running the test suite. Useful to clean or prepare your environment.
+* `services` `<Array>` of [service objects](#service). Defines services to be started before running the tests.
+* `test` `<Object>`. [test object](#test) containing configuration of the test to be runned by this suite.
+* `coverage` `<Object>`. [coverage object](#coverage) containing configuration of coverage report of this suite.
+
+##### before
+
+`<Object>`. Object containing configuration for commands that will be executed before running the test suite. Useful to clean or prepare your environment.
+
+* `docker` `<Object>`. Contains instructions to be executed by Docker before running the suite.
+	* `down-volumes`. <`Boolean`>. If true, cleans Docker container volumes, to prevent share data from previous container executions dispatched by other suites.
+* `local` `<Object>`. Contains instructions to be executed when running locally before executing the suite.
+	* `command` `<String>`. Path to a file containing a script that will be executed before running suite.
+
+##### service
+
+`<Object>`. Object containing configuration for starting a test suite service.
+
+* `name` `<String>`. Reference name for the service. It can be the same in all suites starting the same service.
+* `docker` `<Object>`. If test suite is going to be executed using Docker, this objects contains the needed configuration for the service.
+	* `container` `<String>`. Reference name of the [docker-container](#docker-container) in which the service is going to be executed.
+	* `command` `<String>`. Path to the command that will start the service.
+	* `exit_after` `<Number>` of miliseconds. When [coverage](#coverage) is executed over a service instead of tests, in Docker is needed to define a time out for stopping the service and get the resultant coverage after running tests. This setting only applies if `coverage.from` property is set to this service name.
+* `local` `<Object>`. Contains instructions to execute the service locally.
+	* `command` `<String>`. Path to the command that will start the service when suite is executed locally. Usually this command is executed using "shell", but, when [coverage](#coverage) is executed over this service instead of tests, it has to be a path to a javascript file that can be executed by `istanbul cover` command. In this case, it is possible to include parameters in the command, and javascript execution will receive them.
+
+##### test
+
+`<Object>`. Object containing configuration of the test to be runned by a suite.
+
+* `specs` `<String>`. Path to the folder where the specs to be executed are. Relative to the root of the project.
+* `docker` `<Object>`. If test suite is going to be executed using Docker, this objects contains the needed configuration.
+	* `container` `<String>`. Reference name of the [docker-container](#docker-container) in which the tests are going to be executed.
+	* `wait-for` `<String>` with format `host:port`. The tests will not be executed until the provided `host:port` is ready. Narval uses [wait-for-it][wait-for-it-url] to provide this feature. NOTE: If the host you are waiting for is a service hosted in a [docker-container](#docker-container), you must use that docker container name as `host` in the `host:port` expression.
+* `local` `<Object>`. If test suite is going to be executed without Docker, this objects contains the needed configuration.
+	* `wait-for` `<String>` with format `protocol:host:port`, or path to a file. The tests will not be executed until the provided `protocol:host:port` is ready, or file exists. Narval uses [wait-on][wait-on-url] to provide this feature in "local" executions. Read about the available "resources" to be used as `wait-for` expression in its [documentation][wait-on-url]. 
+* `config` `<Object>` containing Mocha configuration parameters for tests execution. All provided key value pairs will be translated into "--key=value" when Mocha is executed. As examples, some available `config` keys are provided in this documentation. For further reference about all available parameters, [please read Mocha usage documentation][mocha-usage-url].
+	* `recursive` `<Boolean>` `default: true`. Execute specs found in all subfolders of provided `specs` path.
+	* `reporter` `<String>` `default: spec` Mocha reporter to be used. Can be one of "spec", "dot", "nyan", "landing", "list", "progress", ...
+	* `grep` `<String>`. Will trigger Mocha to only run tests matching the given pattern which is internally compiled to a RegExp.
+
+##### coverage
+
+`<Object>`. Configuration of coverage report of a suite.
+
+* `enabled` `<Boolean>` `default:true`. Enable or disable coverage for this suite.
+* `from` `<String>`. By default, coverage will be executed over the [test](#test) defined in a suite, but, it is possible to get coverage from a service. Use this property to define a [service] name from which execution the coverage will be generated.
+* `config` `<Object>` containing Istanbul configuration parameters for coverage execution. All provided key value pairs will be translated into "--key=value" when Istanbul is executed. As examples, some available `config` keys are provided in this documentation. For further reference about all available parameters, [please read Istanbul usage documentation][istanbul-usage-url], or execute `./node_modules/.bin/istanbul help config cover`
+	* `root` `<String>` `default:.`. Path to folder containing sources to cover.
+	* `include-all-sources` `<Boolean>` `default:true`. Show 0% coverage for files with no tests executed.
+	* `dir` `<String>` `default:.coverage/[suite-type]/[suite-name]`. Path to folder in which reports will be created.
+	* `reports` `<String>` `default:lcov/html`. Type of Istanbul reports to generate.
+	* `print` `<String>` `default:summary`. Type of Istanbul reports to print.
+	* `verbose` `<Boolean>` `default:false`. Run Istanbul in "verbose" mode.  
+	* `default-excludes` `<Boolean>` `default:true`. Use Istanbul default excludes (node_modules, etc...)
+	* `preserve-comments` `<Boolean>` `default:false`. Preserve comments in coverage reports.
+
 [back to top](#table-of-contents)
+
+## Examples
+
+[back to top](#table-of-contents)
+
+## Usage
+
+[back to top](#table-of-contents)
+
+## Tutorial
+
+[back to top](#table-of-contents)
+
 
 [coveralls-image]: https://coveralls.io/repos/github/javierbrea/narval/badge.svg
 [coveralls-url]: https://coveralls.io/github/javierbrea/narval
@@ -158,4 +287,8 @@ docker-containers:
 
 [docker-url]: https://www.docker.com/
 [istanbul-url]: https://istanbul.js.org/
+[istanbul-usage-url]: https://istanbul.js.org/
 [mocha-url]: https://mochajs.org
+[mocha-usage-url]: https://mochajs.org/#usage
+[wait-for-it-url]: https://github.com/vishnubob/wait-for-it
+[wait-on-url]: https://www.npmjs.com/package/wait-on
