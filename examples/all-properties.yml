@@ -42,7 +42,7 @@ suites:
         - name: api-service
           docker: 
             container: service-container
-            command: test/services/app/start.js --name=service --path=/app/.shared --host=service
+            command: test/services/app/start.js --name=service --path=/narval/.shared --host=service-container
             exit_after: 10000
           local:
             command: test/services/app/start.js --name=service --path=.test

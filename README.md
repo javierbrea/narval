@@ -240,7 +240,7 @@ suites:
 * `specs` `<String>`. Path to the folder where the specs to be executed are. Relative to the root of the project.
 * `docker` `<Object>`. If test suite is going to be executed using Docker, this objects contains the needed configuration.
 	* `container` `<String>`. Reference name of the [docker-container](#docker-container) in which the tests are going to be executed.
-	* `wait-for` `<String>` with format `host:port`. The tests will not be executed until the provided `host:port` is ready. Narval uses [wait-for-it][wait-for-it-url] to provide this feature. NOTE: If the host you are waiting for is a service hosted in a [docker-container](#docker-container), you must use that docker container name as `host` in the `host:port` expression.
+	* `wait-for` `<String>` with format `host:port`. The tests will not be executed until the provided `host:port` is ready. Narval uses [wait-for-it][wait-for-it-url] to provide this feature. NOTE: If the host you are waiting for is a service hosted in a [docker-container](#docker-container), you must use that docker-container name as `host` in the `host:port` expression.
 * `local` `<Object>`. If test suite is going to be executed without Docker, this objects contains the needed configuration.
 	* `wait-for` `<String>` with format `protocol:host:port`, or path to a file. The tests will not be executed until the provided `protocol:host:port` is ready, or file exists. Narval uses [wait-on][wait-on-url] to provide this feature in "local" executions. Read about the available "resources" to be used as `wait-for` expression in its [documentation][wait-on-url]. 
 * `config` `<Object>` containing Mocha configuration parameters for tests execution. All provided key value pairs will be translated into "--key=value" when Mocha is executed. As examples, some available `config` keys are provided in this documentation. For further reference about all available parameters, [please read Mocha usage documentation][mocha-usage-url].
@@ -348,7 +348,7 @@ suites:
         - name: api-service
           docker: 
             container: service-container
-            command: test/services/app/start.js --name=service --path=/narval/.shared --host=service
+            command: test/services/app/start.js --name=service --path=/narval/.shared --host=service-container
             exit_after: 10000
           local:
             command: test/services/app/start.js --name=service --path=.test
@@ -424,22 +424,22 @@ option | description | alias
 
 > Examples
 ```shell
-npm test --standard
+npm test -- --standard
 # Run only Standard linter
 
-npm test --type=integration
+npm test -- --type=integration
 # Run all test suites of type "integration" defined in the configuration
 
-npm test --type=integration --local
+npm test -- --type=integration --local
 # Run locally all test suites of type "integration"
 
-npm test --suite=api --local=api-service
+npm test -- --suite=api --local=api-service
 # Run locally the service called "api-service" from suite "api". Service keep running until CTRL-C.
 
-npm test --suite=api --local=test
+npm test -- --suite=api --local=test
 # Run locally the test from suite "api". You can run it from one terminal while the service is executed in other terminal using the previous example.
 
-npm test --build
+npm test -- --build
 # Run all tests suites, rebuild Docker images at initialization.
 ```
 
