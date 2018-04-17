@@ -24,8 +24,8 @@ Multi test suites runner for Node.js packages. Docker based.
 * [Usage](#usage)
 	* [Command line options](#command-line-options)
 	* [Developing commands](#developing-commands)
-		* [Commands languages](#command-languages)
-		* [Working directory](#command-languages)
+		* [Commands languages](#commands-languages)
+		* [Working directory](#working-directory)
 		* [Docker absolute paths](#docker-absolute-paths)
 		* [Docker shared volume](#docker-shared-volume)
 
