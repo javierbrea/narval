@@ -261,8 +261,8 @@ suites:
         local:
           wait-for: tcp:localhost:3000
         config:
-        	recursive: false
-        	report: list
+          recursive: false
+          report: list
 ```
 
 ##### coverage
@@ -290,7 +290,7 @@ suites:
         enabled: true
         from: api-service
         config:
-        	print: both
+          print: both
 ```
 
 [back to top](#table-of-contents)
