@@ -23,6 +23,8 @@ Multi test suites runner for Node.js packages. Docker based.
 * [Examples](#examples)
 * [Usage](#usage)
 	* [Command line options](#command-line-options)
+  * [Developing commands](#developing-commands)
+  * [Docker shared volume](#docker-shared-volume)
 
 ## Introduction
 
@@ -86,7 +88,7 @@ Create a `.narval.yml` file at the root of your project.
 
 * `name` `<String>`. Reference for the base image.
 * `from` `<String>`. Docker image to create this image from.
-* `add` `<Array> of <String>`. Array of folders or files to be copied inside the image, at Docker build time. Paths are relative to the project root.
+* `add` `<Array> of <String>`. Array of folders or files to be copied inside the image, at Docker build time. Paths are relative to the project root. When added, the full folder tree will be respected, and will be added just as it is to the Docker image.
 * `expose` `<Array> of <Number>`. Array of ports to be exposed. This ports will be available for other Docker containers (for other Narval "services", consequently).
 * `install` `<String>`. Path to a script that will be executed in Docker build time. Use it to install your needed dependencies. It will executed only once, when Docker image is built. Narval will check for its own installation after this command runs, so, if you don´t install Narval dependency inside Docker, it will do it for you.
 
@@ -112,7 +114,7 @@ docker-images:
 
 * `name` `<String>`. Reference for the container.
 * `build` `<String>`. Reference name of the [docker-image](#docker-image) from which this container will be started.
-* `bind` `<Array> of <String>`. Array of paths to be binded into the docker container. This "resources" will be "shared" from the local file system directly to the docker container, so if there are changes in the resources, there is no need to rebuild the Docker images to refresh changes.
+* `bind` `<Array> of <String>`. Array of paths to be binded into the docker container. This "resources" will be "shared" from the local file system directly to the docker container, so if there are changes in the resources, there is no need to rebuild the Docker images to refresh changes. The full folder tree will be respected, and will be binded just as it is to the Docker image.
 * `depends_on` `<String>`. Reference name of another docker-container. This container will be started only after the other one is started. (Caution, because this does not implies that services inside the other container are ready as well)
 
 > *Partial example of docker-containers configuration*
@@ -222,7 +224,7 @@ suites:
         - name: api-service # service configuration
           docker: 
             container: service-container
-            command: test/services/app/start.js --name=service --path=/app/.shared --host=service
+            command: test/services/app/start.js --name=service --path=/narval/.shared --host=service
             exit_after: 10000
           local:
             command: test/services/app/start.js --name=service --path=.test
@@ -343,7 +345,7 @@ suites:
         - name: api-service
           docker: 
             container: service-container
-            command: test/services/app/start.js --name=service --path=/app/.shared --host=service
+            command: test/services/app/start.js --name=service --path=/narval/.shared --host=service
             exit_after: 10000
           local:
             command: test/services/app/start.js --name=service --path=.test
@@ -402,6 +404,73 @@ npm test
 
 ### Command line options
 
+```shell
+npm test -- [options]
+```
+
+Available options are:
+
+option | description | alias 
+--- | --- | ---
+`--standard` | Run only Standard linter | `-s`
+`--fix` | Fix Standard errors | `-f`
+`--type <type>` | Run only test suites of provided `<type>` | 
+`--suite <suite>` | Run only provided `<suite>` | 
+`--build` | Rebuild Docker images | `-b`
+`--local [service]` | Run locally, do not use Docker. If service name is provided, only it will be run. *Use "test" as service name to run only test. Use CTRL-C to exit service execution (If service is coveraged, it will generate the report, then exit)* | 
+
+> Examples
+```shell
+npm test --standard
+# Run only Standard linter
+
+npm test --type=integration
+# Run all test suites of type "integration" defined in the configuration
+
+npm test --type=integration --local
+# Run locally all test suites of type "integration"
+
+npm test --suite=api --local=api-service
+# Run locally the service called "api-service" from suite "api". Service keep running until CTRL-C.
+
+npm test --suite=api --local=test
+# Run locally the test from suite "api". You can run it from one terminal while the service is executed in other terminal using the previous example.
+
+npm test --build
+# Run all tests suites, rebuild Docker images at initialization.
+```
+
+### Developing commands
+
+#### Commands languages
+
+Inside Docker, commands are executed using `sh`, so you can define the language of your choice in your scripts using the correspondant [shebang][shebang-url] (the availability of the interpreter will depend of your docker base image, of course)
+
+```bash
+#!/usr/bin/env bash
+echo "My script is written in bash"
+```
+
+```shell
+#!/usr/bin/env node
+console.log('This script is written in nodejs')
+```
+
+In the local environment, commands are executed through nodejs child processes using `execFile` with the `shell` option enabled [(read the nodejs docs for further info)][child-process-url]. So, the availability of the script language that you have to choose will depend of the platform in which you are going to run the suites locally.\
+In Unix systems, the mentioned in the examples above still applies for local commands.
+
+#### Working directory
+
+Remember, all paths defined in the [configuration](#configuration) file must be relative to the root of the package.\
+The **working directory** of the commands when are executed will be the root of the package as well.
+
+#### Docker absolute paths
+
+When Docker images are created, all files and folders of the package are added or binded into the path `/narval`, that is the Docker `WORKDIR`. So, if you added the `package.json` to the Docker image (as in the [docker-image example](#docker-image)), and you need to access it using an absolute path, you´ll find it in `/narval/package.json`
+
+#### Docker shared volume
+
+All Docker containers share a volume named `.shared`, created at the root of the package. In this way, you can check if a service is writting something or not in your specs, for example. Configure your service to write the output files inside the folder `.shared` (or `/narval/.shared`), and that folder will be available as well when tests are executed.
 
 [back to top](#table-of-contents)
 
@@ -436,3 +505,5 @@ npm test
 [wait-for-it-url]: https://github.com/vishnubob/wait-for-it
 [wait-on-url]: https://www.npmjs.com/package/wait-on
 [examples-url]: https://github.com/javierbrea/narval/tree/master/examples
+[shebang-url]: https://en.wikipedia.org/wiki/Shebang_(Unix)
+[child-process-url]: https://nodejs.org/docs/latest-v8.x/api/child_process.html#child_process_child_process_execfile_file_args_options_callback
