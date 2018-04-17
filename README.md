@@ -22,6 +22,7 @@ Multi test suites runner for Node.js packages. Docker based.
 		* [coverage](#coverage)
 * [Examples](#examples)
 * [Usage](#usage)
+	* [Command line options](#command-line-options)
 
 ## Introduction
 
@@ -387,6 +388,20 @@ suites:
 [back to top](#table-of-contents)
 
 ## Usage
+
+* Add the "narval" dependency to your `package.json` file as described in the [quick start chapter](#quick-start).
+* Add the "test" script to your `package.json` file as described in the [quick start chapter](#quick-start).
+> From this point, all examples asume that the `package.json` file of your project contains a script called "test" that executes "narval". *If your script has another name, simply change `npm test` by `npm run your-script-name` in the examples*
+* Create a [configuration](#configuration) file named `.narval.yml` at the root of your repository.
+
+Run the next command to execute all your test suites and Standard linter:
+
+```shell
+npm test
+```
+
+### Command line options
+
 
 [back to top](#table-of-contents)
 
