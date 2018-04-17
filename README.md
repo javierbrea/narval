@@ -288,11 +288,103 @@ suites:
         	print: both
 ```
 
-
-
 [back to top](#table-of-contents)
 
 ## Examples
+
+Here is a complex example that includes all available configuration properties. Obviously, in normal conditions there is no need to create such a complex configuration file.
+
+There are more examples with other configurations at the [examples folder of this repository][examples-url].
+
+Remember that the configuration file must to be named `.narval.yml`, and must be located at the root of your package.
+
+```yml
+docker-images:
+  # Reuse the same Docker image for all containers, to improve build time
+  - name: basic-image
+    from: node:8.9.4
+    add:
+      - package.json
+    expose:
+      - 3000
+    install: test/docker/install
+docker-containers:
+  # Container used for running service
+  - name: service-container
+    build: basic-image
+    bind:
+      - lib
+      - index.js
+  # Container used for running tests
+  - name: test-container
+    build: basic-image
+    bind:
+      - lib
+      - test
+      - index.js
+    depends_on:
+      - service-container
+suites:
+# Suites of type "unit"
+  unit:
+    # Example of suite that only runs unit tests execution without Docker.
+    - name: unit 
+      test:
+        specs: test/unit
+      coverage:
+        # Custom coverage folder
+        config:
+          dir: .coverage/unit
+# Suites of type "integration"
+  integration:
+    # Example of suite that gets coverage from a service
+    - name: api 
+      services:
+        - name: api-service
+          docker: 
+            container: service-container
+            command: test/services/app/start.js --name=service --path=/app/.shared --host=service
+            exit_after: 10000
+          local:
+            command: test/services/app/start.js --name=service --path=.test
+      test:
+        specs: test/integration/api
+        docker:
+          container: test-container
+          wait-for: service-container:3000
+        local:
+          wait-for: tcp:localhost:3000
+      coverage:
+        from: api-service
+        config:
+          print: both
+    # Example of suite with coverage disabled. Clean Docker volumes or local environment before run it.
+    - name: tracer
+      before:
+        docker:
+          down-volumes: true
+        local:
+          command: test/services/commands/local/clean
+      services:
+        - name: api-service
+          docker:
+            container: service-container
+            command: test/services/commands/docker/log-level-warn
+          local:
+            command: test/services/commands/local/log-level-warn
+      test:
+        specs: test/integration/tracer
+        docker:
+          container: test-container
+          wait-for: service-container:3000
+        local:
+          wait-for: tcp:localhost:3000
+        config:
+          report: list
+      coverage:
+        enabled: false
+```
+
 
 [back to top](#table-of-contents)
 
@@ -345,3 +437,4 @@ npm install
 [mocha-usage-url]: https://mochajs.org/#usage
 [wait-for-it-url]: https://github.com/vishnubob/wait-for-it
 [wait-on-url]: https://www.npmjs.com/package/wait-on
+[examples-url]: https://github.com/javierbrea/narval/tree/master/examples
