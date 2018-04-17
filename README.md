@@ -22,7 +22,6 @@ Multi test suites runner for Node.js packages. Docker based.
 		* [coverage](#coverage)
 * [Examples](#examples)
 * [Usage](#usage)
-* [Tutorial](#tutorial)
 
 ## Introduction
 
@@ -385,27 +384,11 @@ suites:
         enabled: false
 ```
 
-
 [back to top](#table-of-contents)
 
 ## Usage
 
 [back to top](#table-of-contents)
-
-## Tutorial
-
-*Following the previous example, the "test/docker/install" script in your project could contain:*
-
-```bash
-#!/usr/bin/env bash
-
-npm install
-```
-
-*So, in Docker build time, the "package.json" file will be copied into the docker image, and "npm install" will be executed. Now you have all your needed dependencies ready to be used by your services or tests (Docker containers).*
-
-[back to top](#table-of-contents)
-
 
 [coveralls-image]: https://coveralls.io/repos/github/javierbrea/narval/badge.svg
 [coveralls-url]: https://coveralls.io/github/javierbrea/narval
