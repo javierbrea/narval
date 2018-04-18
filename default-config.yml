@@ -1,2 +1,7 @@
-test:
-  unit: test
+unit:
+  - name: unit
+    test:
+      specs: test
+    coverage:
+      config:
+        dir: .coverage
