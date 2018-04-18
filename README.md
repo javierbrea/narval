@@ -31,7 +31,12 @@ Multi test suites runner for Node.js packages. Docker based.
 
 ## Introduction
 
-Narval is a test suites runner that make easy to define, start, and reuse dependant services for each suite. Split your tests into "tests", that contains the specs and are executed with [Mocha][mocha-url]/[Istanbul][istanbul-url], and "services", which contains the commands and configurations needed to start the dependendant services of the tests battery. In this way, it is possible to reuse different services configurations and run different tests over different combinations of them, or run the same tests battery upon services started with different configurations, for example.
+**Narval is a test suites runner that make easy to define, start, and reuse dependant services for each suite.\
+It uses Docker to start services and run tests, so, the isolation of each test suite execution is guaranteed.
+Define your services and tests in a `yaml` file, and Narval will do the rest for you.**
+
+ Split your tests into "tests", that contains the specs and are executed with [Mocha][mocha-url]/[Istanbul][istanbul-url], and "services", which contains the commands and configurations needed to start the dependendant services of the tests battery. In this way, it is possible to reuse different services configurations and run different tests over different combinations of them, or run the same tests battery 
+ upon services started with different configurations, for example.
 
 Each "service" is started using [Docker][docker-url], so it will not have conflicts with the environment in which the tests are executed, and can be executed "locally" as well, if your development platform don´t supports Docker, or in order to make easier the tests development process.
 
