@@ -59,6 +59,16 @@ test.describe('options', () => {
         })
     })
 
+    test.it('should set "standard" option as true if "fix" option is received', () => {
+      commanderMock.returns({
+        fix: true
+      })
+      return options.get()
+        .then((opts) => {
+          return test.expect(opts.standard).to.equal(true)
+        })
+    })
+
     test.it('should set "standard" and "allSuites" options as true if no "standard", "suite" nor "type" options are received', () => {
       return options.get()
         .then((opts) => {
