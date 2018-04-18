@@ -56,17 +56,15 @@ const Mock = function () {
   readFileStub.returns = readFileFake.returns
   writeFileStub.returns = writeFileFake.returns
 
-  const stubs = {
-    readFile: readFileStub,
-    writeFile: writeFileStub
-  }
-
   const restore = function () {
     sandbox.restore()
   }
 
   return {
-    stubs: stubs,
+    stubs: {
+      readFile: readFileStub,
+      writeFile: writeFileStub
+    },
     restore: restore
   }
 }
