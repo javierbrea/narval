@@ -13,6 +13,13 @@ test.describe('config', () => {
     const fooDefaultConfigPath = '/fooDefaultConfig'
     const fooCustomConfigPath = '/fooCustomConfig'
     const sandbox = test.sinon.sandbox.create()
+
+    const getConfigClean = function () {
+      return config.get({
+        cleanCache: true
+      })
+    }
+
     let tracerMock
     let pathsMock
     let fsMocks
@@ -36,12 +43,6 @@ test.describe('config', () => {
     test.it('should return a promise', () => {
       return test.expect(config.get()).to.be.an.instanceof(Promise)
     })
-
-    const getConfigClean = function () {
-      return config.get({
-        cleanCache: true
-      })
-    }
 
     test.it('should calculate configuration only once, no matter how many times is called', () => {
       return getConfigClean()
