@@ -89,11 +89,22 @@ const manySuitesAndTypes = {
   ]
 }
 
+const localSuite = {
+  name: 'fooDockerSuite',
+  test: {
+    specs: 'foo/path/specs',
+    local: {
+      'wait-for': 'tcp:localhost:3000'
+    }
+  }
+}
+
 module.exports = {
   emptyResult: emptyResult,
   defaultSuites: defaultSuites,
   defaultResult: defaultResult,
   customConfig: customConfig,
   customResult: customResult,
-  manySuitesAndTypes: manySuitesAndTypes
+  manySuitesAndTypes: manySuitesAndTypes,
+  localSuite: localSuite
 }
