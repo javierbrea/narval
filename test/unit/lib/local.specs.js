@@ -1,5 +1,4 @@
 
-const Boom = require('boom')
 const mochaSinonChaiRunner = require('mocha-sinon-chai/runner')
 
 const test = require('../../../index')
