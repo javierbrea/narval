@@ -4,16 +4,9 @@ const Boom = require('boom')
 const mockery = require('mockery')
 
 const test = require('../../../index')
-const configFixtures = require('./config.fixtures')
+const fixtures = require('../fixtures')
 
 test.describe('runner', () => {
-  const optionsFixture = {
-    standard: true
-  }
-  const dataFixture = {
-    options: optionsFixture,
-    config: configFixtures.customResult
-  }
   let sandbox
   let config
   let options
@@ -37,8 +30,8 @@ test.describe('runner', () => {
     standard = require('../../../lib/standard')
     suites = require('../../../lib/suites')
 
-    sandbox.stub(config, 'get').usingPromise().resolves(configFixtures.customResult)
-    sandbox.stub(options, 'get').usingPromise().resolves(optionsFixture)
+    sandbox.stub(config, 'get').usingPromise().resolves(fixtures.config.customResult)
+    sandbox.stub(options, 'get').usingPromise().resolves(fixtures.options.standard)
     sandbox.stub(standard, 'run').usingPromise().resolves()
     sandbox.stub(suites, 'run').usingPromise().resolves()
     sandbox.stub(tracer, 'error')
@@ -66,8 +59,10 @@ test.describe('runner', () => {
     return waitForFinish()
       .then(() => {
         return Promise.all([
-          test.expect(standard.run.getCall(0).args[0]).to.deep.equal(dataFixture),
-          test.expect(suites.run.getCall(0).args[0]).to.deep.equal(dataFixture)
+          test.expect(standard.run.getCall(0).args[0]).to.deep.equal(fixtures.options.standard),
+          test.expect(standard.run.getCall(0).args[1]).to.deep.equal(fixtures.config.customResult),
+          test.expect(suites.run.getCall(0).args[0]).to.deep.equal(fixtures.options.standard),
+          test.expect(suites.run.getCall(0).args[1]).to.deep.equal(fixtures.config.customResult)
         ])
       })
   })

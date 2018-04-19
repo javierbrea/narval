@@ -4,7 +4,7 @@ const yaml = require('js-yaml')
 
 const test = require('../../../index')
 const mocks = require('../mocks')
-const fixtures = require('./config.fixtures')
+const fixtures = require('../fixtures')
 
 const config = require('../../../lib/config')
 
@@ -81,29 +81,29 @@ test.describe('config', () => {
       return getConfigClean()
         .then((configuration) => {
           return Promise.all([
-            test.expect(configuration).to.deep.equal(fixtures.emptyResult),
+            test.expect(configuration).to.deep.equal(fixtures.config.emptyResult),
             test.expect(tracerMock.stubs.warn.getCall(0).args[0]).to.include('not found')
           ])
         })
     })
 
     test.it('should return suites from custom config if it is provided', () => {
-      yaml.safeLoad.onCall(0).returns(fixtures.customConfig)
-      yaml.safeLoad.onCall(1).returns(fixtures.defaultSuites)
+      yaml.safeLoad.onCall(0).returns(fixtures.config.customConfig)
+      yaml.safeLoad.onCall(1).returns(fixtures.config.defaultSuites)
       return getConfigClean()
         .then((configuration) => {
           return Promise.all([
-            test.expect(configuration).to.deep.equal(fixtures.customResult)
+            test.expect(configuration).to.deep.equal(fixtures.config.customResult)
           ])
         })
     })
 
     test.it('should return suites from default config if no custom config is found', () => {
-      yaml.safeLoad.onCall(1).returns(fixtures.defaultSuites)
+      yaml.safeLoad.onCall(1).returns(fixtures.config.defaultSuites)
       return getConfigClean()
         .then((configuration) => {
           return Promise.all([
-            test.expect(configuration).to.deep.equal(fixtures.defaultResult)
+            test.expect(configuration).to.deep.equal(fixtures.config.defaultResult)
           ])
         })
     })

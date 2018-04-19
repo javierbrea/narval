@@ -11,7 +11,8 @@ const Mock = function () {
     trace: sandbox.stub(tracer, 'trace'),
     info: sandbox.stub(tracer, 'info'),
     warn: sandbox.stub(tracer, 'warn'),
-    debug: sandbox.stub(tracer, 'debug')
+    debug: sandbox.stub(tracer, 'debug'),
+    error: sandbox.stub(tracer, 'error')
   }
 
   const restore = function () {

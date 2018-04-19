@@ -47,10 +47,53 @@ const defaultResult = {
   ]
 }
 
+const manySuitesAndTypes = {
+  dockerImages: [],
+  dockerContainers: [],
+  suitesByType: [
+    {
+      name: 'fooType',
+      suites: [{
+        name: 'fooSuite'
+      },
+      {
+        name: 'fooSuite2',
+        services: [
+          {
+            name: 'fooService'
+          }
+        ]
+      }]
+    },
+    {
+      name: 'fakeType',
+      suites: [{
+        name: 'fooDockerSuite',
+        test: {
+          docker: {
+            container: 'test-container'
+          }
+        }
+      }, {
+        name: 'fooDockerSuite2',
+        services: [
+          {
+            name: 'fooService',
+            docker: {
+              container: 'foo-service-container'
+            }
+          }
+        ]
+      }]
+    }
+  ]
+}
+
 module.exports = {
   emptyResult: emptyResult,
   defaultSuites: defaultSuites,
   defaultResult: defaultResult,
   customConfig: customConfig,
-  customResult: customResult
+  customResult: customResult,
+  manySuitesAndTypes: manySuitesAndTypes
 }
