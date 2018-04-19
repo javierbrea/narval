@@ -1,4 +1,5 @@
 
+const _ = require('lodash')
 const mochaSinonChaiRunner = require('mocha-sinon-chai/runner')
 
 const test = require('../../../index')
@@ -31,6 +32,7 @@ test.describe('local', () => {
 
     test.afterEach(() => {
       tracerMock.restore()
+      waitOnMock.restore()
       childProcessMock.restore()
       sandbox.restore()
     })
@@ -41,6 +43,23 @@ test.describe('local', () => {
           test.expect(execution).to.be.an.instanceof(Promise)
           done()
         })
+    })
+
+    test.it('should execute "before" command as a childProcess synchronous in shell if it is defined in suite', () => {
+      const commandPath = 'fooBeforeLocalCommand'
+      return local.run(_.extend({}, fixtures.config.localSuite, {
+        before: {
+          local: {
+            command: commandPath
+          }
+        }
+      })).then(() => {
+        return Promise.all([
+          test.expect(childProcessMock.stubs.execFileSync).to.have.been.calledWith(commandPath),
+          test.expect(childProcessMock.stubs.execFileSync.getCall(0).args[2].cwd).to.equal(process.cwd()),
+          test.expect(childProcessMock.stubs.execFileSync.getCall(0).args[2].shell).to.be.true()
+        ])
+      })
     })
   })
 })

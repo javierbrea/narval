@@ -7,6 +7,7 @@ const Mock = function () {
   const sandbox = test.sinon.sandbox.create()
   let forkStub
   let forkOnFake
+  let execFileSyncStub
 
   const ForkOnFake = function () {
     let codeToReturn
@@ -35,13 +36,16 @@ const Mock = function () {
     returns: forkOnFake.returns
   }
 
+  execFileSyncStub = sandbox.stub(childProcess, 'execFileSync')
+
   const restore = function () {
     sandbox.restore()
   }
 
   return {
     stubs: {
-      fork: forkStub
+      fork: forkStub,
+      execFileSync: execFileSyncStub
     },
     restore: restore
   }
