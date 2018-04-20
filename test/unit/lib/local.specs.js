@@ -314,6 +314,162 @@ test.describe('local', () => {
       })
     })
 
+    test.it('should run coveraged tests when coverage is not specified for a service in configuration', () => {
+      options.get.resolves({})
+      return local.run(fixtures.config.localSuiteWithNoService).then(() => {
+        return Promise.all([
+          test.expect(mochaSinonChaiRunner.run).to.have.been.called(),
+          test.expect(childProcessMock.stubs.fork).to.not.have.been.called()
+        ])
+      })
+    })
+
+    test.it('should run coveraged tests when coverage is specified for test in configuration', () => {
+      const suite = _.extend({}, fixtures.config.localSuiteWithNoService, {
+        coverage: {
+          from: 'test'
+        }
+      })
+      options.get.resolves({})
+      return local.run(suite).then(() => {
+        return Promise.all([
+          test.expect(mochaSinonChaiRunner.run).to.have.been.called(),
+          test.expect(childProcessMock.stubs.fork).to.not.have.been.called()
+        ])
+      })
+    })
+
+    test.it('should run not coveraged tests when coverage is disabled in configuration', () => {
+      const suite = _.extend({}, fixtures.config.localSuiteWithNoService, {
+        coverage: {
+          enabled: false,
+          from: 'test'
+        }
+      })
+      options.get.resolves({})
+      return local.run(suite).then(() => {
+        return Promise.all([
+          test.expect(mochaSinonChaiRunner.run).to.not.have.been.called(),
+          test.expect(childProcessMock.stubs.fork).to.have.been.called()
+        ])
+      })
+    })
+
+    test.it('should reject the promise if the test execution fails, specifying it in the error message', () => {
+      options.get.resolves({})
+      mochaSinonChaiRunner.run.rejects(new Error())
+      return local.run(fixtures.config.localSuiteWithNoService)
+      .then(() => {
+        return test.expect(false).to.be.true()
+      })
+      .catch((error) => {
+        return Promise.all([
+          test.expect(Boom.isBoom(error)).to.be.true(),
+          test.expect(error.message).to.contain('fooLocalSuite2')
+        ])
+      })
+    })
+
+    test.describe('when runs coveraged tests', () => {
+      test.beforeEach(() => {
+        options.get.resolves({})
+      })
+
+      test.it('should print a debug message with details about execution type', () => {
+        return local.run(fixtures.config.localSuiteWithNoService).then(() => {
+          return test.expect(tracerMock.stubs.debug.getCall(0).args[0]).to.contain('coverage enabled')
+        })
+      })
+
+      test.it('should call to mocha-sinon-chai runner, passing the istanbul and mocha configuration', () => {
+        const suite = _.extend({}, fixtures.config.localSuiteWithNoService, {
+          test: {
+            specs: 'foo/path/specs',
+            config: {
+              fooMochaParam1: 'foo',
+              fooParam2: 'fake'
+            }
+          },
+          coverage: {
+            config: {
+              fooIstanbulParam: 'fooValue'
+            }
+          }
+        })
+        return local.run(suite).then(() => {
+          return Promise.all([
+            test.expect(mochaSinonChaiRunner.run).to.have.been.called(),
+            test.expect(mochaSinonChaiRunner.run.getCall(0).args[0]).to.equal('--istanbul --include-all-sources --root=. --colors --print=summary --dir=.coverage/fooLocalSuite2/fooLocalSuite2 --fooIstanbulParam=fooValue --mocha --recursive --colors --reporter spec --fooMochaParam1 foo --fooParam2 fake foo/path/specs')
+          ])
+        })
+      })
+    })
+
+    test.describe('when runs not coveraged tests', () => {
+      const suite = _.extend({}, fixtures.config.localSuiteWithNoService, {
+        test: {
+          specs: 'foo2/specs',
+          config: {
+            fooMochaParam1: 'foo',
+            fooParam2: 'fake'
+          }
+        },
+        coverage: {
+          enabled: false
+        }
+      })
+
+      test.beforeEach(() => {
+        options.get.resolves({})
+      })
+
+      test.it('should print a debug message with details about execution type', () => {
+        return local.run(suite).then(() => {
+          return test.expect(tracerMock.stubs.debug.getCall(0).args[0]).to.contain('without coverage')
+        })
+      })
+
+      test.it('should open a mocha child process fork, passing the mocha configuration', () => {
+        return local.run(suite).then(() => {
+          return Promise.all([
+            test.expect(childProcessMock.stubs.fork).to.have.been.calledOnce(),
+            test.expect(childProcessMock.stubs.fork.getCall(0).args[0]).to.contain('msc_mocha.js'),
+            test.expect(childProcessMock.stubs.fork.getCall(0).args[1]).to.deep.equal([
+              '--recursive',
+              '--colors',
+              '--reporter',
+              'spec',
+              '--fooMochaParam1',
+              'foo',
+              '--fooParam2',
+              'fake',
+              'foo2/specs'
+            ])
+          ])
+        })
+      })
+
+      test.it('should resolve the promise when mocha execution finish OK', () => {
+        return local.run(suite).then(() => {
+          return test.expect(true).to.be.true()
+        })
+      })
+
+      test.it('should reject the promise when mocha execution fails', () => {
+        childProcessMock.stubs.fork.on.returns(1)
+        return local.run(suite)
+          .then(() => {
+            throw new Error()
+          })
+          .catch((error) => {
+            return Promise.all([
+              test.expect(Boom.isBoom(error)).to.be.true(),
+              test.expect(error.message).to.contain('fooLocalSuite2')
+            ])
+          })
+      })
+    })
+
     test.describe('when runs a not coveraged service', () => {
       test.it('should log the data received from the execution, aplying a trim function', () => {
         const fooData = 'foo process data'
