@@ -7,6 +7,7 @@ const Mock = function () {
   const sandbox = test.sinon.sandbox.create()
   let forkStub
   let forkOnFake
+  let forkSendFake
   let execFileSyncStub
   let execFileStub
   let execFileStdoutOnFake
@@ -40,15 +41,19 @@ const Mock = function () {
   forkOnFake = new CallBackRunnerFake({
     runOnRegister: true
   })
+  forkSendFake = sandbox.stub()
 
   forkStub = sandbox.stub(childProcess, 'fork').returns({
-    on: forkOnFake.fake
+    on: forkOnFake.fake,
+    send: forkSendFake.fake
   })
 
   forkStub.on = {
     returns: forkOnFake.returns,
     runOnRegister: forkOnFake.runOnRegister
   }
+
+  forkStub.send = forkSendFake
 
   execFileSyncStub = sandbox.stub(childProcess, 'execFileSync')
 
