@@ -90,7 +90,7 @@ const manySuitesAndTypes = {
 }
 
 const localSuite = {
-  name: 'fooDockerSuite',
+  name: 'fooLocalSuite',
   test: {
     specs: 'foo/path/specs',
     local: {
@@ -113,6 +113,13 @@ const localSuite = {
   ]
 }
 
+const localSuiteWithNoService = {
+  name: 'fooLocalSuite2',
+  test: {
+    specs: 'foo/path/specs'
+  }
+}
+
 module.exports = {
   emptyResult: emptyResult,
   defaultSuites: defaultSuites,
@@ -120,5 +127,6 @@ module.exports = {
   customConfig: customConfig,
   customResult: customResult,
   manySuitesAndTypes: manySuitesAndTypes,
-  localSuite: localSuite
+  localSuite: localSuite,
+  localSuiteWithNoService: localSuiteWithNoService
 }

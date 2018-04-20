@@ -45,7 +45,7 @@ const Mock = function () {
 
   forkStub = sandbox.stub(childProcess, 'fork').returns({
     on: forkOnFake.fake,
-    send: forkSendFake.fake
+    send: forkSendFake
   })
 
   forkStub.on = {
