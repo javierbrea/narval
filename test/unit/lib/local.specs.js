@@ -12,7 +12,7 @@ const local = require('../../../lib/local')
 const options = require('../../../lib/options')
 const treeKill = require('../../../lib/tree-kill')
 
-test.describe.only('local', () => {
+test.describe('local', () => {
   test.describe('run method', () => {
     let sandbox
     let tracerMock
@@ -92,6 +92,67 @@ test.describe.only('local', () => {
         return Promise.all([
           test.expect(mochaSinonChaiRunner.run).to.not.have.been.called(),
           test.expect(childProcessMock.stubs.execFile).to.have.been.calledOnce()
+        ])
+      })
+    })
+
+    test.it('should execute an specific service with coverage if "coverage.from" option is defined in configuration', () => {
+      const fakeServiceName = 'fooService2'
+      const suiteFixture = _.extend({}, fixtures.config.localSuite, {
+        coverage: {
+          from: fakeServiceName
+        }
+      })
+      options.get.resolves({
+        local: fakeServiceName
+      })
+      return local.run(suiteFixture).then(() => {
+        return Promise.all([
+          test.expect(childProcessMock.stubs.execFile).to.not.have.been.called(),
+          test.expect(childProcessMock.stubs.execFileSync).to.not.have.been.called(),
+          test.expect(mochaSinonChaiRunner.run).to.not.have.been.called(),
+          test.expect(childProcessMock.stubs.fork).to.have.been.called()
+        ])
+      })
+    })
+
+    test.it('should execute an specific service without coverage if "coverage.enabled" option is false even when coverage.from is defined in configuration', () => {
+      const fakeServiceName = 'fooService2'
+      const suiteFixture = _.extend({}, fixtures.config.localSuite, {
+        coverage: {
+          from: fakeServiceName,
+          enabled: false
+        }
+      })
+      options.get.resolves({
+        local: fakeServiceName
+      })
+      return local.run(suiteFixture).then(() => {
+        return Promise.all([
+          test.expect(childProcessMock.stubs.execFile).to.have.been.called(),
+          test.expect(childProcessMock.stubs.execFileSync).to.not.have.been.called(),
+          test.expect(mochaSinonChaiRunner.run).to.not.have.been.called(),
+          test.expect(childProcessMock.stubs.fork).to.not.have.been.called()
+        ])
+      })
+    })
+
+    test.it('should trace an error and reject the promise with a controlled error if the specified service does not exist in suite', () => {
+      const fakeServiceName = 'fooFakeService2'
+      options.get.resolves({
+        local: fakeServiceName
+      })
+      return local.run(fixtures.config.localSuite)
+      .then(() => {
+        return Promise.reject(new Error())
+      }).catch((error) => {
+        return Promise.all([
+          test.expect(Boom.isBoom(error)).to.be.true(),
+          test.expect(tracerMock.stubs.error.getCall(0).args[0]).to.contain(fakeServiceName),
+          test.expect(childProcessMock.stubs.execFile).to.not.have.been.called(),
+          test.expect(childProcessMock.stubs.execFileSync).to.not.have.been.called(),
+          test.expect(mochaSinonChaiRunner.run).to.not.have.been.called(),
+          test.expect(childProcessMock.stubs.fork).to.not.have.been.called()
         ])
       })
     })
