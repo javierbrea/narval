@@ -17,7 +17,7 @@ const Mock = function () {
     options = options || {}
 
     const fake = function (eventName, cb) {
-      if(options.runOnRegister) {
+      if (options.runOnRegister) {
         cb(options.returns)
       }
     }
@@ -59,9 +59,9 @@ const Mock = function () {
   execFileOnFake = new CallBackRunnerFake({
     runOnRegister: true,
     returns: 0
-  }) 
+  })
 
-  execFileStub = sandbox.stub(childProcess, 'execFile') .returns({
+  execFileStub = sandbox.stub(childProcess, 'execFile').returns({
     stdout: {
       setEncoding: sandbox.stub(),
       on: execFileStdoutOnFake.fake

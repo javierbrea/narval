@@ -74,7 +74,7 @@ test.describe.only('local', () => {
 
     test.it('should execute only test if it is defined in "local" option', () => {
       options.get.resolves({
-        local:'test'
+        local: 'test'
       })
       return local.run(fixtures.config.localSuite).then(() => {
         return Promise.all([
