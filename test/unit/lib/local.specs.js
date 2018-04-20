@@ -25,8 +25,15 @@ test.describe('local', () => {
       waitOnMock = new mocks.WaitOn()
       childProcessMock = new mocks.ChildProcess()
       sandbox.stub(mochaSinonChaiRunner, 'run').usingPromise().resolves()
-      sandbox.stub(options, 'get').usingPromise().resolves({})
+      sandbox.stub(options, 'get').usingPromise().resolves({
+        local: 'fooService'
+      })
       sandbox.stub(treeKill, 'kill')
+      sandbox.stub(process.stdin, 'setRawMode')
+      sandbox.stub(process.stdin, 'resume')
+      sandbox.stub(process.stdin, 'setEncoding')
+      sandbox.stub(process.stdin, 'pause')
+      sandbox.spy(console, 'log')
       waitOnMock.stubs.wait.returns()
       childProcessMock.stubs.fork.on.returns(0)
     })
@@ -48,6 +55,8 @@ test.describe('local', () => {
 
     test.it('should execute "before" command as a childProcess synchronous in shell if it is defined in suite', () => {
       const commandPath = 'fooBeforeLocalCommand'
+      options.get.resolves({
+      })
       return local.run(_.extend({}, fixtures.config.localSuite, {
         before: {
           local: {
@@ -64,9 +73,6 @@ test.describe('local', () => {
     })
 
     test.it('should not execute the "before" command if it is running an specific service or test', () => {
-      options.get.resolves({
-        local: 'fooService'
-      })
       return local.run(fixtures.config.localSuite).then(() => {
         return test.expect(childProcessMock.stubs.execFileSync).to.not.have.been.called()
       })
@@ -85,9 +91,6 @@ test.describe('local', () => {
     })
 
     test.it('should execute only an specific service if it is defined in "local" option', () => {
-      options.get.resolves({
-        local: 'fooService'
-      })
       return local.run(fixtures.config.localSuite).then(() => {
         return Promise.all([
           test.expect(mochaSinonChaiRunner.run).to.not.have.been.called(),
@@ -130,6 +133,17 @@ test.describe('local', () => {
       return local.run(suiteFixture).then(() => {
         return Promise.all([
           test.expect(childProcessMock.stubs.execFile).to.have.been.called(),
+          test.expect(childProcessMock.stubs.execFileSync).to.not.have.been.called(),
+          test.expect(mochaSinonChaiRunner.run).to.not.have.been.called(),
+          test.expect(childProcessMock.stubs.fork).to.not.have.been.called()
+        ])
+      })
+    })
+
+    test.it('should execute an specific service without coverage by default', () => {
+      return local.run(fixtures.config.localSuite).then(() => {
+        return Promise.all([
+          test.expect(childProcessMock.stubs.execFile.getCall(0).args[0]).to.equal('foo-local-command'),
           test.expect(childProcessMock.stubs.execFileSync).to.not.have.been.called(),
           test.expect(mochaSinonChaiRunner.run).to.not.have.been.called(),
           test.expect(childProcessMock.stubs.fork).to.not.have.been.called()
@@ -184,32 +198,119 @@ test.describe('local', () => {
     })
 
     test.it('should print a debug trace when an specific service is defined in "local" option and it has finished', () => {
-      const serviceName = 'fooService2'
-      options.get.resolves({
-        local: serviceName
-      })
       return local.run(fixtures.config.localSuite).then(() => {
-        return test.expect(tracerMock.stubs.debug.getCall(tracerMock.stubs.debug.callCount - 1).args[0]).to.contain(`Service "${serviceName}" closed`)
+        return test.expect(tracerMock.stubs.debug.getCall(tracerMock.stubs.debug.callCount - 1).args[0]).to.contain(`Service "fooService" closed`)
       })
     })
 
     test.it('should reject the promise if the service execution fails, adding the service name to the error message', () => {
-      const serviceName = 'fooService'
       childProcessMock.stubs.execFile.on.returns(1)
-      options.get.resolves({
-        local: serviceName
-      })
       return local.run(fixtures.config.localSuite).catch((err) => {
-        return test.expect(err.message).to.contain(serviceName)
+        return test.expect(err.message).to.contain('fooService')
       })
     })
 
     test.it('should run all services and test when no specific test or service is defined in "local" option', () => {
+      options.get.resolves({})
       return local.run(fixtures.config.localSuite).then(() => {
         return Promise.all([
           test.expect(mochaSinonChaiRunner.run).to.have.been.called(),
           test.expect(childProcessMock.stubs.execFile).to.have.been.calledTwice()
         ])
+      })
+    })
+
+    test.describe('when runs a not coveraged service', () => {
+      test.it('should log the data received from the execution, aplying a trim function', () => {
+        const fooData = 'foo process data'
+        childProcessMock.stubs.execFile.stdout.on.returns(`   ${fooData}    `)
+        return local.run(fixtures.config.localSuite).then(() => {
+          return test.expect(console.log).to.have.been.calledWith(fooData)
+        })
+      })
+
+      test.it('should log the errors received from the execution, aplying a trim function', () => {
+        const fooData = 'foo error data'
+        childProcessMock.stubs.execFile.stderr.on.runOnRegister(true)
+        childProcessMock.stubs.execFile.stderr.on.returns(`   ${fooData}    `)
+        return local.run(fixtures.config.localSuite).then(() => {
+          return test.expect(console.log).to.have.been.calledWith(fooData)
+        })
+      })
+
+      test.it('should not log empty data received from the execution', () => {
+        const fooData = '   '
+        childProcessMock.stubs.execFile.stdout.on.returns(fooData)
+        return local.run(fixtures.config.localSuite).then(() => {
+          return test.expect(console.log).to.not.have.been.calledWith(fooData)
+        })
+      })
+
+      test.it('should not log empty data received from the execution', () => {
+        const fooData = '   '
+        childProcessMock.stubs.execFile.stdout.on.returns(fooData)
+        return local.run(fixtures.config.localSuite).then(() => {
+          return test.expect(console.log).to.not.have.been.calledWith(fooData)
+        })
+      })
+    })
+
+    test.describe('when runs a coveraged service', () => {
+      const fakeServiceName = 'fooService2'
+      const suiteFixture = _.extend({}, fixtures.config.localSuite, {
+        coverage: {
+          from: fakeServiceName,
+          config: {
+            fooConfig1: 'config1',
+            fooConfig2: 'config2'
+          }
+        }
+      })
+
+      test.beforeEach(() => {
+        options.get.resolves({
+          local: fakeServiceName
+        })
+      })
+
+      test.it('should set the process stdin to raw mode, in order to intercept CTRL-C and stop only the coveraged service', () => {
+        return local.run(suiteFixture).then(() => {
+          return Promise.all([
+            test.expect(process.stdin.setRawMode).to.have.been.called(),
+            test.expect(process.stdin.resume).to.have.been.called()
+          ])
+        })
+      })
+
+      test.it('should fork an istanbul child process, passing to it the istanbul and command arguments', () => {
+        return local.run(suiteFixture).then(() => {
+          let forkCall = childProcessMock.stubs.fork.getCall(0)
+          return Promise.all([
+            test.expect(forkCall.args[0]).to.contain('msc-istanbul.js'),
+            test.expect(forkCall.args[1][5]).to.equal('--fooConfig1=config1'),
+            test.expect(forkCall.args[1][6]).to.equal('--fooConfig2=config2'),
+            test.expect(forkCall.args[1][7]).to.equal('cover'),
+            test.expect(forkCall.args[1][8]).to.contain('service-coverage-runner')
+          ])
+        })
+      })
+
+      test.it('should set the command path to be executed as "servicePath" environment variable, and pass it to the fork execution', () => {
+        return local.run(suiteFixture).then(() => {
+          return test.expect(childProcessMock.stubs.fork.getCall(0).args[2].env.servicePath).to.contain('foo-local-command2.js')
+        })
+      })
+
+      test.it('should intercept the CTRL-C and send and exit signal to service', () => {
+      })
+
+      test.it('should restore the stdin raw mode, and stop intercepting CTRL-C when process finish', () => {
+        return local.run(suiteFixture).then(() => {
+          return Promise.all([
+            test.expect(process.stdin.setRawMode).to.have.been.calledTwice(),
+            test.expect(process.stdin.pause).to.have.been.called()
+          ])
+        })
       })
     })
   })

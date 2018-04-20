@@ -107,7 +107,7 @@ const localSuite = {
     {
       name: 'fooService2',
       local: {
-        command: 'foo-local-command2'
+        command: 'foo-local-command2.js --fooParam1 --fooParam2'
       }
     }
   ]
