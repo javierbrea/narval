@@ -96,7 +96,21 @@ const localSuite = {
     local: {
       'wait-for': 'tcp:localhost:3000'
     }
-  }
+  },
+  services: [
+    {
+      name: 'fooService',
+      local: {
+        command: 'foo-local-command'
+      }
+    },
+    {
+      name: 'fooService2',
+      local: {
+        command: 'foo-local-command2'
+      }
+    }
+  ]
 }
 
 module.exports = {

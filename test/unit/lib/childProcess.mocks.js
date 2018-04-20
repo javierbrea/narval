@@ -8,35 +8,88 @@ const Mock = function () {
   let forkStub
   let forkOnFake
   let execFileSyncStub
+  let execFileStub
+  let execFileStdoutOnFake
+  let execFileStderrOnFake
+  let execFileOnFake
 
-  const ForkOnFake = function () {
-    let codeToReturn
+  const CallBackRunnerFake = function (options) {
+    options = options || {}
 
     const fake = function (eventName, cb) {
-      cb(codeToReturn)
+      if(options.runOnRegister) {
+        cb(options.returns)
+      }
     }
 
     const returns = function (code) {
-      codeToReturn = code
+      options.returns = code
+    }
+
+    const runOnRegister = function (run) {
+      options.runOnRegister = run
     }
 
     return {
       fake: fake,
-      returns: returns
+      returns: returns,
+      runOnRegister: runOnRegister
     }
   }
 
-  forkOnFake = new ForkOnFake()
+  forkOnFake = new CallBackRunnerFake({
+    runOnRegister: true
+  })
 
   forkStub = sandbox.stub(childProcess, 'fork').returns({
     on: forkOnFake.fake
   })
 
   forkStub.on = {
-    returns: forkOnFake.returns
+    returns: forkOnFake.returns,
+    runOnRegister: forkOnFake.runOnRegister
   }
 
   execFileSyncStub = sandbox.stub(childProcess, 'execFileSync')
+
+  execFileStdoutOnFake = new CallBackRunnerFake({
+    runOnRegister: true
+  })
+  execFileStderrOnFake = new CallBackRunnerFake()
+  execFileOnFake = new CallBackRunnerFake({
+    runOnRegister: true,
+    returns: 0
+  }) 
+
+  execFileStub = sandbox.stub(childProcess, 'execFile') .returns({
+    stdout: {
+      setEncoding: sandbox.stub(),
+      on: execFileStdoutOnFake.fake
+    },
+    stderr: {
+      on: execFileStderrOnFake.fake
+    },
+    on: execFileOnFake.fake
+  })
+
+  execFileStub.stdout = {
+    on: {
+      returns: execFileStdoutOnFake.returns,
+      runOnRegister: execFileStdoutOnFake.runOnRegister
+    }
+  }
+
+  execFileStub.stderr = {
+    on: {
+      returns: execFileStderrOnFake.returns,
+      runOnRegister: execFileStderrOnFake.runOnRegister
+    }
+  }
+
+  execFileStub.on = {
+    returns: execFileOnFake.returns,
+    runOnRegister: execFileOnFake.runOnRegister
+  }
 
   const restore = function () {
     sandbox.restore()
@@ -45,7 +98,8 @@ const Mock = function () {
   return {
     stubs: {
       fork: forkStub,
-      execFileSync: execFileSyncStub
+      execFileSync: execFileSyncStub,
+      execFile: execFileStub
     },
     restore: restore
   }
