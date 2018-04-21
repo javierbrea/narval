@@ -1,6 +1,5 @@
 
 const Boom = require('boom')
-// const _ = require('lodash')
 const fsExtra = require('fs-extra')
 const handlebars = require('handlebars')
 
@@ -18,15 +17,15 @@ test.describe('docker', () => {
   let sandbox
   let childProcessMock
   let pathsMock
-//  let configuration
+  let configuration
   let suiteConfig
 
   test.beforeEach(() => {
     suiteConfig = JSON.parse(JSON.stringify(fixtures.config.dockerSuite))
-//    configuration = JSON.parse(JSON.stringify(fixtures.config.dockerConfig))
+    configuration = JSON.parse(JSON.stringify(fixtures.config.dockerConfig))
     sandbox = test.sinon.sandbox.create()
 
-    sandbox.stub(config, 'get').usingPromise().resolves(fixtures.config.dockerConfig)
+    sandbox.stub(config, 'get').usingPromise().resolves(configuration)
     sandbox.stub(options, 'get').usingPromise().resolves({})
     sandbox.stub(fsExtra, 'copy').usingPromise().resolves()
     sandbox.stub(handlebars, 'compile').returns(sandbox.stub())
@@ -379,7 +378,7 @@ test.describe('docker', () => {
       pathsMock.stubs.cwd.resolve.returns('')
     })
 
-    test.it('should retrieve configuration', () => {
+    test.it('should return a promise', () => {
       return docker.createFiles()
         .then(() => {
           return test.expect(config.get).to.have.been.called()
@@ -387,27 +386,60 @@ test.describe('docker', () => {
     })
 
     test.it('should create a DockerFile for each configured docker-image', () => {
+      return docker.createFiles()
+        .then(() => {
+          return Promise.all([
+            test.expect(pathsMock.stubs.cwd.writeFile).to.have.been.calledWith('.narval/docker/fooImage1/Dockerfile'),
+            test.expect(pathsMock.stubs.cwd.writeFile).to.have.been.calledWith('.narval/docker/fooImage2/Dockerfile')
+          ])
+        })
     })
 
-    test.it('should create a docker-compose file with all docker-containers info from configuration', () => {
-    })
-
-    test.it('should ensure that the docker image folder exists before creating the docker Image file', () => {
+    test.it('should ensure that all needed docker image folders exists before creating the docker Image files', () => {
+      return docker.createFiles()
+        .then(() => {
+          return Promise.all([
+            test.expect(pathsMock.stubs.cwd.ensureDir).to.have.been.calledWith('.coverage'),
+            test.expect(pathsMock.stubs.cwd.ensureDir).to.have.been.calledWith('.narval/docker/fooImage1'),
+            test.expect(pathsMock.stubs.cwd.ensureDir).to.have.been.calledWith('.narval/docker/fooImage2')
+          ])
+        })
     })
 
     test.it('should copy resources from Narval to all docker images folders', () => {
+      const fooPathToRead = 'fooPathToRead'
+      const fooPathToWrite = 'fooPathToWrite'
+      pathsMock.stubs.package.resolve.withArgs('lib', 'docker-resources').returns(fooPathToRead)
+      pathsMock.stubs.cwd.resolve.withArgs('.narval/docker/fooImage1/docker-resources').returns(fooPathToWrite)
+      return docker.createFiles()
+        .then(() => {
+          return Promise.all([
+            test.expect(fsExtra.copy.getCall(0).args[0]).to.equal(fooPathToRead),
+            test.expect(fsExtra.copy.getCall(0).args[1]).to.equal(fooPathToWrite)
+          ])
+        })
     })
 
     test.it('should copy all files to be added to an image to the correspondant docker image folder', () => {
-    })
-
-    test.it('should respect the full folder tree of a resource to add', () => {
+      pathsMock.stubs.cwd.resolve.withArgs('foo-package.json').returns('1')
+      pathsMock.stubs.cwd.resolve.withArgs('test/foo/package/testing.json').returns('2')
+      pathsMock.stubs.cwd.resolve.withArgs('test/foo/folder').returns('3')
+      return docker.createFiles()
+        .then(() => {
+          return Promise.all([
+            test.expect(fsExtra.copy).to.have.been.calledWith('1'),
+            test.expect(fsExtra.copy).to.have.been.calledWith('2'),
+            test.expect(fsExtra.copy).to.have.been.calledWith('3')
+          ])
+        })
     })
 
     test.it('should copy the install script of a docker-image to the correspondant docker image folder', () => {
-    })
-
-    test.it('should not copy the install script of a docker-image if it is not configured', () => {
+      pathsMock.stubs.cwd.resolve.withArgs('test/docker/install').returns('fooInstallPath')
+      return docker.createFiles()
+        .then(() => {
+          return test.expect(fsExtra.copy).to.have.been.calledWith('fooInstallPath')
+        })
     })
 
     test.it('should do things only first time it is called', () => {
@@ -415,22 +447,37 @@ test.describe('docker', () => {
         .then(() => {
           return docker.createFiles()
             .then(() => {
-              return Promise.all([
-                test.expect(config.get).to.have.been.calledOnce()
-                // TODO, add other verifications
-              ])
+              return test.expect(config.get).to.have.been.calledOnce()
             })
         })
     })
 
     test.describe('when creating docker-compose file', () => {
       test.it('should ensure that the docker folder exists', () => {
+        return docker.createFiles()
+          .then(() => {
+            return Promise.all([
+              test.expect(pathsMock.stubs.cwd.ensureDir).to.have.been.calledWith('.narval/docker')
+            ])
+          })
       })
 
       test.it('should add all needed configuration for each container', () => {
+        return docker.createFiles()
+          .then(() => {
+            return Promise.all([
+              test.expect(pathsMock.stubs.cwd.writeFile.getCall(0).args[1]).to.equal(JSON.stringify(fixtures.config.dockerConfigComposeResult, null, 2))
+            ])
+          })
       })
 
       test.it('should write the docker-compose file', () => {
+        return docker.createFiles()
+          .then(() => {
+            return Promise.all([
+              test.expect(pathsMock.stubs.cwd.writeFile).to.have.been.calledWith('.narval/docker/docker-compose.json')
+            ])
+          })
       })
     })
   })

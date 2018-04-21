@@ -153,7 +153,9 @@ const dockerConfig = {
     name: 'fooImage1',
     from: 'foo-docker-base-image',
     add: [
-      'foo-package.json'
+      'foo-package.json',
+      'test/foo/package/testing.json',
+      'test/foo/folder'
     ],
     expose: [
       3000
@@ -194,6 +196,123 @@ const dockerConfig = {
   ]
 }
 
+const dockerConfigComposeResult = {
+  'version': '3.5',
+  'volumes': {
+    'shared': {}
+  },
+  'services': {
+    'fooContainer1': {
+      'build': {
+        'context': './fooImage1'
+      },
+      'depends_on': [],
+      'volumes': [
+        {
+          'type': 'volume',
+          'source': 'shared',
+          'target': '/narval/.shared'
+        },
+        {
+          'type': 'bind',
+          'source': '../../.coverage',
+          'target': '/narval/.coverage'
+        },
+        {
+          'type': 'bind',
+          'source': '../../fooPath',
+          'target': '/narval/fooPath'
+        },
+        {
+          'type': 'bind',
+          'source': '../../fooPath2',
+          'target': '/narval/fooPath2'
+        }
+      ],
+      'environment': {
+        'command_to_run': '${' + 'fooContainer1_command}',
+        'command_params': '${' + 'fooContainer1_command_params}',
+        'coverage_options': '${' + 'coverage_options}',
+        'coverage_enabled': '${' + 'fooContainer1_coverage_enabled}',
+        'wait_for': '${' + 'fooContainer1_wait_for}',
+        'exit_after': '${' + 'fooContainer1_exit_after}'
+      }
+    },
+    'fooContainer2': {
+      'build': {
+        'context': './fooImage2'
+      },
+      'depends_on': [],
+      'volumes': [
+        {
+          'type': 'volume',
+          'source': 'shared',
+          'target': '/narval/.shared'
+        },
+        {
+          'type': 'bind',
+          'source': '../../.coverage',
+          'target': '/narval/.coverage'
+        },
+        {
+          'type': 'bind',
+          'source': '../../fooPath3',
+          'target': '/narval/fooPath3'
+        },
+        {
+          'type': 'bind',
+          'source': '../../fooPath4',
+          'target': '/narval/fooPath4'
+        }
+      ],
+      'environment': {
+        'command_to_run': '${' + 'fooContainer2_command}',
+        'command_params': '${' + 'fooContainer2_command_params}',
+        'coverage_options': '${' + 'coverage_options}',
+        'coverage_enabled': '${' + 'fooContainer2_coverage_enabled}',
+        'wait_for': '${' + 'fooContainer2_wait_for}',
+        'exit_after': '${' + 'fooContainer2_exit_after}'
+      }
+    },
+    'fooContainer3': {
+      'build': {
+        'context': './fooImage2'
+      },
+      'depends_on': [],
+      'volumes': [
+        {
+          'type': 'volume',
+          'source': 'shared',
+          'target': '/narval/.shared'
+        },
+        {
+          'type': 'bind',
+          'source': '../../.coverage',
+          'target': '/narval/.coverage'
+        },
+        {
+          'type': 'bind',
+          'source': '../../fooPath5',
+          'target': '/narval/fooPath5'
+        },
+        {
+          'type': 'bind',
+          'source': '../../fooPath6',
+          'target': '/narval/fooPath6'
+        }
+      ],
+      'environment': {
+        'command_to_run': '${' + 'fooContainer3_command}',
+        'command_params': '${' + 'fooContainer3_command_params}',
+        'coverage_options': '${' + 'coverage_options}',
+        'coverage_enabled': '${' + 'fooContainer3_coverage_enabled}',
+        'wait_for': '${' + 'fooContainer3_wait_for}',
+        'exit_after': '${' + 'fooContainer3_exit_after}'
+      }
+    }
+  }
+}
+
 module.exports = {
   emptyResult: emptyResult,
   defaultSuites: defaultSuites,
@@ -204,5 +323,6 @@ module.exports = {
   localSuite: localSuite,
   localSuiteWithNoService: localSuiteWithNoService,
   dockerSuite: dockerSuite,
-  dockerConfig: dockerConfig
+  dockerConfig: dockerConfig,
+  dockerConfigComposeResult: dockerConfigComposeResult
 }
