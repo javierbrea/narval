@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.0.0-beta.2] - 2018-04-21
+### Added
+- Full unit tests coverage.
+
+### Changed
+- Minor changes in documentation.
+
+### Fixed
+- Minor fixes, and code optimizations.
+
 ## [1.0.0-beta.1] - 2018-04-18
 ### Added
 - Documentation to README.md file.

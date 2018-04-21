@@ -79,6 +79,6 @@ suites:
         local:
           wait-for: tcp:localhost:3000
         config:
-          report: list
+          reporter: list
       coverage:
         enabled: false

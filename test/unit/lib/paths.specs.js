@@ -3,58 +3,24 @@ const path = require('path')
 
 const fsExtra = require('fs-extra')
 const Bluebird = require('bluebird')
-const fs = require('fs')
 
 const test = require('../../../index')
+const mocks = require('../mocks')
 
 const paths = require('../../../lib/paths')
 
-const ReadFileMock = function () {
-  let errorToReturn
-  let dataToReturn
-
-  const stub = function (filePath, encoding, cb) {
-    cb(errorToReturn, dataToReturn)
-  }
-
-  const returns = function (error, data) {
-    errorToReturn = error
-    dataToReturn = data
-  }
-
-  return {
-    stub: stub,
-    returns: returns
-  }
-}
-
-const WriteFileMock = function () {
-  let errorToReturn
-  let dataToReturn
-
-  const stub = function (filePath, content, encoding, cb) {
-    cb(errorToReturn, dataToReturn)
-  }
-
-  const returns = function (error, data) {
-    errorToReturn = error
-    dataToReturn = data
-  }
-
-  return {
-    stub: stub,
-    returns: returns
-  }
-}
-
 test.describe('paths', () => {
   let resolveSpy
+  let fsMock
+
   test.beforeEach(() => {
     resolveSpy = test.sinon.spy(path, 'resolve')
+    fsMock = new mocks.Fs()
   })
 
   test.afterEach(() => {
     resolveSpy.restore()
+    fsMock.restore()
   })
 
   const testRelativePathUtils = function (utilName, basePath, baseDescription) {
@@ -103,18 +69,6 @@ test.describe('paths', () => {
       })
 
       test.describe('readFile method', () => {
-        let readFileMock
-        let readFileStub
-
-        test.beforeEach(() => {
-          readFileMock = new ReadFileMock()
-          readFileStub = test.sinon.stub(fs, 'readFile').callsFake(readFileMock.stub)
-        })
-
-        test.afterEach(() => {
-          fs.readFile.restore()
-        })
-
         test.it('should return a bluebird Promise', () => {
           return test.expect(paths[utilName].readFile('fooPath')).to.be.an.instanceof(Bluebird)
         })
@@ -124,13 +78,13 @@ test.describe('paths', () => {
           const fooResolvedPath = path.resolve(basePath, fooTargetPath)
           return paths[utilName].readFile(fooTargetPath)
             .then(() => {
-              return test.expect(readFileStub.getCall(0).args[0]).to.equal(fooResolvedPath)
+              return test.expect(fsMock.stubs.readFile.getCall(0).args[0]).to.equal(fooResolvedPath)
             })
         })
 
         test.it(`should resolve the promise with the data that read file function returns`, () => {
           const fooContent = 'fooFileContent'
-          readFileMock.returns(null, fooContent)
+          fsMock.stubs.readFile.returns(null, fooContent)
           return paths[utilName].readFile('fooFile')
             .then((result) => {
               return test.expect(result).to.equal(fooContent)
@@ -139,7 +93,7 @@ test.describe('paths', () => {
 
         test.it(`should reject the promise if read file function returns and error`, () => {
           const error = new Error('fooError')
-          readFileMock.returns(error)
+          fsMock.stubs.readFile.returns(error)
           return paths[utilName].readFile('fooFile')
             .catch((err) => {
               return test.expect(err).to.deep.equal(error)
@@ -148,18 +102,6 @@ test.describe('paths', () => {
       })
 
       test.describe('writeFile method', () => {
-        let writeFileMock
-        let writeFileStub
-
-        test.beforeEach(() => {
-          writeFileMock = new WriteFileMock()
-          writeFileStub = test.sinon.stub(fs, 'writeFile').callsFake(writeFileMock.stub)
-        })
-
-        test.afterEach(() => {
-          fs.writeFile.restore()
-        })
-
         test.it('should return a bluebird Promise', () => {
           return test.expect(paths[utilName].writeFile('fooFile')).to.be.an.instanceof(Bluebird)
         })
@@ -171,15 +113,15 @@ test.describe('paths', () => {
           return paths[utilName].writeFile(fooTargetPath, fooContent)
             .then(() => {
               return Promise.all([
-                test.expect(writeFileStub.getCall(0).args[0]).to.equal(fooResolvedPath),
-                test.expect(writeFileStub.getCall(0).args[1]).to.equal(fooContent)
+                test.expect(fsMock.stubs.writeFile.getCall(0).args[0]).to.equal(fooResolvedPath),
+                test.expect(fsMock.stubs.writeFile.getCall(0).args[1]).to.equal(fooContent)
               ])
             })
         })
 
         test.it(`should resolve the promise with the data that write file function returns`, () => {
           const fooContent = 'fooFileContent'
-          writeFileMock.returns(null, fooContent)
+          fsMock.stubs.writeFile.returns(null, fooContent)
           return paths[utilName].writeFile('fooFile', fooContent)
             .then((result) => {
               return test.expect(result).to.equal(fooContent)
@@ -188,7 +130,7 @@ test.describe('paths', () => {
 
         test.it(`should reject the promise if write file function returns and error`, () => {
           const error = new Error('fooWriteError')
-          writeFileMock.returns(error)
+          fsMock.stubs.writeFile.returns(error)
           return paths[utilName].writeFile('fooFile')
             .catch((err) => {
               return test.expect(err).to.deep.equal(error)

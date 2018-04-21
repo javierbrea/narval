@@ -248,7 +248,7 @@ suites:
 	* `wait-for` `<String>` with format `host:port`. The tests will not be executed until the provided `host:port` is ready. Narval uses [wait-for-it][wait-for-it-url] to provide this feature. NOTE: If the host you are waiting for is a service hosted in a [docker-container](#docker-container), you must use that docker-container name as `host` in the `host:port` expression.
 * `local` `<Object>`. If test suite is going to be executed without Docker, this objects contains the needed configuration.
 	* `wait-for` `<String>` with format `protocol:host:port`, or path to a file. The tests will not be executed until the provided `protocol:host:port` is ready, or file exists. Narval uses [wait-on][wait-on-url] to provide this feature in "local" executions. Read about the available "resources" to be used as `wait-for` expression in its [documentation][wait-on-url]. 
-* `config` `<Object>` containing Mocha configuration parameters for tests execution. All provided key value pairs will be translated into "--key=value" when Mocha is executed. As examples, some available `config` keys are provided in this documentation. For further reference about all available parameters, [please read Mocha usage documentation][mocha-usage-url].
+* `config` `<Object>` containing Mocha configuration arguments for tests execution. All provided key value pairs will be translated into "--key=value" when Mocha is executed. As examples, some available `config` keys are provided in this documentation. For further reference about all available arguments, [please read Mocha usage documentation][mocha-usage-url].
 	* `recursive` `<Boolean>` `default: true`. Execute specs found in all subfolders of provided `specs` path.
 	* `reporter` `<String>` `default: spec` Mocha reporter to be used. Can be one of "spec", "dot", "nyan", "landing", "list", "progress", ...
 	* `grep` `<String>`. Will trigger Mocha to only run tests matching the given pattern which is internally compiled to a RegExp.
@@ -267,7 +267,7 @@ suites:
           wait-for: tcp:localhost:3000
         config:
           recursive: false
-          report: list
+          reporter: list
 ```
 
 ##### coverage
@@ -276,7 +276,7 @@ suites:
 
 * `enabled` `<Boolean>` `default:true`. Enable or disable coverage for this suite.
 * `from` `<String>`. By default, coverage will be executed over the [test](#test) defined in a suite, but, it is possible to get coverage from a service. Use this property to define a [service] name from which execution the coverage will be generated.
-* `config` `<Object>` containing Istanbul configuration parameters for coverage execution. All provided key value pairs will be translated into "--key=value" when Istanbul is executed. As examples, some available `config` keys are provided in this documentation. For further reference about all available parameters, [please read Istanbul usage documentation][istanbul-usage-url], or execute `./node_modules/.bin/istanbul help config cover`
+* `config` `<Object>` containing Istanbul configuration arguments for coverage execution. All provided key value pairs will be translated into "--key=value" when Istanbul is executed. As examples, some available `config` keys are provided in this documentation. For further reference about all available arguments, [please read Istanbul usage documentation][istanbul-usage-url], or execute `./node_modules/.bin/istanbul help config cover`
 	* `root` `<String>` `default:.`. Path to folder containing sources to cover.
 	* `include-all-sources` `<Boolean>` `default:true`. Show 0% coverage for files with no tests executed.
 	* `dir` `<String>` `default:.coverage/[suite-type]/[suite-name]`. Path to folder in which reports will be created.
@@ -390,7 +390,7 @@ suites:
         local:
           wait-for: tcp:localhost:3000
         config:
-          report: list
+          reporter: list
       coverage:
         enabled: false
 ```
