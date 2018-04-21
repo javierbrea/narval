@@ -29,7 +29,7 @@ test.describe('docker', () => {
     sandbox.stub(config, 'get').usingPromise().resolves(fixtures.config.dockerConfig)
     sandbox.stub(options, 'get').usingPromise().resolves({})
     sandbox.stub(fsExtra, 'copy').usingPromise().resolves()
-    sandbox.spy(handlebars, 'compile')
+    sandbox.stub(handlebars, 'compile').returns(sandbox.stub())
 
     childProcessMock = new mocks.ChildProcess()
     childProcessMock.stubs.fork.on.returns(0)
@@ -369,6 +369,69 @@ test.describe('docker', () => {
             test.expect(envVars.fooContainer3_exit_after).to.equal('')
           ])
         })
+    })
+  })
+
+  test.describe('createFiles method', () => {
+    test.beforeEach(() => {
+      pathsMock.stubs.package.readFile.usingPromise().resolves()
+      pathsMock.stubs.cwd.ensureDir.usingPromise().resolves('')
+      pathsMock.stubs.cwd.resolve.returns('')
+    })
+
+    test.it('should retrieve configuration', () => {
+      return docker.createFiles()
+        .then(() => {
+          return test.expect(config.get).to.have.been.called()
+        })
+    })
+
+    test.it('should create a DockerFile for each configured docker-image', () => {
+    })
+
+    test.it('should create a docker-compose file with all docker-containers info from configuration', () => {
+    })
+
+    test.it('should ensure that the docker image folder exists before creating the docker Image file', () => {
+    })
+
+    test.it('should copy resources from Narval to all docker images folders', () => {
+    })
+
+    test.it('should copy all files to be added to an image to the correspondant docker image folder', () => {
+    })
+
+    test.it('should respect the full folder tree of a resource to add', () => {
+    })
+
+    test.it('should copy the install script of a docker-image to the correspondant docker image folder', () => {
+    })
+
+    test.it('should not copy the install script of a docker-image if it is not configured', () => {
+    })
+
+    test.it('should do things only first time it is called', () => {
+      return docker.createFiles()
+        .then(() => {
+          return docker.createFiles()
+            .then(() => {
+              return Promise.all([
+                test.expect(config.get).to.have.been.calledOnce()
+                // TODO, add other verifications
+              ])
+            })
+        })
+    })
+
+    test.describe('when creating docker-compose file', () => {
+      test.it('should ensure that the docker folder exists', () => {
+      })
+
+      test.it('should add all needed configuration for each container', () => {
+      })
+
+      test.it('should write the docker-compose file', () => {
+      })
     })
   })
 })
