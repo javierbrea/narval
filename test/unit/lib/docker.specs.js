@@ -314,4 +314,61 @@ test.describe('docker', () => {
       })
     })
   })
+
+  test.describe('downVolumes method', () => {
+    test.beforeEach(() => {
+      dockerState.executed(true)
+    })
+
+    test.it('should do nothing and resolve promise if docker has not been executed', () => {
+      dockerState.reset()
+      return docker.downVolumes()
+        .then(() => {
+          return test.expect(childProcessMock.stubs.execSync).to.not.have.been.called()
+        })
+    })
+
+    test.it('should execute docker down-volumes', () => {
+      return docker.downVolumes()
+        .then(() => {
+          return test.expect(childProcessMock.stubs.execSync.getCall(0).args[0]).to.contain('down --volumes')
+        })
+    })
+
+    test.it('should reject the promise if docker command fails', () => {
+      childProcessMock.stubs.execSync.throws(new Error())
+      return docker.downVolumes()
+        .catch((error) => {
+          return Promise.all([
+            test.expect(Boom.isBoom(error)).to.be.true(),
+            test.expect(error.message).to.contain('down-volumes failed')
+          ])
+        })
+    })
+
+    test.it('should set empty environment variables for all configured docker containers', () => {
+      return docker.downVolumes()
+        .then(() => {
+          const envVars = childProcessMock.stubs.execSync.getCall(0).args[1].env
+          return Promise.all([
+            test.expect(envVars.coverage_options).to.equal(''),
+            test.expect(envVars.fooContainer1_coverage_enabled).to.equal(''),
+            test.expect(envVars.fooContainer2_coverage_enabled).to.equal(''),
+            test.expect(envVars.fooContainer3_coverage_enabled).to.equal(''),
+            test.expect(envVars.fooContainer1_command).to.equal(''),
+            test.expect(envVars.fooContainer2_command).to.equal(''),
+            test.expect(envVars.fooContainer3_command).to.equal(''),
+            test.expect(envVars.fooContainer1_command_params).to.equal(''),
+            test.expect(envVars.fooContainer2_command_params).to.equal(''),
+            test.expect(envVars.fooContainer3_command_params).to.equal(''),
+            test.expect(envVars.fooContainer1_wait_for).to.equal(''),
+            test.expect(envVars.fooContainer2_wait_for).to.equal(''),
+            test.expect(envVars.fooContainer3_wait_for).to.equal(''),
+            test.expect(envVars.fooContainer1_exit_after).to.equal(''),
+            test.expect(envVars.fooContainer2_exit_after).to.equal(''),
+            test.expect(envVars.fooContainer3_exit_after).to.equal('')
+          ])
+        })
+    })
+  })
 })
