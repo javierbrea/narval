@@ -119,11 +119,11 @@ const localSuiteWithNoService = {
 
 const dockerSuite = {
   name: 'fooDockerSuite',
+  coverage: {
+    from: 'fooService1'
+  },
   test: {
     specs: 'foo2/specs',
-    coverage: {
-      from: 'fooService1'
-    },
     docker: {
       container: 'fooContainer3',
       'wait-for': 'fooService1:3000'
@@ -134,7 +134,8 @@ const dockerSuite = {
       name: 'fooService1',
       docker: {
         container: 'fooContainer1',
-        command: 'foo-docker-command2.js --fooParam1 --fooParam2'
+        command: 'foo-docker-command2.js --fooParam1 --fooParam2',
+        exit_after: 10000
       }
     },
     {

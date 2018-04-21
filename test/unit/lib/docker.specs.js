@@ -9,6 +9,7 @@ const mocks = require('../mocks')
 const fixtures = require('../fixtures')
 
 const docker = require('../../../lib/docker')
+const dockerState = require('../../../lib/docker-state')
 
 const options = require('../../../lib/options')
 const config = require('../../../lib/config')
@@ -32,7 +33,7 @@ test.describe('docker', () => {
 
     childProcessMock = new mocks.ChildProcess()
     childProcessMock.stubs.fork.on.returns(0)
-    childProcessMock.stubs.execSync.returns('fooContainer1 exit status 0\\nfooContainer2 exit status 137\\nfooContainer3 exit status 0')
+    childProcessMock.stubs.execSync.returns('fooContainer1 status 0')
 
     pathsMock = new mocks.Paths()
   })
@@ -41,6 +42,7 @@ test.describe('docker', () => {
     childProcessMock.restore()
     pathsMock.restore()
     sandbox.restore()
+    dockerState.reset()
   })
 
   test.describe('run method', () => {
@@ -59,9 +61,257 @@ test.describe('docker', () => {
         })
         .catch((error) => {
           return Promise.all([
-            test.expect(Boom.isBoom(error)).to.be.true()
+            test.expect(Boom.isBoom(error)).to.be.true(),
+            test.expect(error.message).to.contain('No docker configuration')
           ])
         })
+    })
+
+    test.it('should execute docker down-volumes if it is defined in the suite', () => {
+      suiteConfig.before = {
+        docker: {
+          'down-volumes': true
+        }
+      }
+      return docker.run(suiteConfig)
+        .then(() => {
+          return test.expect(childProcessMock.stubs.execSync.getCall(0).args[0]).to.contain('down --volumes')
+        })
+    })
+
+    test.it('should execute docker compose up', () => {
+      return docker.run(suiteConfig)
+        .then(() => {
+          return test.expect(childProcessMock.stubs.execSync.getCall(0).args[0]).to.contain('docker-compose.json up')
+        })
+    })
+
+    test.describe('when executing docker compose up', () => {
+      test.it('should reject the promise if the execution fails', () => {
+        childProcessMock.stubs.execSync.throws(new Error())
+        return docker.run(suiteConfig)
+          .catch((error) => {
+            return Promise.all([
+              test.expect(Boom.isBoom(error)).to.be.true(),
+              test.expect(error.message).to.equal('Docker run failed')
+            ])
+          })
+      })
+
+      test.it('should indicate to docker that has to rebuild images if it is defined in options', () => {
+        options.get.resolves({
+          build: true
+        })
+        return docker.run(suiteConfig)
+          .then(() => {
+            return test.expect(childProcessMock.stubs.execSync.getCall(0).args[0]).to.contain('--build')
+          })
+      })
+
+      test.it('should pass to docker the --exit-code-from option with the test container if there is not any coveraged service', () => {
+        suiteConfig.coverage = {}
+        return docker.run(suiteConfig)
+          .then(() => {
+            return test.expect(childProcessMock.stubs.execSync.getCall(0).args[0]).to.contain(`--exit-code-from fooContainer3`)
+          })
+      })
+
+      test.it('should pass to docker the --exit-code-from option with the test container if the configuration specify to coverage the test', () => {
+        suiteConfig.coverage = {
+          from: 'test'
+        }
+        return docker.run(suiteConfig)
+          .then(() => {
+            return test.expect(childProcessMock.stubs.execSync.getCall(0).args[0]).to.contain(`--exit-code-from fooContainer3`)
+          })
+      })
+
+      test.it('should set an environment variable with the command to run for each service', () => {
+        return docker.run(suiteConfig)
+          .then(() => {
+            const envVars = childProcessMock.stubs.execSync.getCall(0).args[1].env
+            return Promise.all([
+              test.expect(envVars.fooContainer1_command).to.contain('foo-docker-command2.js'),
+              test.expect(envVars.fooContainer2_command).to.contain('foo-docker-command')
+            ])
+          })
+      })
+
+      test.it('should set an environment variable with the command as "narval-default-test-command" for tests service', () => {
+        return docker.run(suiteConfig)
+          .then(() => {
+            return test.expect(childProcessMock.stubs.execSync.getCall(0).args[1].env.fooContainer3_command).to.equal('narval-default-test-command')
+          })
+      })
+
+      test.it('should set an environment variable with the command parameters for each service', () => {
+        return docker.run(suiteConfig)
+          .then(() => {
+            const envVars = childProcessMock.stubs.execSync.getCall(0).args[1].env
+            return Promise.all([
+              test.expect(envVars.fooContainer1_command_params).to.equal('-- --fooParam1 --fooParam2'),
+              test.expect(envVars.fooContainer2_command_params).to.equal(''),
+              test.expect(envVars.fooContainer3_command_params).to.equal('--recursive --colors --reporter spec foo2/specs')
+            ])
+          })
+      })
+
+      test.it('should set an environment variable with the command parameters for the test execution, including custom configuration', () => {
+        suiteConfig.test.config = {
+          reporter: 'fooReporter',
+          fooConfig2: true
+        }
+
+        return docker.run(suiteConfig)
+          .then(() => {
+            return test.expect(childProcessMock.stubs.execSync.getCall(0).args[1].env.fooContainer3_command_params).to.equal('--recursive --colors --reporter fooReporter --fooConfig2 foo2/specs')
+          })
+      })
+
+      test.it('should add an extra "--" to test command arguments if coverage is not enabled for a service', () => {
+        suiteConfig.test.config = {
+          reporter: 'fooReporter',
+          fooConfig2: true
+        }
+        delete suiteConfig.coverage
+
+        return docker.run(suiteConfig)
+          .then(() => {
+            return test.expect(childProcessMock.stubs.execSync.getCall(0).args[1].env.fooContainer3_command_params).to.equal('-- --recursive --colors --reporter fooReporter --fooConfig2 foo2/specs')
+          })
+      })
+
+      test.it('should not add an extra "--" to test command arguments if coverage is disabled for tests', () => {
+        suiteConfig.coverage = {
+          enabled: false
+        }
+        return docker.run(suiteConfig)
+          .then(() => {
+            return test.expect(childProcessMock.stubs.execSync.getCall(0).args[1].env.fooContainer3_command_params).to.equal('--recursive --colors --reporter spec foo2/specs')
+          })
+      })
+
+      test.it('should set an environment variable with the istanbul coverage configuration', () => {
+        suiteConfig.coverage.config = {
+          fooConfig1: 'fooValue',
+          istanbulConfig2: 'foo'
+        }
+        return docker.run(suiteConfig, 'fooSuiteName')
+          .then(() => {
+            return test.expect(childProcessMock.stubs.execSync.getCall(0).args[1].env.coverage_options).to.equal('--include-all-sources --root=. --colors --print=summary --dir=.coverage/fooSuiteName/fooDockerSuite --fooConfig1=fooValue --istanbulConfig2=foo')
+          })
+      })
+
+      test.it('should set an environment variable with the "wait_for" value for the test', () => {
+        return docker.run(suiteConfig)
+          .then(() => {
+            const envVars = childProcessMock.stubs.execSync.getCall(0).args[1].env
+            return Promise.all([
+              test.expect(envVars.fooContainer1_wait_for).to.equal(''),
+              test.expect(envVars.fooContainer2_wait_for).to.equal(''),
+              test.expect(envVars.fooContainer3_wait_for).to.equal('fooService1:3000')
+            ])
+          })
+      })
+
+      test.it('should set an environment variable with a default value for "wait_for" if test has not it defined', () => {
+        delete suiteConfig.test.docker['wait-for']
+        return docker.run(suiteConfig)
+          .then(() => {
+            const envVars = childProcessMock.stubs.execSync.getCall(0).args[1].env
+            return Promise.all([
+              test.expect(envVars.fooContainer1_wait_for).to.equal(''),
+              test.expect(envVars.fooContainer2_wait_for).to.equal(''),
+              test.expect(envVars.fooContainer3_wait_for).to.equal('')
+            ])
+          })
+      })
+
+      test.it('should set an environment variable with "coverage_enabled" as true when a service is covered', () => {
+        return docker.run(suiteConfig)
+          .then(() => {
+            const envVars = childProcessMock.stubs.execSync.getCall(0).args[1].env
+            return Promise.all([
+              test.expect(envVars.fooContainer1_coverage_enabled).to.be.true(),
+              test.expect(envVars.fooContainer2_coverage_enabled).to.be.false(),
+              test.expect(envVars.fooContainer3_coverage_enabled).to.be.false()
+            ])
+          })
+      })
+
+      test.it('should set an environment variable with "coverage_enabled" as empty string when service is not covered', () => {
+        suiteConfig.coverage.from = 'fooService2'
+        return docker.run(suiteConfig)
+          .then(() => {
+            const envVars = childProcessMock.stubs.execSync.getCall(0).args[1].env
+            return Promise.all([
+              test.expect(envVars.fooContainer1_coverage_enabled).to.be.false(),
+              test.expect(envVars.fooContainer2_coverage_enabled).to.be.true(),
+              test.expect(envVars.fooContainer3_coverage_enabled).to.be.false()
+            ])
+          })
+      })
+
+      test.it('should set an environment variable with the "exit_after" value for each service, setting the default if it is not defined', () => {
+        const defaultExitAfter = 30000
+        return docker.run(suiteConfig)
+          .then(() => {
+            const envVars = childProcessMock.stubs.execSync.getCall(0).args[1].env
+            return Promise.all([
+              test.expect(envVars.fooContainer1_exit_after).to.equal(10000),
+              test.expect(envVars.fooContainer2_exit_after).to.equal(defaultExitAfter)
+            ])
+          })
+      })
+
+      test.it('should set the environment variable "exit_after" as an empty string for the tests', () => {
+        return docker.run(suiteConfig)
+          .then(() => {
+            return test.expect(childProcessMock.stubs.execSync.getCall(0).args[1].env.fooContainer3_exit_after).to.equal('')
+          })
+      })
+
+      test.it('should set the environment variable "exit_after" with the value 0 for docker containers that has not a service configured in the suite when one service is covered', () => {
+        suiteConfig.services.pop()
+        return docker.run(suiteConfig)
+          .then(() => {
+            const envVars = childProcessMock.stubs.execSync.getCall(0).args[1].env
+            return test.expect(envVars.fooContainer2_exit_after).to.equal('0')
+          })
+      })
+    })
+
+    test.describe('when docker execution has finished', () => {
+      test.it('should get the docker finish status of each service using command line', () => {
+        return docker.run(suiteConfig)
+          .then(() => {
+            return test.expect(childProcessMock.stubs.execSync.getCall(1).args[0]).to.contain('docker inspect')
+          })
+      })
+
+      test.it('should resolve the promise if all docker status are ok', () => {
+        childProcessMock.stubs.execSync.returns('fooContainer1 status 0\\nfooContainer 2 status 137')
+        return docker.run(suiteConfig)
+          .then(() => {
+            return test.expect(childProcessMock.stubs.execSync.getCall(1).args[0]).to.contain('docker inspect')
+          })
+      })
+
+      test.it('should reject the promise if any docker status is an error', () => {
+        const errorStatus = '153'
+        childProcessMock.stubs.execSync.returns(`fooContainer1 status 0\nfooContainer 2 status ${errorStatus}`)
+        return docker.run(suiteConfig)
+          .then(() => {
+            return Promise.reject(new Error())
+          })
+          .catch((error) => {
+            return Promise.all([
+              test.expect(Boom.isBoom(error)).to.be.true(),
+              test.expect(error.message).to.contain('exited'),
+              test.expect(error.message).to.contain(`status ${errorStatus}`)
+            ])
+          })
+      })
     })
   })
 })
