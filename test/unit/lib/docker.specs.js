@@ -17,12 +17,12 @@ test.describe('docker', () => {
   let sandbox
   let childProcessMock
   let pathsMock
-  let configuration
+//  let configuration
   let suiteConfig
 
   test.beforeEach(() => {
     suiteConfig = JSON.parse(JSON.stringify(fixtures.config.dockerSuite))
-    configuration = JSON.parse(JSON.stringify(fixtures.config.dockerConfig))
+//    configuration = JSON.parse(JSON.stringify(fixtures.config.dockerConfig))
     sandbox = test.sinon.sandbox.create()
 
     sandbox.stub(config, 'get').usingPromise().resolves(fixtures.config.dockerConfig)
