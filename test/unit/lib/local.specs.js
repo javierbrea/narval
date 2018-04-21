@@ -309,7 +309,7 @@ test.describe('local', () => {
 
       test.it('should print a debug trace for each closed service', () => {
         return local.run(suiteFixture).then(() => {
-          return test.expect(tracerMock.stubs.debug.callCount).to.equal(9)
+          return test.expect(tracerMock.stubs.debug.callCount).to.equal(8)
         })
       })
     })
@@ -465,6 +465,64 @@ test.describe('local', () => {
             return Promise.all([
               test.expect(Boom.isBoom(error)).to.be.true(),
               test.expect(error.message).to.contain('fooLocalSuite2')
+            ])
+          })
+      })
+    })
+
+    test.it('should not call to wait-on when test has not a wait-for property in configuration', () => {
+      return local.run(fixtures.config.localSuite)
+          .then(() => {
+            return test.expect(waitOnMock.stubs.wait).to.not.have.been.called()
+          })
+    })
+
+    test.describe('when test has a wait-for property in configuration', () => {
+      const fooServiceUrl = 'http://fake-service:3000'
+      const suite = _.extend({}, fixtures.config.localSuite, {
+        test: {
+          specs: 'foo/wait/specs',
+          local: {
+            'wait-for': fooServiceUrl
+          }
+        }
+      })
+
+      test.beforeEach(() => {
+        options.get.resolves({})
+      })
+
+      test.it('should print a debug trace', () => {
+        return local.run(suite)
+          .then(() => {
+            return Promise.all([
+              test.expect(tracerMock.stubs.debug.getCall(2).args[0]).to.contain('Waiting'),
+              test.expect(tracerMock.stubs.debug.getCall(2).args[0]).to.contain(fooServiceUrl)
+            ])
+          })
+      })
+
+      test.it('should call to waitOn, passing the configuration', () => {
+        return local.run(suite)
+          .then(() => {
+            return Promise.all([
+              test.expect(waitOnMock.stubs.wait).to.have.been.called(),
+              test.expect(waitOnMock.stubs.wait.getCall(0).args[0].resources[0]).to.equal(fooServiceUrl)
+            ])
+          })
+      })
+
+      test.it('should reject the promise if it receives an error from waitOn execution', () => {
+        const fooErrorMessage = 'Wait on error'
+        waitOnMock.stubs.wait.returns(new Error(fooErrorMessage))
+        return local.run(suite)
+          .then(() => {
+            throw new Error()
+          })
+          .catch((error) => {
+            return Promise.all([
+              test.expect(Boom.isBoom(error)).to.be.true(),
+              test.expect(error.message).to.contain('fooLocalSuite')
             ])
           })
       })

@@ -92,10 +92,7 @@ const manySuitesAndTypes = {
 const localSuite = {
   name: 'fooLocalSuite',
   test: {
-    specs: 'foo/path/specs',
-    local: {
-      'wait-for': 'tcp:localhost:3000'
-    }
+    specs: 'foo/path/specs'
   },
   services: [
     {
