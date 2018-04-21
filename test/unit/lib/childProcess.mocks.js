@@ -8,6 +8,7 @@ const Mock = function () {
   let forkStub
   let forkOnFake
   let forkSendFake
+  let execSync
   let execFileSyncStub
   let execFileStub
   let execFileStdoutOnFake
@@ -55,6 +56,7 @@ const Mock = function () {
 
   forkStub.send = forkSendFake
 
+  execSync = sandbox.stub(childProcess, 'execSync')
   execFileSyncStub = sandbox.stub(childProcess, 'execFileSync')
 
   execFileStdoutOnFake = new CallBackRunnerFake({
@@ -103,6 +105,7 @@ const Mock = function () {
   return {
     stubs: {
       fork: forkStub,
+      execSync: execSync,
       execFileSync: execFileSyncStub,
       execFile: execFileStub
     },
