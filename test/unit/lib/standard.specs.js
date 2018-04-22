@@ -33,9 +33,9 @@ test.describe('standard', () => {
     test.describe('when it is enabled in options', () => {
       test.it('should print an info log', () => {
         return standard.run(fixtures.options.standard)
-        .then(() => {
-          return test.expect(tracerMock.stubs.info).to.have.been.called()
-        })
+          .then(() => {
+            return test.expect(tracerMock.stubs.info).to.have.been.called()
+          })
       })
 
       test.it('should open a child process running the standard binary', () => {

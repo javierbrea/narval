@@ -109,30 +109,30 @@ test.describe('suites', () => {
     test.it('should reject the promise with a controlled error if suite execution fails', () => {
       local.run.rejects(Boom.notImplemented('foo message'))
       return suites.run(fixtures.options.suite, fixtures.config.manySuitesAndTypes)
-          .then(() => {
-            return Promise.reject(new Error())
-          })
-          .catch((error) => {
-            return Promise.all([
-              test.expect(Boom.isBoom(error)).to.be.true(),
-              test.expect(error.message).to.contain('Error running')
-            ])
-          })
+        .then(() => {
+          return Promise.reject(new Error())
+        })
+        .catch((error) => {
+          return Promise.all([
+            test.expect(Boom.isBoom(error)).to.be.true(),
+            test.expect(error.message).to.contain('Error running')
+          ])
+        })
     })
 
     test.it('should call to clean docker volumes after suites execution is OK', () => {
       return suites.run(fixtures.options.suite, fixtures.config.manySuitesAndTypes)
-          .then(() => {
-            return test.expect(docker.downVolumes).to.have.been.called()
-          })
+        .then(() => {
+          return test.expect(docker.downVolumes).to.have.been.called()
+        })
     })
 
     test.it('should call to clean docker volumes even when suites execution fails', () => {
       local.run.rejects(Boom.notImplemented('foo message'))
       return suites.run(fixtures.options.suite, fixtures.config.manySuitesAndTypes)
-          .catch(() => {
-            return test.expect(docker.downVolumes).to.have.been.called()
-          })
+        .catch(() => {
+          return test.expect(docker.downVolumes).to.have.been.called()
+        })
     })
 
     test.describe('when options do not specify to run all suites, an specific suite, or a suite type', () => {
