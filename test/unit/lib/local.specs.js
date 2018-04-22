@@ -177,18 +177,18 @@ test.describe('local', () => {
         local: fakeServiceName
       })
       return local.run(fixtures.config.localSuite)
-      .then(() => {
-        return Promise.reject(new Error())
-      }).catch((error) => {
-        return Promise.all([
-          test.expect(Boom.isBoom(error)).to.be.true(),
-          test.expect(tracerMock.stubs.error.getCall(0).args[0]).to.contain(fakeServiceName),
-          test.expect(childProcessMock.stubs.execFile).to.not.have.been.called(),
-          test.expect(childProcessMock.stubs.execFileSync).to.not.have.been.called(),
-          test.expect(mochaSinonChaiRunner.run).to.not.have.been.called(),
-          test.expect(childProcessMock.stubs.fork).to.not.have.been.called()
-        ])
-      })
+        .then(() => {
+          return Promise.reject(new Error())
+        }).catch((error) => {
+          return Promise.all([
+            test.expect(Boom.isBoom(error)).to.be.true(),
+            test.expect(tracerMock.stubs.error.getCall(0).args[0]).to.contain(fakeServiceName),
+            test.expect(childProcessMock.stubs.execFile).to.not.have.been.called(),
+            test.expect(childProcessMock.stubs.execFileSync).to.not.have.been.called(),
+            test.expect(mochaSinonChaiRunner.run).to.not.have.been.called(),
+            test.expect(childProcessMock.stubs.fork).to.not.have.been.called()
+          ])
+        })
     })
 
     test.it('should reject the promise with a controlled error if a service has not defined a command to execute in local', () => {
@@ -204,17 +204,17 @@ test.describe('local', () => {
         local: fakeServiceName
       })
       return local.run(suiteFixture)
-      .then(() => {
-        return Promise.reject(new Error())
-      })
-      .catch((err) => {
-        return Promise.all([
-          test.expect(mochaSinonChaiRunner.run).to.not.have.been.called(),
-          test.expect(childProcessMock.stubs.execFile).to.not.have.been.called(),
-          test.expect(tracerMock.stubs.error.getCall(0).args[0]).to.contain(fakeServiceName),
-          test.expect(Boom.isBoom(err)).to.be.true()
-        ])
-      })
+        .then(() => {
+          return Promise.reject(new Error())
+        })
+        .catch((err) => {
+          return Promise.all([
+            test.expect(mochaSinonChaiRunner.run).to.not.have.been.called(),
+            test.expect(childProcessMock.stubs.execFile).to.not.have.been.called(),
+            test.expect(tracerMock.stubs.error.getCall(0).args[0]).to.contain(fakeServiceName),
+            test.expect(Boom.isBoom(err)).to.be.true()
+          ])
+        })
     })
 
     test.it('should print a debug trace when an specific service is defined in "local" option and it has finished', () => {
@@ -359,15 +359,15 @@ test.describe('local', () => {
       options.get.resolves({})
       mochaSinonChaiRunner.run.rejects(new Error())
       return local.run(fixtures.config.localSuiteWithNoService)
-      .then(() => {
-        return test.expect(false).to.be.true()
-      })
-      .catch((error) => {
-        return Promise.all([
-          test.expect(Boom.isBoom(error)).to.be.true(),
-          test.expect(error.message).to.contain('fooLocalSuite2')
-        ])
-      })
+        .then(() => {
+          return test.expect(false).to.be.true()
+        })
+        .catch((error) => {
+          return Promise.all([
+            test.expect(Boom.isBoom(error)).to.be.true(),
+            test.expect(error.message).to.contain('fooLocalSuite2')
+          ])
+        })
     })
 
     test.describe('when runs coveraged tests', () => {
@@ -472,9 +472,9 @@ test.describe('local', () => {
 
     test.it('should not call to wait-on when test has not a wait-for property in configuration', () => {
       return local.run(fixtures.config.localSuite)
-          .then(() => {
-            return test.expect(waitOnMock.stubs.wait).to.not.have.been.called()
-          })
+        .then(() => {
+          return test.expect(waitOnMock.stubs.wait).to.not.have.been.called()
+        })
     })
 
     test.describe('when test has a wait-for property in configuration', () => {
