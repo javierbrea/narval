@@ -4,10 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [1.0.0-beta.3]
-### Added
-- Deeply tested on Windows.
-
+## [1.0.0-beta.3] - 2018-04-22
 ### Changed
 - Upgraded standard version.
 - Change Sonar branchs configuration. Was not working properly.
