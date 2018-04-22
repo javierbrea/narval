@@ -14,6 +14,13 @@ const suites = require('../../../lib/suites')
 test.describe('suites', () => {
   test.describe('run method', () => {
     const sandbox = test.sinon.sandbox.create()
+    const specDockerUsed = function () {
+      return Promise.all([
+        test.expect(docker.createFiles).to.have.been.called(),
+        test.expect(docker.run).to.have.been.called(),
+        test.expect(local.run).to.not.have.been.called()
+      ])
+    }
     let tracerMock
 
     test.beforeEach(() => {
@@ -60,26 +67,14 @@ test.describe('suites', () => {
 
     test.it('should run suite using docker if suite has any docker property in test', () => {
       return suites.run(fixtures.options.dockerSuite, fixtures.config.manySuitesAndTypes)
-        .then(() => {
-          return Promise.all([
-            test.expect(docker.createFiles).to.have.been.called(),
-            test.expect(docker.run).to.have.been.called(),
-            test.expect(local.run).to.not.have.been.called()
-          ])
-        })
+        .then(specDockerUsed)
     })
 
     test.it('should run suite using docker if suite has any service configured for docker', () => {
       return suites.run({
         suite: 'fooDockerSuite2'
       }, fixtures.config.manySuitesAndTypes)
-        .then(() => {
-          return Promise.all([
-            test.expect(docker.createFiles).to.have.been.called(),
-            test.expect(docker.run).to.have.been.called(),
-            test.expect(local.run).to.not.have.been.called()
-          ])
-        })
+        .then(specDockerUsed)
     })
 
     test.it('should run suite locally if suite test is not configured for docker and has not any service configured for docker', () => {

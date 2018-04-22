@@ -204,12 +204,7 @@ test.describe('docker', () => {
       test.it('should set an environment variable with the "wait_for" value for the test', () => {
         return docker.run(suiteConfig)
           .then(() => {
-            const envVars = childProcessMock.stubs.execSync.getCall(0).args[1].env
-            return Promise.all([
-              test.expect(envVars.fooContainer1_wait_for).to.equal(''),
-              test.expect(envVars.fooContainer2_wait_for).to.equal(''),
-              test.expect(envVars.fooContainer3_wait_for).to.equal('fooService1:3000')
-            ])
+            return test.expect(childProcessMock.stubs.execSync.getCall(0).args[1].env.fooContainer3_wait_for).to.equal('fooService1:3000')
           })
       })
 
