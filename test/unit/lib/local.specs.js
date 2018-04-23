@@ -50,7 +50,7 @@ test.describe('local', () => {
       })
       sandbox.stub(treeKill, 'kill')
       sandbox.stub(commands, 'run').usingPromise().resolves({
-        on: childProcessMock.stubs.execFile.on.fake
+        on: childProcessMock.stubs.spawn.on.fake
       })
       sandbox.stub(process.stdin, 'setRawMode')
       sandbox.stub(process.stdin, 'resume')
@@ -224,11 +224,14 @@ test.describe('local', () => {
     })
 
     test.it('should reject the promise if the service execution fails, adding the service name to the error message', () => {
-      childProcessMock.stubs.execFile.on.returns(1)
-      // TODO, ensure catchs are working
-      return local.run(fixtures.config.localSuite).catch((err) => {
-        return test.expect(err.message).to.contain('fooService')
-      })
+      childProcessMock.stubs.spawn.on.returns(1)
+      return local.run(fixtures.config.localSuite)
+        .then(() => {
+          return test.expect(false).to.be.true()
+        })
+        .catch((err) => {
+          return test.expect(err.message).to.contain('fooService')
+        })
     })
 
     test.it('should run all services and test when no specific test or service is defined in "local" option', () => {
@@ -460,7 +463,7 @@ test.describe('local', () => {
         childProcessMock.stubs.fork.on.returns(1)
         return local.run(suite)
           .then(() => {
-            throw new Error()
+            return test.expect(false).to.be.true()
           })
           .catch((error) => {
             return Promise.all([
