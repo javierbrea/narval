@@ -7,6 +7,7 @@ const test = require('../../../index')
 const mocks = require('../mocks')
 
 const commands = require('../../../lib/commands')
+const options = require('../../../lib/options')
 
 test.describe('commands', () => {
   test.describe('run method', () => {
@@ -21,6 +22,7 @@ test.describe('commands', () => {
       childProcessMock = new mocks.ChildProcess()
       sandbox.spy(console, 'log')
       sandbox.stub(os, 'platform').returns('linux')
+      sandbox.stub(options, 'get').usingPromise().resolves({})
       childProcessMock.stubs.spawn.on.returns(0)
       oldComSpec = process.env.ComSpec
       process.env.ComSpec = fooCmdWindowsPath
@@ -33,19 +35,19 @@ test.describe('commands', () => {
     })
 
     test.it('should return a promise', () => {
-      const execution = commands.run(fooCommand)
-        .finally(() => {
-          return test.expect(execution).to.be.an.instanceof(Promise)
+      return commands.run(fooCommand)
+        .then(() => {
+          return test.expect(true).to.be.true()
         })
-      return execution
     })
 
     test.it('should execute an "sh -c" spawn child process in Unix systems', () => {
       return commands.run(fooCommand)
         .then(() => {
+          const spawnCall = childProcessMock.stubs.spawn.getCall(0)
           return Promise.all([
-            test.expect(childProcessMock.stubs.spawn.getCall(0).args[0]).to.equal('sh'),
-            test.expect(childProcessMock.stubs.spawn.getCall(0).args[1][0]).to.equal('-c')
+            test.expect(spawnCall.args[0]).to.equal('sh'),
+            test.expect(spawnCall.args[1][0]).to.equal('-c')
           ])
         })
     })
@@ -54,11 +56,28 @@ test.describe('commands', () => {
       os.platform.returns('win32')
       return commands.run(fooCommand)
         .then(() => {
+          const spawnCall = childProcessMock.stubs.spawn.getCall(0)
           return Promise.all([
-            test.expect(childProcessMock.stubs.spawn.getCall(0).args[0]).to.equal(fooCmdWindowsPath),
-            test.expect(childProcessMock.stubs.spawn.getCall(0).args[1][0]).to.equal('/d'),
-            test.expect(childProcessMock.stubs.spawn.getCall(0).args[1][1]).to.equal('/s'),
-            test.expect(childProcessMock.stubs.spawn.getCall(0).args[1][2]).to.equal('/c')
+            test.expect(spawnCall.args[0]).to.equal(fooCmdWindowsPath),
+            test.expect(spawnCall.args[1][0]).to.equal('/d'),
+            test.expect(spawnCall.args[1][1]).to.equal('/s'),
+            test.expect(spawnCall.args[1][2]).to.equal('/c')
+          ])
+        })
+    })
+
+    test.it('should execute a custom spawn child process when option shell is received', () => {
+      options.get.resolves({
+        shell: 'custom/path/to/command.exe /f /g /h'
+      })
+      return commands.run(fooCommand)
+        .then(() => {
+          const spawnCall = childProcessMock.stubs.spawn.getCall(0)
+          return Promise.all([
+            test.expect(spawnCall.args[0]).to.equal('custom/path/to/command.exe'),
+            test.expect(spawnCall.args[1][0]).to.equal('/f'),
+            test.expect(spawnCall.args[1][1]).to.equal('/g'),
+            test.expect(spawnCall.args[1][2]).to.equal('/h')
           ])
         })
     })
