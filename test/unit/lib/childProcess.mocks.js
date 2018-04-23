@@ -94,6 +94,7 @@ const Mock = function () {
   }
 
   execFileStub.on = {
+    fake: execFileOnFake.fake,
     returns: execFileOnFake.returns,
     runOnRegister: execFileOnFake.runOnRegister
   }
