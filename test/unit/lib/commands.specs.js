@@ -63,6 +63,13 @@ test.describe('commands', () => {
         })
     })
 
+    test.it('should add the cwd path to the received command', () => {
+      return commands.run(fooCommand)
+        .then(() => {
+          return test.expect(childProcessMock.stubs.spawn.getCall(0).args[1][1].indexOf(process.cwd())).to.equal(0)
+        })
+    })
+
     test.it('should resolve the promise with the initialized process when option "sync" is not received', () => {
       return commands.run(fooCommand)
         .then((result) => {
@@ -115,14 +122,6 @@ test.describe('commands', () => {
         childProcessMock.stubs.spawn.stderr.on.returns(`   ${fooData}    `)
         return commands.run(fooCommand, option).then(() => {
           return test.expect(console.log).to.have.been.calledWith(fooData)
-        })
-      })
-
-      test.it('should not log empty data received from the execution', () => {
-        const fooData = '   '
-        childProcessMock.stubs.spawn.stdout.on.returns(fooData)
-        return commands.run(fooCommand, option).then(() => {
-          return test.expect(console.log).to.not.have.been.calledWith(fooData)
         })
       })
 
