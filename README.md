@@ -426,6 +426,7 @@ option | description | alias
 `--suite <suite>` | Run only provided `<suite>` | 
 `--build` | Rebuild Docker images | `-b`
 `--local [service]` | Run locally, do not use Docker. If service name is provided, only it will be run. *Use "test" as service name to run only test. Use CTRL-C to exit service execution (If service is coveraged, it will generate the report, then exit)* | 
+`--shell <shellPath>` | Use a custom shell for running commands. More info [here](#using-a-custom-shell)| 
 
 > Examples
 ```shell
@@ -452,7 +453,7 @@ npm test -- --build
 
 #### Commands languages
 
-Inside Docker, commands are executed using `sh`, so you can define the language of your choice in your scripts using the correspondant [shebang][shebang-url] (the availability of the interpreter will depend of your docker base image, of course)
+Inside Docker, commands are executed using `sh -c`, so you can define the language of your choice in your scripts using the correspondant [shebang][shebang-url] (the availability of the interpreter will depend of your docker base image, of course)
 
 ```bash
 #!/usr/bin/env bash
@@ -464,10 +465,45 @@ echo "My script is written in bash"
 console.log('This script is written in nodejs')
 ```
 
-In the local environment, commands are executed through nodejs child processes using `execFile` with the `shell` option enabled [(read the nodejs docs for further info)][child-process-url]. So, the availability of the script language that you have to choose will depend of the platform in which you are going to run the suites locally.\
-In Unix systems, the mentioned in the examples above still applies for local commands.
+Outside Docker, in the "local" environment, commands are executed through nodejs spawn child processes. The base "shell" used for running commands depends on the platform:
 
-> When a service is executed with "coverage" option, the command must be a path to a nodejs file, because it is executed using Istanbul.
+* In Unix platforms, the commands are executed using "sh -c". So, you can define the language of your choice using the correspondant [shebang][shebang-url]. The availability of the script language that you have to choose will depend of the platform in which you are going to run the suites locally.\
+
+* In Windows platforms, the commands are executed using the default system shell, using the nodejs `process.env.ComSpec` property. Usually, it should be something like: `c:\windows\system32\cmd.exe /d /s /c`.\
+Note that Windows shell can only execute `.bat` and `.cmd` commands, so, maybe you want to define your own shell.
+
+##### Using a custom shell
+
+It is possible to define a custom shell for running commands. This can be useful, for example, if you want to run commands locally in Windows using `gitBash` in order to make them compatible with Unix platforms. Use the [option](#command-line-options) "--shell" to define the path to the custom shell:
+
+```shell
+npm run test -- --shell="C:\git\bin\bash.exe"
+# Commands will be executed using an spawn process like "C:\git\bin\bash.exe [command]"
+```
+
+Or define two different scripts in your `package.json`, one to be used in Unix platforms, and the other one for your local development Windows platform:
+
+```json
+{
+  "scripts": {
+    "test": "narval",
+    "test-windows": "narval --shell=\"C:\\git\\bin\\bash.exe\""
+  }
+}
+```
+
+```shell
+npm run test
+# Used in Unix platforms, default behavior
+
+npm run test-windows
+# Used in Windows platforms, executes commands using gitBash
+```
+
+##### Commands for services with "coverage" enabled
+
+When a service is executed with "coverage" option, all mentioned above does not apply, and the command must be a path to a nodejs file, because it is executed using Istanbul.
+
 
 #### Working directory
 
