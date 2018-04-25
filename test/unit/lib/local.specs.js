@@ -33,7 +33,7 @@ const StdinOnFake = function (options) {
   }
 }
 
-test.describe('local', () => {
+test.describe.only('local', () => {
   test.describe('run method', () => {
     let sandbox
     let tracerMock
@@ -85,26 +85,67 @@ test.describe('local', () => {
         })
     })
 
-    test.it('should execute the "before" command if it is defined in suite', () => {
+    test.describe.only('when runs "before" command', () => {
       const commandPath = 'fooBeforeLocalCommand'
-      options.get.resolves({
-      })
-      localSuiteFixture.before = {
-        local: {
-          command: commandPath
-        }
+      const cleanEnv = {
+        fooEnv1: 'fooEnv1',
+        fooEnv2: 'fooEnv2'
       }
-      return local.run(localSuiteFixture).then(() => {
-        return Promise.all([
-          test.expect(commands.run).to.have.been.calledWith(commandPath),
-          test.expect(commands.run.getCall(0).args[1].sync).to.be.true()
-        ])
-      })
-    })
 
-    test.it('should not execute the "before" command if it is running an specific service or test', () => {
-      return local.run(localSuiteFixture).then(() => {
-        return test.expect(commands.run).to.have.been.calledOnce()
+      test.beforeEach(() => {
+        options.get.resolves({
+        })
+        localSuiteFixture.before = {
+          local: {
+            command: commandPath,
+            env: cleanEnv
+          }
+        }
+      })
+
+      test.it('should not execute the "before" command if it is running an specific service or test', () => {
+        options.get.resolves({
+          local: 'fooService'
+        })
+        return local.run(localSuiteFixture).then(() => {
+          return Promise.all([
+            test.expect(commands.run).to.have.been.calledOnce(),
+            test.expect(commands.run).to.not.have.been.calledWith(commandPath)
+          ])
+          
+        })
+      })
+
+      test.it('should execute the "before" command if it is defined in suite', () => {
+        return local.run(localSuiteFixture).then(() => {
+          return Promise.all([
+            test.expect(commands.run).to.have.been.calledWith(commandPath),
+            test.expect(commands.run.getCall(0).args[1].sync).to.be.true()
+          ])
+        })
+      })
+
+      test.it('should add the suite details to environment variables when runs "before" command', () => {
+        const fooSuiteTypeName = 'fooTypeName'
+        return local.run(localSuiteFixture, fooSuiteTypeName).then(() => {
+          const envValues = commands.run.getCall(0).args[1].env
+          return Promise.all([
+            test.expect(envValues.narval_is_docker).to.equal(false),
+            test.expect(envValues.narval_service).to.equal('clean'),
+            test.expect(envValues.narval_suite).to.equal('fooLocalSuite'),
+            test.expect(envValues.narval_suite_type).to.equal(fooSuiteTypeName)
+          ])
+        })
+      })
+
+      test.it('should add custom environment variables when runs "before" command', () => {
+        return local.run(localSuiteFixture).then(() => {
+          const envValues = commands.run.getCall(0).args[1].env
+          return Promise.all([
+            test.expect(envValues.fooEnv1).to.equal(cleanEnv.fooEnv1),
+            test.expect(envValues.fooEnv2).to.equal(cleanEnv.fooEnv2)
+          ])
+        })
       })
     })
 
