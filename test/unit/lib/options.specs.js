@@ -48,11 +48,11 @@ test.describe('options', () => {
       return test.expect(options.get()).to.be.an.instanceof(Promise)
     })
 
-    test.it('should get the six available options from command line arguments', () => {
+    test.it('should get the seven available options from command line arguments', () => {
       return options.get()
         .then(() => {
           return Promise.all([
-            test.expect(commanderMock.option.callCount).to.equal(6),
+            test.expect(commanderMock.option.callCount).to.equal(7),
             test.expect(commanderMock.parse.callCount).to.equal(1),
             test.expect(commanderMock.parse).to.have.been.calledWith(process.argv)
           ])

@@ -1,0 +1,9 @@
+{
+  "name": "foo-package",
+  "scripts": {
+    "test": "narval"
+  },
+  "devDependencies": {
+    "narval": "file:../../../../"
+  }
+}

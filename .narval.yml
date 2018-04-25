@@ -6,3 +6,18 @@ suites:
       coverage:
         config:
           dir: .coverage/unit
+  integration:
+    - name: no-config
+      before:
+        local:
+          command: test/integration/commands/clean.sh
+      services:
+        - name: narval-runner
+          local:
+            command: test/integration/commands/launch-test.sh
+      test:
+        specs: test/integration/test/coverage
+        local:
+          wait-for: test/integration/foo-packages/no-config/.coverage
+      coverage:
+        enabled: false

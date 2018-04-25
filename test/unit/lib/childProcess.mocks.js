@@ -9,11 +9,10 @@ const Mock = function () {
   let forkOnFake
   let forkSendFake
   let execSync
-  let execFileSyncStub
-  let execFileStub
-  let execFileStdoutOnFake
-  let execFileStderrOnFake
-  let execFileOnFake
+  let spawnStub
+  let spawnStdoutOnFake
+  let spawnStderrOnFake
+  let spawnOnFake
 
   const CallBackRunnerFake = function (options) {
     options = options || {}
@@ -57,45 +56,45 @@ const Mock = function () {
   forkStub.send = forkSendFake
 
   execSync = sandbox.stub(childProcess, 'execSync')
-  execFileSyncStub = sandbox.stub(childProcess, 'execFileSync')
 
-  execFileStdoutOnFake = new CallBackRunnerFake({
+  spawnStdoutOnFake = new CallBackRunnerFake({
     runOnRegister: true
   })
-  execFileStderrOnFake = new CallBackRunnerFake()
-  execFileOnFake = new CallBackRunnerFake({
+  spawnStderrOnFake = new CallBackRunnerFake()
+  spawnOnFake = new CallBackRunnerFake({
     runOnRegister: true,
     returns: 0
   })
 
-  execFileStub = sandbox.stub(childProcess, 'execFile').returns({
+  spawnStub = sandbox.stub(childProcess, 'spawn').returns({
     stdout: {
       setEncoding: sandbox.stub(),
-      on: execFileStdoutOnFake.fake
+      on: spawnStdoutOnFake.fake
     },
     stderr: {
-      on: execFileStderrOnFake.fake
+      on: spawnStderrOnFake.fake
     },
-    on: execFileOnFake.fake
+    on: spawnOnFake.fake
   })
 
-  execFileStub.stdout = {
+  spawnStub.stdout = {
     on: {
-      returns: execFileStdoutOnFake.returns,
-      runOnRegister: execFileStdoutOnFake.runOnRegister
+      returns: spawnStdoutOnFake.returns,
+      runOnRegister: spawnStdoutOnFake.runOnRegister
     }
   }
 
-  execFileStub.stderr = {
+  spawnStub.stderr = {
     on: {
-      returns: execFileStderrOnFake.returns,
-      runOnRegister: execFileStderrOnFake.runOnRegister
+      returns: spawnStderrOnFake.returns,
+      runOnRegister: spawnStderrOnFake.runOnRegister
     }
   }
 
-  execFileStub.on = {
-    returns: execFileOnFake.returns,
-    runOnRegister: execFileOnFake.runOnRegister
+  spawnStub.on = {
+    fake: spawnOnFake.fake,
+    returns: spawnOnFake.returns,
+    runOnRegister: spawnOnFake.runOnRegister
   }
 
   const restore = function () {
@@ -106,8 +105,7 @@ const Mock = function () {
     stubs: {
       fork: forkStub,
       execSync: execSync,
-      execFileSync: execFileSyncStub,
-      execFile: execFileStub
+      spawn: spawnStub
     },
     restore: restore
   }

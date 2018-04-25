@@ -7,6 +7,7 @@ const test = require('../../../index')
 const mocks = require('../mocks')
 const fixtures = require('../fixtures')
 
+const commands = require('../../../lib/commands')
 const docker = require('../../../lib/docker')
 const dockerState = require('../../../lib/docker-state')
 
@@ -19,11 +20,14 @@ test.describe('docker', () => {
   let pathsMock
   let configuration
   let suiteConfig
+  let tracerMock
 
   test.beforeEach(() => {
     suiteConfig = JSON.parse(JSON.stringify(fixtures.config.dockerSuite))
     configuration = JSON.parse(JSON.stringify(fixtures.config.dockerConfig))
     sandbox = test.sinon.sandbox.create()
+
+    tracerMock = new mocks.Tracer()
 
     sandbox.stub(config, 'get').usingPromise().resolves(configuration)
     sandbox.stub(options, 'get').usingPromise().resolves({})
@@ -34,10 +38,15 @@ test.describe('docker', () => {
     childProcessMock.stubs.fork.on.returns(0)
     childProcessMock.stubs.execSync.returns('fooContainer1 status 0')
 
+    sandbox.stub(commands, 'run').usingPromise().resolves({
+      on: childProcessMock.stubs.spawn.on.fake
+    })
+
     pathsMock = new mocks.Paths()
   })
 
   test.afterEach(() => {
+    tracerMock.restore()
     childProcessMock.restore()
     pathsMock.restore()
     sandbox.restore()
@@ -66,18 +75,6 @@ test.describe('docker', () => {
         })
     })
 
-    test.it('should execute docker down-volumes if it is defined in the suite', () => {
-      suiteConfig.before = {
-        docker: {
-          'down-volumes': true
-        }
-      }
-      return docker.run(suiteConfig)
-        .then(() => {
-          return test.expect(childProcessMock.stubs.execSync.getCall(0).args[0]).to.contain('down --volumes')
-        })
-    })
-
     test.it('should execute docker compose up', () => {
       return docker.run(suiteConfig)
         .then(() => {
@@ -85,7 +82,67 @@ test.describe('docker', () => {
         })
     })
 
+    test.describe('when there is "before" configuration for the suite', () => {
+      const fooCommandPath = 'fooCommandPath'
+      const fooSuiteType = 'fooType'
+
+      test.beforeEach(() => {
+        suiteConfig.before = {
+          docker: {
+            'down-volumes': true,
+            command: fooCommandPath
+          }
+        }
+      })
+
+      test.it('should execute docker down-volumes if it is defined', () => {
+        return docker.run(suiteConfig)
+          .then(() => {
+            return test.expect(childProcessMock.stubs.execSync.getCall(0).args[0]).to.contain('down --volumes')
+          })
+      })
+
+      test.it('should execute the before command if it is defined', () => {
+        return docker.run(suiteConfig)
+          .then(() => {
+            return test.expect(commands.run).to.have.been.calledWith(fooCommandPath)
+          })
+      })
+
+      test.it('should add suit environment variables to the before command execution', () => {
+        return docker.run(suiteConfig, fooSuiteType)
+          .then(() => {
+            const envVars = commands.run.getCall(0).args[1].env
+            return Promise.all([
+              test.expect(envVars.narval_suite_type).to.equal(fooSuiteType),
+              test.expect(envVars.narval_suite).to.equal('fooDockerSuite'),
+              test.expect(envVars.narval_service).to.equal('clean'),
+              test.expect(envVars.narval_is_docker).to.be.true()
+            ])
+          })
+      })
+
+      test.it('should pass the custom environment variables defined for the before command', () => {
+        const fooVarValue = 'foo clean value'
+        suiteConfig.before = {
+          docker: {
+            'down-volumes': true,
+            command: fooCommandPath,
+            env: {
+              fooClean1: fooVarValue
+            }
+          }
+        }
+        return docker.run(suiteConfig)
+          .then(() => {
+            return test.expect(commands.run.getCall(0).args[1].env.fooClean1).to.equal(fooVarValue)
+          })
+      })
+    })
+
     test.describe('when executing docker compose up', () => {
+      const fooSuiteType = 'fooType'
+
       test.it('should reject the promise if the execution fails', () => {
         childProcessMock.stubs.execSync.throws(new Error())
         return docker.run(suiteConfig)
@@ -133,6 +190,37 @@ test.describe('docker', () => {
               test.expect(envVars.fooContainer1_command).to.contain('foo-docker-command2.js'),
               test.expect(envVars.fooContainer2_command).to.contain('foo-docker-command')
             ])
+          })
+      })
+
+      test.it('should set environment variables with the details about the suite, type, and service for each service', () => {
+        return docker.run(suiteConfig, fooSuiteType)
+          .then(() => {
+            const envVars = childProcessMock.stubs.execSync.getCall(0).args[1].env
+            return Promise.all([
+              test.expect(envVars.fooContainer1_narval_is_docker).to.be.true(),
+              test.expect(envVars.fooContainer1_narval_service).to.equal('fooService1'),
+              test.expect(envVars.fooContainer2_narval_service).to.equal('fooService2'),
+              test.expect(envVars.fooContainer1_narval_suite).to.equal('fooDockerSuite'),
+              test.expect(envVars.fooContainer2_narval_suite).to.equal('fooDockerSuite'),
+              test.expect(envVars.fooContainer1_narval_suite_type).to.equal('fooType'),
+              test.expect(envVars.fooContainer2_narval_suite_type).to.equal('fooType')
+            ])
+          })
+      })
+
+      test.it('should add custom environment variables', () => {
+        return docker.run(suiteConfig, fooSuiteType)
+          .then(() => {
+            return test.expect(childProcessMock.stubs.execSync.getCall(0).args[1].env.fooContainer1_fooVar).to.equal('foo value')
+          })
+      })
+
+      test.it('should not add custom environment variables for services that has not defined them', () => {
+        delete suiteConfig.test.docker.env
+        return docker.run(suiteConfig, fooSuiteType)
+          .then(() => {
+            return test.expect(childProcessMock.stubs.execSync.getCall(0).args[1].env.fooContainer3_fooVar).to.be.undefined()
           })
       })
 
@@ -349,6 +437,10 @@ test.describe('docker', () => {
             test.expect(envVars.fooContainer1_coverage_enabled).to.equal(''),
             test.expect(envVars.fooContainer2_coverage_enabled).to.equal(''),
             test.expect(envVars.fooContainer3_coverage_enabled).to.equal(''),
+            test.expect(envVars.fooContainer1_narval_is_docker).to.equal(''),
+            test.expect(envVars.fooContainer2_narval_suite_type).to.equal(''),
+            test.expect(envVars.fooContainer3_narval_suite).to.equal(''),
+            test.expect(envVars.fooContainer3_narval_service).to.equal(''),
             test.expect(envVars.fooContainer1_command).to.equal(''),
             test.expect(envVars.fooContainer2_command).to.equal(''),
             test.expect(envVars.fooContainer3_command).to.equal(''),
@@ -458,6 +550,28 @@ test.describe('docker', () => {
       })
 
       test.it('should add all needed configuration for each container', () => {
+        return docker.createFiles()
+          .then(() => {
+            return Promise.all([
+              test.expect(pathsMock.stubs.cwd.writeFile.getCall(0).args[1]).to.equal(JSON.stringify(fixtures.config.dockerConfigComposeResult, null, 2))
+            ])
+          })
+      })
+
+      test.it('should add all needed custom environment variables configuration for each container', () => {
+        configuration.suitesByType[0].suites[0].before = {
+          docker: {
+            command: 'fooCommand',
+            env: {
+              fooVar: 'foo value for clean'
+            }
+          }
+        }
+        configuration.suitesByType[0].suites[0].test.docker.env = {
+          fooVar: 'foo value for test'
+        }
+
+        config.get.resolves(configuration)
         return docker.createFiles()
           .then(() => {
             return Promise.all([
