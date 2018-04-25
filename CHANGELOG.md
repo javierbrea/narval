@@ -4,16 +4,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [unreleased]
+## [1.0.0-beta.4] - 2018-04-25
 ### Added
 - Add "shell" option.
 - Add "env" property to configuration, used to set environment variables for commands executions.
-- Add "command" property to before.docker configuration. Now can run local command to prepare docker execution.
-- Arguments can be passed to commands directly from configuration.
+- Add "command" property to "before.docker" suites configuration. Now can run local command to prepare docker execution.
+- Arguments passed to commands directly from configuration.
+- Add first "integration" test suite draft
+
+### Changed
+- Upgraded mocha-sinon-chai version.
 
 ### Fixed
 - Changed commands execution method, for Windows compatibility.
-
 
 ## [1.0.0-beta.3] - 2018-04-22
 ### Changed

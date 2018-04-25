@@ -6,18 +6,18 @@ suites:
       coverage:
         config:
           dir: .coverage/unit
-  end-to-end:
+  integration:
     - name: no-config
       before:
         local:
-          command: test/end-to-end/commands/clean.sh
+          command: test/integration/commands/clean.sh
       services:
         - name: narval-runner
           local:
-            command: test/end-to-end/commands/launch-test.sh
+            command: test/integration/commands/launch-test.sh
       test:
-        specs: test/end-to-end/test/coverage
+        specs: test/integration/test/coverage
         local:
-          wait-for: test/end-to-end/foo-packages/no-config/.coverage
+          wait-for: test/integration/foo-packages/no-config/.coverage
       coverage:
         enabled: false
