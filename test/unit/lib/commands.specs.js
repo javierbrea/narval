@@ -89,6 +89,23 @@ test.describe('commands', () => {
         })
     })
 
+    test.it('should pass the environment variables received in options to the child process', () => {
+      const fooEnv = {
+        fooVar1: 'foo value 1',
+        fooVar2: 'foo value 2'
+      }
+      return commands.run(fooCommand, {
+        env: fooEnv
+      })
+        .then(() => {
+          const envVars = childProcessMock.stubs.spawn.getCall(0).args[2].env
+          return Promise.all([
+            test.expect(envVars.fooVar1).to.equal(fooEnv.fooVar1),
+            test.expect(envVars.fooVar2).to.equal(fooEnv.fooVar2)
+          ])
+        })
+    })
+
     test.it('should resolve the promise with the initialized process when option "sync" is not received', () => {
       return commands.run(fooCommand)
         .then((result) => {
