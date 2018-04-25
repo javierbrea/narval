@@ -98,13 +98,20 @@ const localSuite = {
     {
       name: 'fooService',
       local: {
-        command: 'foo-local-command'
+        command: 'foo-local-command',
+        env: {
+          fooEnvVar1: 'fooEnvironment var 1',
+          fooEnvVar2: 'fooEnv2'
+        }
       }
     },
     {
       name: 'fooService2',
       local: {
-        command: 'foo-local-command2.js --fooParam1 --fooParam2'
+        command: 'foo-local-command2.js --fooParam1 --fooParam2',
+        env: {
+          fooEnv: 'fooEnv value'
+        }
       }
     }
   ]
@@ -135,6 +142,9 @@ const dockerSuite = {
       docker: {
         container: 'fooContainer1',
         command: 'foo-docker-command2.js --fooParam1 --fooParam2',
+        env: {
+          fooVar: 'foo value'
+        },
         exit_after: 10000
       }
     },

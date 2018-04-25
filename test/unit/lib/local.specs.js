@@ -33,7 +33,7 @@ const StdinOnFake = function (options) {
   }
 }
 
-test.describe.only('local', () => {
+test.describe('local', () => {
   test.describe('run method', () => {
     let sandbox
     let tracerMock
@@ -85,7 +85,7 @@ test.describe.only('local', () => {
         })
     })
 
-    test.describe.only('when runs "before" command', () => {
+    test.describe('when runs "before" command', () => {
       const commandPath = 'fooBeforeLocalCommand'
       const cleanEnv = {
         fooEnv1: 'fooEnv1',
@@ -116,6 +116,11 @@ test.describe.only('local', () => {
       })
 
       test.it('should execute the "before" command if it is defined in suite', () => {
+        localSuiteFixture.before = {
+          local: {
+            command: commandPath
+          }
+        }
         return local.run(localSuiteFixture).then(() => {
           return Promise.all([
             test.expect(commands.run).to.have.been.calledWith(commandPath),
@@ -124,7 +129,7 @@ test.describe.only('local', () => {
         })
       })
 
-      test.it('should add the suite details to environment variables when runs "before" command', () => {
+      test.it('should add the suite details to environment variables', () => {
         const fooSuiteTypeName = 'fooTypeName'
         return local.run(localSuiteFixture, fooSuiteTypeName).then(() => {
           const envValues = commands.run.getCall(0).args[1].env
@@ -137,7 +142,7 @@ test.describe.only('local', () => {
         })
       })
 
-      test.it('should add custom environment variables when runs "before" command', () => {
+      test.it('should add custom environment variables', () => {
         return local.run(localSuiteFixture).then(() => {
           const envValues = commands.run.getCall(0).args[1].env
           return Promise.all([
@@ -410,8 +415,33 @@ test.describe.only('local', () => {
     })
 
     test.describe('when runs coveraged tests', () => {
+      const fooSuiteType = 'fooType'
+
       test.beforeEach(() => {
         options.get.resolves({})
+      })
+
+      test.it('should add the suite details to environment variables', () => {
+        return local.run(localSuiteWithNoServiceFixture, fooSuiteType).then(() => {
+          let envValues = mochaSinonChaiRunner.run.getCall(0).args[1].env
+          return Promise.all([
+            test.expect(envValues.narval_is_docker).to.equal(false),
+            test.expect(envValues.narval_service).to.equal('test'),
+            test.expect(envValues.narval_suite).to.equal('fooLocalSuite2'),
+            test.expect(envValues.narval_suite_type).to.equal(fooSuiteType)
+          ])
+        })
+      })
+
+      test.it('should add custom environment variables', () => {
+        localSuiteWithNoServiceFixture.test.local = {
+          env: {
+            customVar: 'custom value',
+          }
+        }
+        return local.run(localSuiteWithNoServiceFixture, fooSuiteType).then(() => {
+          return test.expect(mochaSinonChaiRunner.run.getCall(0).args[1].env.customVar).to.equal('custom value')
+        })
       })
 
       test.it('should print a debug message with details about execution type', () => {
@@ -443,6 +473,7 @@ test.describe.only('local', () => {
     })
 
     test.describe('when runs not coveraged tests', () => {
+      const fooSuiteType = 'foo-suite-type'
       test.beforeEach(() => {
         localSuiteWithNoServiceFixture.test = {
           specs: 'foo2/specs',
@@ -455,6 +486,34 @@ test.describe.only('local', () => {
           enabled: false
         }
         options.get.resolves({})
+      })
+
+      test.it('should add the suite details to environment variables', () => {
+        return local.run(localSuiteWithNoServiceFixture, fooSuiteType).then(() => {
+          let envValues = childProcessMock.stubs.fork.getCall(0).args[2].env
+          return Promise.all([
+            test.expect(envValues.narval_is_docker).to.equal(false),
+            test.expect(envValues.narval_service).to.equal('test'),
+            test.expect(envValues.narval_suite).to.equal('fooLocalSuite2'),
+            test.expect(envValues.narval_suite_type).to.equal(fooSuiteType)
+          ])
+        })
+      })
+
+      test.it('should add custom environment variables', () => {
+        localSuiteWithNoServiceFixture.test.local = {
+          env: {
+            var1: 'value 1',
+            var2: 'value 2'
+          }
+        }
+        return local.run(localSuiteWithNoServiceFixture, fooSuiteType).then(() => {
+          const envValues = childProcessMock.stubs.fork.getCall(0).args[2].env
+          return Promise.all([
+            test.expect(envValues.var1).to.equal('value 1'),
+            test.expect(envValues.var2).to.equal('value 2')
+          ])
+        })
       })
 
       test.it('should print a debug message with details about execution type', () => {
@@ -560,8 +619,37 @@ test.describe.only('local', () => {
       })
     })
 
+    test.describe('when runs a not coveraged service', () => {
+      const fooSuiteTypeName = 'fooTypeName'
+
+      test.it('should add the suite details to environment variables', () => {
+        return local.run(localSuiteFixture, fooSuiteTypeName).then(() => {
+          const envValues = commands.run.getCall(0).args[1].env
+          return Promise.all([
+            test.expect(commands.run).to.have.been.calledOnce(),
+            test.expect(commands.run.getCall(0).args[0]).to.equal('foo-local-command'),
+            test.expect(envValues.narval_is_docker).to.equal(false),
+            test.expect(envValues.narval_service).to.equal('fooService'),
+            test.expect(envValues.narval_suite).to.equal('fooLocalSuite'),
+            test.expect(envValues.narval_suite_type).to.equal(fooSuiteTypeName)
+          ])
+        })
+      })
+
+      test.it('should add custom environment variables', () => {
+        return local.run(localSuiteFixture, fooSuiteTypeName).then(() => {
+          const envValues = commands.run.getCall(0).args[1].env
+          return Promise.all([
+            test.expect(envValues.fooEnvVar1).to.equal('fooEnvironment var 1'),
+            test.expect(envValues.fooEnvVar2).to.equal('fooEnv2')
+          ])
+        })
+      })
+    })
+
     test.describe('when runs a coveraged service', () => {
       const fakeServiceName = 'fooService2'
+      const fooSuiteTypeName = 'FooType'
 
       test.beforeEach(() => {
         localSuiteFixture.coverage = {
@@ -613,6 +701,24 @@ test.describe.only('local', () => {
       test.it('should set the command path to be executed as "servicePath" environment variable, and pass it to the fork execution', () => {
         return local.run(localSuiteFixture).then(() => {
           return test.expect(childProcessMock.stubs.fork.getCall(0).args[2].env.servicePath).to.contain('foo-local-command2.js')
+        })
+      })
+
+      test.it('should add the suite details to environment variables', () => {
+        return local.run(localSuiteFixture, fooSuiteTypeName).then(() => {
+          const envValues = childProcessMock.stubs.fork.getCall(0).args[2].env
+          return Promise.all([
+            test.expect(envValues.narval_is_docker).to.equal(false),
+            test.expect(envValues.narval_service).to.equal('fooService2'),
+            test.expect(envValues.narval_suite).to.equal('fooLocalSuite'),
+            test.expect(envValues.narval_suite_type).to.equal(fooSuiteTypeName)
+          ])
+        })
+      })
+
+      test.it('should add custom environment variables', () => {
+        return local.run(localSuiteFixture, fooSuiteTypeName).then(() => {
+          return test.expect(childProcessMock.stubs.fork.getCall(0).args[2].env.fooEnv).to.equal('fooEnv value')
         })
       })
 

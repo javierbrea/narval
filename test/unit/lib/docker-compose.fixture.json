@@ -37,7 +37,12 @@
         "coverage_options": "${coverage_options}",
         "coverage_enabled": "${fooContainer1_coverage_enabled}",
         "wait_for": "${fooContainer1_wait_for}",
-        "exit_after": "${fooContainer1_exit_after}"
+        "exit_after": "${fooContainer1_exit_after}",
+        "narval_suite_type": "${fooContainer1_narval_suite_type}",
+        "narval_suite": "${fooContainer1_narval_suite}",
+        "narval_service": "${fooContainer1_narval_service}",
+        "narval_is_docker": "${fooContainer1_narval_is_docker}",
+        "fooVar": "${fooContainer1_fooVar}"
       }
     },
     "fooContainer2": {
@@ -73,7 +78,12 @@
         "coverage_options": "${coverage_options}",
         "coverage_enabled": "${fooContainer2_coverage_enabled}",
         "wait_for": "${fooContainer2_wait_for}",
-        "exit_after": "${fooContainer2_exit_after}"
+        "exit_after": "${fooContainer2_exit_after}",
+        "narval_suite_type": "${fooContainer2_narval_suite_type}",
+        "narval_suite": "${fooContainer2_narval_suite}",
+        "narval_service": "${fooContainer2_narval_service}",
+        "narval_is_docker": "${fooContainer2_narval_is_docker}",
+        "fooVar": "${fooContainer2_fooVar}"
       }
     },
     "fooContainer3": {
@@ -109,7 +119,12 @@
         "coverage_options": "${coverage_options}",
         "coverage_enabled": "${fooContainer3_coverage_enabled}",
         "wait_for": "${fooContainer3_wait_for}",
-        "exit_after": "${fooContainer3_exit_after}"
+        "exit_after": "${fooContainer3_exit_after}",
+        "narval_suite_type": "${fooContainer3_narval_suite_type}",
+        "narval_suite": "${fooContainer3_narval_suite}",
+        "narval_service": "${fooContainer3_narval_service}",
+        "narval_is_docker": "${fooContainer3_narval_is_docker}",
+        "fooVar": "${fooContainer3_fooVar}"
       }
     }
   }
