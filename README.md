@@ -28,6 +28,7 @@ Multi test suites runner for Node.js packages. Docker based.
 		* [Working directory](#working-directory)
 		* [Docker absolute paths](#docker-absolute-paths)
 		* [Docker shared volume](#docker-shared-volume)
+	* [Environment variables](#environment-variables)
 
 ## Introduction
 
@@ -190,8 +191,11 @@ suites:
 
 * `docker` `<Object>`. Contains instructions to be executed by Docker before running the suite.
 	* `down-volumes`. <`Boolean`>. If true, cleans Docker container volumes, to prevent share data from previous container executions dispatched by other suites.
+	* `command` `<String>`. Path to a file containing a script that will be executed before executing Docker.
+	* `env` `<Object>`. Object containing custom variables names and values to be set in the environment for running command.
 * `local` `<Object>`. Contains instructions to be executed when running locally before executing the suite.
 	* `command` `<String>`. Path to a file containing a script that will be executed before running suite.
+	* `env` `<Object>`. Object containing custom variables names and values to be set in the environment for running command.
 
 > *Partial example of a test suite "before" property*
 ```yml
@@ -201,8 +205,13 @@ suites:
       before: # before configuration
         docker:
           down-volumes: true
+          command: test/commands/docker/clean
+          env:
+            fooVar: foo value for docker clean
         local:
           command: test/commands/local/clean
+          env:
+            fooVar: foo value for local clean
 ```
 
 ##### service
@@ -213,9 +222,11 @@ suites:
 * `docker` `<Object>`. If test suite is going to be executed using Docker, this objects contains the needed configuration for the service.
 	* `container` `<String>`. Reference name of the [docker-container](#docker-container) in which the service is going to be executed.
 	* `command` `<String>`. Path to the command that will start the service.
+	* `env` `<Object>`. Object containing custom variables names and values to be set in the environment for running command.
 	* `exit_after` `<Number>` of miliseconds `default: 30000`. When [coverage](#coverage) is executed over a service instead of tests, in Docker is needed to define a time out for stopping the service and get the resultant coverage after running tests. This setting only applies if `coverage.from` property is set to this service name.
 * `local` `<Object>`. Contains instructions to execute the service locally.
 	* `command` `<String>`. Path to the command that will start the service.
+	* `env` `<Object>`. Object containing custom variables names and values to be set in the environment for running command.
 
 > *Partial example of a test suite "services" property*
 ```yml
@@ -227,15 +238,23 @@ suites:
           docker: 
             container: ddbb-container
             command: test/commands/docker/start-mongo
+            env:
+              fooVar: foo value for docker command
           local:
             command: test/commands/local/start-mongo
+            env:
+              fooVar: foo value for local command
         - name: api-service # service configuration
           docker: 
             container: service-container
             command: test/services/app/start.js --name=service --path=/narval/.shared --host=service
+            env:
+              fooVar: false
             exit_after: 10000
           local:
             command: test/services/app/start.js --name=service --path=.test
+            env:
+              fooVar: true
 ```
 
 ##### test
@@ -246,7 +265,9 @@ suites:
 * `docker` `<Object>`. If test suite is going to be executed using Docker, this objects contains the needed configuration.
 	* `container` `<String>`. Reference name of the [docker-container](#docker-container) in which the tests are going to be executed.
 	* `wait-for` `<String>` with format `host:port`. The tests will not be executed until the provided `host:port` is ready. Narval uses [wait-for-it][wait-for-it-url] to provide this feature. NOTE: If the host you are waiting for is a service hosted in a [docker-container](#docker-container), you must use that docker-container name as `host` in the `host:port` expression.
+	* `env` `<Object>`. Object containing custom variables names and values to be set in the docker environment for running test.
 * `local` `<Object>`. If test suite is going to be executed without Docker, this objects contains the needed configuration.
+	* `env` `<Object>`. Object containing custom variables names and values to be set in the local environment for running test.
 	* `wait-for` `<String>` with format `protocol:host:port`, or path to a file. The tests will not be executed until the provided `protocol:host:port` is ready, or file exists. Narval uses [wait-on][wait-on-url] to provide this feature in "local" executions. Read about the available "resources" to be used as `wait-for` expression in its [documentation][wait-on-url]. 
 * `config` `<Object>` containing Mocha configuration arguments for tests execution. All provided key value pairs will be translated into "--key=value" when Mocha is executed. As examples, some available `config` keys are provided in this documentation. For further reference about all available arguments, [please read Mocha usage documentation][mocha-usage-url].
 	* `recursive` `<Boolean>` `default: true`. Execute specs found in all subfolders of provided `specs` path.
@@ -263,8 +284,12 @@ suites:
         docker:
           container: test-container
           wait-for: api-service:3000
+          env:
+            fooVar: foo value for test execution in Docker
         local:
           wait-for: tcp:localhost:3000
+          env:
+            fooVar: foo value for test execution in local
         config:
           recursive: false
           reporter: list
@@ -341,6 +366,8 @@ suites:
     - name: unit 
       test:
         specs: test/unit
+        env:
+          fooVar: true
       coverage:
         # Custom coverage folder
         config:
@@ -355,15 +382,23 @@ suites:
             container: service-container
             command: test/services/app/start.js --name=service --path=/narval/.shared --host=service-container
             exit_after: 10000
+            env:
+              fooVar: foo value 1
           local:
             command: test/services/app/start.js --name=service --path=.test
+            env:
+              fooVar: foo value 2
       test:
         specs: test/integration/api
         docker:
           container: test-container
           wait-for: service-container:3000
+          env:
+            hostName: service-container
         local:
           wait-for: tcp:localhost:3000
+          env:
+            hostName: localhost
       coverage:
         from: api-service
         config:
@@ -517,6 +552,54 @@ When Docker images are created, all files and folders of the package are added o
 #### Docker shared volume
 
 All Docker containers share a volume named `.shared`, created at the root of the package. In this way, you can check if a service is writting something or not in your specs, for example. Configure your service to write the output files inside the folder `.shared` (or `/narval/.shared`), and that folder will be available as well when tests are executed.
+
+### Environment variables
+
+Narval presets a group of environment variables that are available in commands and in tests executions, locally and inside Docker:
+* `narval_is_docker`. `true` in Docker executions, `false` in local executions.
+* `narval_suite_type`. Type of the suite that is being executed.
+* `narval_suite`. Name of the suite that is being executed.
+* `narval_service`. Name of the service that is being executed.
+
+Apart from this built-in variables, you can set your own custom environment variables for tests or services executions. Read the [configuration chapter](#configuration) to know how to define them. Once you have them defined, you can use them from services, commands, or tests. As example:
+
+```yaml
+suites:
+  integration:
+    - name: api
+      services:
+        - name: api-service
+          docker:
+            container: service-container
+            command: test/commands/start-api.sh 3000
+          local:
+            command: test/commands/start-api.sh 3020
+      test:
+        specs: test/integration/api
+        docker:
+          env:
+            port: 3000
+            hostName: service-container
+        local:
+          env:
+            port: 3020
+            hostName: localhost
+```
+
+Now, you can write a test that can be runned locally, for development purposes, or in Docker, during continuos integration cycle:
+
+```js
+  test.describe('server', () => {
+    test.it('should be running', () => {
+      return requestPromise({
+      	method: 'GET',
+        url: `http://${process.env.hostName}:${process.env.port}/api`
+      }).then((response) => {
+        return test.expect(response.statusCode).to.equal(200)
+      })
+    })
+  })
+```
 
 [back to top](#table-of-contents)
 
