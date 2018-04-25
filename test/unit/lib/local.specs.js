@@ -112,7 +112,6 @@ test.describe.only('local', () => {
             test.expect(commands.run).to.have.been.calledOnce(),
             test.expect(commands.run).to.not.have.been.calledWith(commandPath)
           ])
-          
         })
       })
 
