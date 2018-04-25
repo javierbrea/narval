@@ -436,7 +436,7 @@ test.describe('local', () => {
       test.it('should add custom environment variables', () => {
         localSuiteWithNoServiceFixture.test.local = {
           env: {
-            customVar: 'custom value',
+            customVar: 'custom value'
           }
         }
         return local.run(localSuiteWithNoServiceFixture, fooSuiteType).then(() => {
