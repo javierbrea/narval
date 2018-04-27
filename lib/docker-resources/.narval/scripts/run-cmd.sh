@@ -10,14 +10,14 @@ exit_after=$6
 log_title="[Narval] [DEBUG]"
 log_sep="================================"
 
- echo "$log_sep"
- echo "$log_title RUN COMMAND OPTIONS:"
- echo "$log_title command_to_run: $command_to_run"
- echo "$log_title command_params: $command_params"
- echo "$log_title coverage_options: $coverage_options"
- echo "$log_title coverage_enabled: $coverage_enabled"
- echo "$log_title wait_on: $wait_on"
- echo "$log_title exit_after: $exit_after"
+# echo "$log_sep"
+# echo "$log_title RUN COMMAND OPTIONS:"
+# echo "$log_title command_to_run: $command_to_run"
+# echo "$log_title command_params: $command_params"
+# echo "$log_title coverage_options: $coverage_options"
+# echo "$log_title coverage_enabled: $coverage_enabled"
+# echo "$log_title wait_on: $wait_on"
+# echo "$log_title exit_after: $exit_after"
 
 if [ -z "$command_to_run" ]; then
   if [ "$exit_after" == "" ]; then
