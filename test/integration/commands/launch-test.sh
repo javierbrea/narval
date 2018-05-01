@@ -1,4 +1,9 @@
-cd test/$narval_suite_type/foo-packages/$narval_suite
+cd test/integration/packages/${package_to_launch}
 
+LOG_SEP=">>>>>>>>>>>>>>>"
+
+echo "$LOG_SEP INSTALLING \"${package_to_launch}\" PACKAGE DEPENDENCIES"
 npm i
-npm test
+
+echo "$LOG_SEP LAUNCHING \"${package_to_launch}\" PACKAGE TESTS"
+npm test ${narval_options}

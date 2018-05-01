@@ -1,0 +1,8 @@
+suites:
+  unitary: 
+    - name: unit
+      test:
+        specs: test-ko
+      coverage:
+        config:
+          dir: .coverage

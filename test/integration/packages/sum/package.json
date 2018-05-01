@@ -1,9 +1,12 @@
 {
   "name": "foo-package",
+  "description": "Foo package for testing Narval execution",
   "scripts": {
     "test": "narval"
   },
   "devDependencies": {
     "narval": "file:../../../../"
-  }
+  },
+  "repository": "foo-repository",
+  "license": "MIT"
 }
