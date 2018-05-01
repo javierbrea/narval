@@ -305,7 +305,7 @@ suites:
 	* `root` `<String>` `default:.`. Path to folder containing sources to cover.
 	* `include-all-sources` `<Boolean>` `default:true`. Show 0% coverage for files with no tests executed.
 	* `dir` `<String>` `default:.coverage/[suite-type]/[suite-name]`. Path to folder in which reports will be created.
-	* `reports` `<String>` `default:lcov/html`. Type of Istanbul reports to generate.
+	* `report` `<String>` `default:lcov/html`. Type of Istanbul reports to generate.
 	* `print` `<String>` `default:summary`. Type of Istanbul reports to print. You can use types as "detail", "both", etc..
 	* `verbose` `<Boolean>` `default:false`. Run Istanbul in "verbose" mode.  
 	* `default-excludes` `<Boolean>` `default:true`. Use Istanbul default excludes (node_modules, etc...)

@@ -29,13 +29,15 @@ suites:
           - test/integration/specs/standard/standard-ok.specs.js
           - test/integration/specs/tests/test-launch.specs.js
           - test/integration/specs/tests/report.specs.js
-          - test/integration/specs/coverage/files.specs.js
+          - test/integration/specs/coverage/json.specs.js
+          - test/integration/specs/coverage/lcov.specs.js
           - test/integration/specs/coverage/summary.specs.js
           - test/integration/specs/exit/exit-ok.specs.js
         local:
           wait-on: .narval/logs/integration/no-config/package-test/exit-code.log
           env:
             package_to_launch: sum
+            coverage_dir: .coverage
       coverage:
         enabled: false
     - name: standard-ko
@@ -61,13 +63,13 @@ suites:
             package_to_launch: standard-ko
       coverage:
         enabled: false
-    - name: custom-standard-dirs
+    - name: standard-dirs
       before:
         local:
           command: test/integration/commands/prepare-package.sh
           env:
             package_to_launch: standard-ko
-            narval_config: custom-standard-dirs
+            narval_config: standard-dirs
       services:
         - name: package-test
           local:
@@ -81,18 +83,18 @@ suites:
           - test/integration/specs/standard/standard-ok.specs.js
           - test/integration/specs/exit/exit-ok.specs.js
         local:
-          wait-on: .narval/logs/integration/custom-standard-dirs/package-test/exit-code.log
+          wait-on: .narval/logs/integration/standard-dirs/package-test/exit-code.log
           env:
             package_to_launch: standard-ko
       coverage:
         enabled: false
-    - name: custom-standard-dirs-array
+    - name: standard-dirs-array
       before:
         local:
           command: test/integration/commands/prepare-package.sh
           env:
             package_to_launch: standard-ko
-            narval_config: custom-standard-dirs-array
+            narval_config: standard-dirs-array
       services:
         - name: package-test
           local:
@@ -105,7 +107,7 @@ suites:
           - test/integration/specs/standard/standard-ok.specs.js
           - test/integration/specs/exit/exit-ko.specs.js # Should end ko because have no tests
         local:
-          wait-on: .narval/logs/integration/custom-standard-dirs-array/package-test/exit-code.log
+          wait-on: .narval/logs/integration/standard-dirs-array/package-test/exit-code.log
           env:
             package_to_launch: standard-ko
       coverage:
@@ -129,12 +131,73 @@ suites:
           - test/integration/specs/standard/standard-ok.specs.js
           - test/integration/specs/tests/test-launch.specs.js
           - test/integration/specs/tests/test-ko.specs.js
-          - test/integration/specs/coverage/files.specs.js
+          - test/integration/specs/coverage/json.specs.js
+          - test/integration/specs/coverage/lcov.specs.js
           - test/integration/specs/coverage/summary.specs.js
           - test/integration/specs/exit/exit-ko.specs.js
         local:
           wait-on: .narval/logs/integration/test-ko/package-test/exit-code.log
           env:
             package_to_launch: sum
+            coverage_dir: .coverage
+      coverage:
+        enabled: false
+    - name: tests-config
+      before:
+        local:
+          command: test/integration/commands/prepare-package.sh
+          env:
+            package_to_launch: sum
+            narval_config: tests-config
+      services:
+        - name: package-test
+          local:
+            command: test/integration/commands/launch-test.sh
+            env:
+              package_to_launch: sum
+      test:
+        specs:
+          - test/integration/specs/standard/standard-run.specs.js
+          - test/integration/specs/standard/standard-ok.specs.js
+          - test/integration/specs/tests/test-launch.specs.js
+          - test/integration/specs/tests/test-ok.specs.js
+          - test/integration/specs/coverage/json.specs.js
+          - test/integration/specs/coverage/details.specs.js
+          - test/integration/specs/tests-config
+          - test/integration/specs/exit/exit-ok.specs.js
+        local:
+          wait-on: .narval/logs/integration/tests-config/package-test/exit-code.log
+          env:
+            package_to_launch: sum
+            coverage_dir: .coverage/custom
+      coverage:
+        enabled: false
+    - name: coverage-disabled
+      before:
+        local:
+          command: test/integration/commands/prepare-package.sh
+          env:
+            package_to_launch: sum
+            narval_config: coverage-disabled
+      services:
+        - name: package-test
+          local:
+            command: test/integration/commands/launch-test.sh
+            env:
+              package_to_launch: sum
+      test:
+        specs:
+          - test/integration/specs/standard/standard-run.specs.js
+          - test/integration/specs/standard/standard-ok.specs.js
+          - test/integration/specs/tests/test-launch.specs.js
+          - test/integration/specs/tests/test-ok.specs.js
+          - test/integration/specs/coverage/disabled.specs.js
+          - test/integration/specs/coverage-disabled
+          - test/integration/specs/exit/exit-ok.specs.js
+        local:
+          wait-on: .narval/logs/integration/coverage-disabled/package-test/exit-code.log
+          env:
+            package_to_launch: sum
+            coverage_dir: .coverage/unit
       coverage:
         enabled: false
