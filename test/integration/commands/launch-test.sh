@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 cd test/integration/packages/${package_to_launch}
 
 LOG_SEP=">>>>>>>>>>>>>>>"
