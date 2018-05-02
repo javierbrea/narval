@@ -1,24 +1,17 @@
 'use strict'
 
-const mongoose = require('mongoose')
+const models = require('./models')
 
 const Books = function (db) {
-  const bookSchema = mongoose.Schema({
-    author: String,
-    title: String
-  })
-
-  const Book = mongoose.model('Book', bookSchema);
-
   const get = function () {
     console.log('Retrieving all books from database')
-    return Book.find()
+    return models.Book.find()
   }
 
   const add = function (bookData) {
     console.log('Adding new book to database:')
     console.log(JSON.stringify(bookData))
-    const book = new Book(bookData)
+    const book = new models.Book(bookData)
     return book.save()
   }
 
@@ -28,6 +21,6 @@ const Books = function (db) {
   }
 }
 
-module.exports ={
+module.exports = {
   Books: Books
 }

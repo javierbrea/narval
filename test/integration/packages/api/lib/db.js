@@ -2,12 +2,10 @@
 
 const mongoose = require('mongoose')
 
-const connectionString = 'mongodb://localhost/narval-api-test'
-
-var connect = function (domapic) {
-  console.log(`Connecting to database ${connectionString}`)
+var connect = function (mongodb) {
+  console.log(`Connecting to database ${mongodb}`)
   let db
-  mongoose.connect(connectionString)
+  mongoose.connect(mongodb)
 
   return new Promise((resolve, reject) => {
     db = mongoose.connection

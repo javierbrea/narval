@@ -11,7 +11,7 @@ const start = function () {
   const app = express()
   const opts = options.get()
 
-  db.connect()
+  db.connect(opts.mongodb)
     .then((database) => {
       console.log(`Starting server at port ${opts.port}`)
 
@@ -19,7 +19,7 @@ const start = function () {
       app.use(bodyParser.urlencoded({ extended: true }))
       app.use('/books', routers.books(database))
 
-      app.listen(opts.port)
+      app.listen(opts.port, opts.host)
     })
     .catch((err) => {
       console.error(`ERROR: ${err.message}`)

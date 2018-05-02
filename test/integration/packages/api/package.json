@@ -11,7 +11,8 @@
     "mongoose": "5.0.17"
   },
   "devDependencies": {
-    "narval": "file:../../../../"
+    "narval": "file:../../../../",
+    "request-promise": "4.2.2"
   },
   "repository": "foo-repository",
   "license": "MIT"
