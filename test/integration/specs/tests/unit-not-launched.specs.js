@@ -2,7 +2,7 @@
 const test = require('../../../../index')
 const utils = require('../utils')
 
-test.describe('tests execution reports', () => {
+test.describe('tests execution', () => {
   let outerrLog
 
   test.before((done) => {
@@ -13,10 +13,9 @@ test.describe('tests execution reports', () => {
       })
   })
 
-  test.it('should have print mocha spec report', () => {
+  test.it('should have not executed unit tests suite', () => {
     return Promise.all([
-      test.expect(outerrLog).to.include('✓ should'),
-      test.expect(outerrLog).to.match(/\d passing/)
+      test.expect(outerrLog).to.not.match(/\[Narval\] \[DEBUG\] Starting tests of suite "unit"/)
     ])
   })
 })

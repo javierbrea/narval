@@ -56,6 +56,7 @@ suites:
         specs:
           - test/integration/specs/standard/standard-run.specs.js
           - test/integration/specs/standard/standard-ko.specs.js
+          - test/integration/specs/tests/unit-not-launched.specs.js
           - test/integration/specs/exit/exit-ko.specs.js
         local:
           wait-on: .narval/logs/integration/standard-ko/package-test/exit-code.log
@@ -214,10 +215,21 @@ suites:
             command: test/integration/commands/launch-test.sh
             env:
               package_to_launch: api
+              narval_options: -- --build
       test:
         specs:
           - test/integration/specs/standard/standard-run.specs.js
           - test/integration/specs/standard/standard-ok.specs.js
+          - test/integration/specs/tests/test-launch.specs.js
+          - test/integration/specs/tests/test-ok.specs.js
+          - test/integration/specs/coverage/json.specs.js
+          - test/integration/specs/coverage/lcov.specs.js
+          - test/integration/specs/coverage/summary.specs.js
+          - test/integration/specs/docker/run.specs.js
+          - test/integration/specs/docker/build.specs.js
+          - test/integration/specs/docker/down-volumes.specs.js
+          - test/integration/specs/docker/shared.specs.js
+          - test/integration/specs/api-docker
           - test/integration/specs/exit/exit-ok.specs.js
         local:
           wait-on:
@@ -227,5 +239,77 @@ suites:
           env:
             package_to_launch: api
             coverage_dir: .coverage/unit
+      coverage:
+        enabled: false
+    - name: api-docker-no-build
+      before:
+        local:
+          command: test/integration/commands/prepare-package.sh
+          env:
+            package_to_launch: api
+            narval_config: api
+      services:
+        - name: package-test
+          local:
+            command: test/integration/commands/launch-test.sh
+            env:
+              package_to_launch: api
+      test:
+        specs:
+          - test/integration/specs/standard/standard-run.specs.js
+          - test/integration/specs/standard/standard-ok.specs.js
+          - test/integration/specs/tests/test-launch.specs.js
+          - test/integration/specs/tests/test-ok.specs.js
+          - test/integration/specs/coverage/json.specs.js
+          - test/integration/specs/coverage/lcov.specs.js
+          - test/integration/specs/coverage/summary.specs.js
+          - test/integration/specs/docker/run.specs.js
+          - test/integration/specs/docker/not-build.specs.js
+          - test/integration/specs/docker/down-volumes.specs.js
+          - test/integration/specs/docker/shared.specs.js
+          - test/integration/specs/api-docker
+          - test/integration/specs/exit/exit-ok.specs.js
+        local:
+          wait-on:
+            resources: 
+              - .narval/logs/integration/api-docker-no-build/package-test/exit-code.log
+            timeout: 600000
+          env:
+            package_to_launch: api
+            coverage_dir: .coverage/unit
+      coverage:
+        enabled: false
+    - name: api-docker-no-down-volumes
+      before:
+        local:
+          command: test/integration/commands/prepare-package.sh
+          env:
+            package_to_launch: api
+            narval_config: api-no-down-volumes
+      services:
+        - name: package-test
+          local:
+            command: test/integration/commands/launch-test.sh
+            env:
+              package_to_launch: api
+              narval_options: -- --suite=books-api
+      test:
+        specs:
+          - test/integration/specs/standard/standard-not-run.specs.js
+          - test/integration/specs/tests/test-ok.specs.js
+          - test/integration/specs/tests/unit-not-launched.specs.js
+          - test/integration/specs/docker/run.specs.js
+          - test/integration/specs/docker/not-build.specs.js
+          - test/integration/specs/docker/not-down-volumes.specs.js
+          - test/integration/specs/docker/shared.specs.js
+          - test/integration/specs/api-docker
+          - test/integration/specs/exit/exit-ok.specs.js
+        local:
+          wait-on:
+            resources: 
+              - .narval/logs/integration/api-docker-no-down-volumes/package-test/exit-code.log
+            timeout: 600000
+          env:
+            package_to_launch: api
       coverage:
         enabled: false

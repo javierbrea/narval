@@ -37,45 +37,29 @@ suites:
           dir: .coverage/unit
   end-to-end:
     - name: books-api
-      before:
-        docker:
-          down-volumes: true
-        local:
-          command: test/commands/clean-db.js
-          env:
-            mongodb: mongodb://localhost/narval-api-test
       services:
         - name: mongodb
-          local:
-            command: test/commands/mongodb-local.sh
           docker:
             container: mongodb-container
             command: test/commands/mongodb-docker.sh
         - name: api-server
-          local:
-            command: test/commands/start-server.sh
-            env:
-              mongodb: mongodb://localhost/narval-api-test
-              api_host: localhost
-              api_port: 3000
           docker:
             container: api-container
             command: test/commands/start-server.sh
-            wait-on: tcp:mongodb-container:27017
+            wait-on:
+              resources:
+                - tcp:mongodb-container:27017
             env:
               mongodb: mongodb://mongodb-container/narval-api-test
               api_host: api-container
               api_port: 4000
       test:
         specs: test/end-to-end/books
-        local:
-          wait-on: tcp:localhost:3000
-          env:
-            api_host: localhost
-            api_port: 3000
         docker:
           container: test-container
-          wait-on: tcp:api-container:4000
+          wait-on: 
+            resources:
+              - tcp:api-container:4000
           env:
             api_host: api-container
             api_port: 4000
