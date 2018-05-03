@@ -14,5 +14,5 @@ if [ -x "$(command -v npm)" ]; then
      npm i narval
   fi
 else
-  echo "WARNING: Docker image has not nodejs installed."
+  echo "WARNING: Nodejs not found in Docker container. Wait-on feature is not available"
 fi

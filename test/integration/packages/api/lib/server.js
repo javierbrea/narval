@@ -13,6 +13,11 @@ const start = function () {
 
   db.connect(opts.mongodb)
     .then((database) => {
+      console.log(`Narval is docker in service node: ${process.env.narval_is_docker}`)
+      console.log(`Narval suite in service node: ${process.env.narval_suite}`)
+      console.log(`Narval suite type in service node: ${process.env.narval_suite_type}`)
+      console.log(`Narval service in service node: ${process.env.narval_service}`)
+
       console.log(`Starting server at port ${opts.port}`)
 
       app.use(bodyParser.json())

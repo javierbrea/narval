@@ -37,6 +37,11 @@ suites:
           dir: .coverage/unit
   end-to-end:
     - name: books-api
+      before:
+        docker:
+          command: test/commands/trace-env.sh
+          env:
+            custom_before_var: fooValue
       services:
         - name: mongodb
           docker:
