@@ -5,6 +5,8 @@ docker-images:
       - 4000
     add:
       - foo-added-file-to-docker-image.txt
+      - _node_modules
+      - package.json
     install: test/commands/install.sh
   - name: mongodb-image
     from: mongo:3.6.4
@@ -35,6 +37,7 @@ suites:
       coverage:
         config:
           dir: .coverage/unit
+          x: "**/_node_modules/**"
   end-to-end:
     - name: books-api
       before:

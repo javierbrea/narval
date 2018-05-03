@@ -19,8 +19,7 @@ test.describe('docker build', () => {
       test.expect(outerrLog).to.include('Step 2/9 : WORKDIR /narval'),
       test.expect(outerrLog).to.include('Step 3/9 : ADD ./install-resources'),
       test.expect(outerrLog).to.include('Step 4/9 : ADD ./docker-resources'),
-      test.expect(outerrLog).to.include('Step 7/9 : RUN ./.narval/scripts/install.sh'),
-      test.expect(outerrLog).to.include('Step 9/9 : CMD sh -c ./.narval/scripts/run-cmd.sh "${command_to_run}" "${command_params}" "${coverage_options}" "${coverage_enabled}" "${wait_on}" "${exit_after}"')
+      test.expect(outerrLog).to.include('Step 7/9 : RUN ./.narval/scripts/install.sh')
     ])
   })
 

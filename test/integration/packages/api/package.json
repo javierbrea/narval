@@ -12,7 +12,7 @@
   },
   "devDependencies": {
     "request-promise": "4.2.2",
-    "narval": "file:../../../../"
+    "narval": "file:_node_modules/narval"
   },
   "repository": "foo-repository",
   "license": "MIT"
