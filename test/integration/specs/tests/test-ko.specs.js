@@ -13,7 +13,7 @@ test.describe('tests execution failed', () => {
       })
   })
 
-  test.it('should have print an assertion error', () => {
+  test.it('should have printed an assertion error', () => {
     return Promise.all([
       test.expect(outerrLog).to.match(/AssertionError: expected \d to equal \d/),
       test.expect(outerrLog).to.match(/\d passing/),

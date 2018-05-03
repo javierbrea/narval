@@ -201,3 +201,31 @@ suites:
             coverage_dir: .coverage/unit
       coverage:
         enabled: false
+    - name: api-docker
+      before:
+        local:
+          command: test/integration/commands/prepare-package.sh
+          env:
+            package_to_launch: api
+            narval_config: api
+      services:
+        - name: package-test
+          local:
+            command: test/integration/commands/launch-test.sh
+            env:
+              package_to_launch: api
+      test:
+        specs:
+          - test/integration/specs/standard/standard-run.specs.js
+          - test/integration/specs/standard/standard-ok.specs.js
+          - test/integration/specs/exit/exit-ok.specs.js
+        local:
+          wait-on:
+            resources: 
+              - .narval/logs/integration/api-docker/package-test/exit-code.log
+            timeout: 600000
+          env:
+            package_to_launch: api
+            coverage_dir: .coverage/unit
+      coverage:
+        enabled: false
