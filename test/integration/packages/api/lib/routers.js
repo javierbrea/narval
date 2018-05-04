@@ -24,11 +24,11 @@ const books = function (db) {
   router.route('/commands').post((req, res, next) => {
     booksData.get()
       .then((booksList) => {
-        if(req.body.command === 'write-to-shared-folder') {
+        if (req.body.command === 'write-to-shared-folder') {
           console.log('Writing books to shared folder')
           fs.writeFileSync(path.resolve(__dirname, '..', '.shared', 'books.json'), JSON.stringify(booksList, null, 2), 'utf8')
         }
-        
+
         res.status(200)
         res.type('json').send(booksList)
       })

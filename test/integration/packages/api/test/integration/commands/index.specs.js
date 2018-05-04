@@ -21,7 +21,7 @@ const readSharedFile = function (serviceName, fileName) {
 test.describe('Commands', function () {
   const API_URL = `http://${process.env.api_host}:${process.env.api_port}/books`
   let requestOptions = {}
-    const newBook = {
+  const newBook = {
     title: 'Brave New World',
     author: 'Aldous Huxley'
   }

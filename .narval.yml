@@ -352,3 +352,32 @@ suites:
             package_to_launch: api
       coverage:
         enabled: false
+    - name: api-integration-abort-on-error
+      before:
+        local:
+          command: test/integration/commands/prepare-package.sh
+          env:
+            package_to_launch: api
+            narval_config: api-integration-abort-on-error
+      services:
+        - name: package-test
+          local:
+            command: test/integration/commands/launch-test.sh
+            env:
+              package_to_launch: api
+      test:
+        specs:
+          # TODO, check tests has not been executed
+          - test/integration/specs/docker/not-build.specs.js
+          - test/integration/specs/docker/not-down-volumes.specs.js
+          - test/integration/specs/docker/shared.specs.js
+          - test/integration/specs/exit/exit-ko.specs.js
+        local:
+          wait-on:
+            resources: 
+              - .narval/logs/integration/api-integration-abort-on-error/package-test/exit-code.log
+            timeout: 600000
+          env:
+            package_to_launch: api
+      coverage:
+        enabled: false
