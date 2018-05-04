@@ -3,6 +3,11 @@ const requestPromise = require('request-promise')
 
 const test = require('narval')
 
+console.log(`Narval is docker in tests: ${process.env.narval_is_docker}`)
+console.log(`Narval suite in tests: ${process.env.narval_suite}`)
+console.log(`Narval suite type in tests: ${process.env.narval_suite_type}`)
+console.log(`Narval service in tests: ${process.env.narval_service}`)
+
 test.describe('Books API', function () {
   const API_URL = `http://${process.env.api_host}:${process.env.api_port}/books/`
   const newBook = {

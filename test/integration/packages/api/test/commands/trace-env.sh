@@ -6,3 +6,5 @@ echo "Narval suite type in before command: ${narval_suite_type}"
 echo "Narval service in before command: ${narval_service}"
 
 echo "Custom environment var in before command: ${custom_before_var}"
+
+echo "Argument in before command: $1"

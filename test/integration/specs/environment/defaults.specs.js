@@ -28,4 +28,12 @@ test.describe('environment vars', () => {
       test.expect(outerrLog).to.include('Narval service in service node: api-server')
     ])
   })
+
+  test.it('should have available default environment variables in tests', () => {
+    return Promise.all([
+      test.expect(outerrLog).to.include('Narval suite in tests: books-api'),
+      test.expect(outerrLog).to.include('Narval suite type in tests: end-to-end'),
+      test.expect(outerrLog).to.include('Narval service in tests: test')
+    ])
+  })
 })

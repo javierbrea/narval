@@ -10,4 +10,6 @@ echo "Narval suite in service command: ${narval_suite}"
 echo "Narval suite type in service command: ${narval_suite_type}"
 echo "Narval service in service command: ${narval_service}"
 
+echo "Argument in service command: $1"
+
 node server.js --host="${api_host}" --port="${api_port}" --mongodb="${mongodb}"

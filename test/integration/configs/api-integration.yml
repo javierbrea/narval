@@ -3,8 +3,6 @@ docker-images:
     from: node:8.11.1
     expose:
       - 4000
-    add:
-      - foo-added-file-to-docker-image.txt
     install: test/commands/install.sh
   - name: mongodb-image
     from: mongo:3.6.4
@@ -35,13 +33,8 @@ suites:
       coverage:
         config:
           dir: .coverage/unit
-  end-to-end:
-    - name: books-api
-      before:
-        docker:
-          command: test/commands/trace-env.sh fooArgBeforeValue
-          env:
-            custom_before_var: fooValue
+  integration:
+    - name: logs
       services:
         - name: mongodb
           docker:
@@ -50,21 +43,53 @@ suites:
         - name: api-server
           docker:
             container: api-container
-            command: test/commands/start-server.sh fooArgCommandValue
+            command: test/commands/start-server.sh
             wait-on:
               resources:
                 - tcp:mongodb-container:27017
+              timeout: 50000
+              interval: 50
+              delay: 100
             env:
               mongodb: mongodb://mongodb-container/narval-api-test
               api_host: api-container
               api_port: 4000
       test:
-        specs: test/end-to-end/books
+        specs: test/integration/logs
         docker:
           container: test-container
           wait-on: 
             resources:
               - tcp:api-container:4000
+            timeout: 35000
+            interval: 60
+            delay: 150
+          env:
+            api_host: api-container
+            api_port: 4000
+      coverage:
+        enabled: false
+    - name: commands
+      services:
+        - name: mongodb
+          docker:
+            container: mongodb-container
+            command: test/commands/mongodb-docker.sh
+        - name: api-server
+          docker:
+            container: api-container
+            command: test/commands/start-server.sh
+            wait-on:
+              resources: tcp:mongodb-container:27017
+            env:
+              mongodb: mongodb://mongodb-container/narval-api-test
+              api_host: api-container
+              api_port: 4000
+      test:
+        specs: test/integration/commands
+        docker:
+          container: test-container
+          wait-on: tcp:api-container:4000
           env:
             api_host: api-container
             api_port: 4000
