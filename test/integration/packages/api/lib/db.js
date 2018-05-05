@@ -20,7 +20,7 @@ var connect = function (mongodb) {
       resolve(db)
     })
   })
-  
+
   return mongoose.connect(mongodb)
     .then(() => {
       return connectionPromise
