@@ -24,7 +24,7 @@
     "narval-msc-istanbul": "./bin/narval-msc-istanbul"
   },
   "scripts": {
-    "test": "./bin/narval",
+    "test": "./bin/narval --type=integration",
     "coveralls": "cat ./.coverage/unit/lcov.info | coveralls"
   },
   "dependencies": {
