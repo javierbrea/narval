@@ -3,6 +3,10 @@ docker-images:
     from: node:8.11.1
     expose:
       - 4000
+    add:
+      - foo-added-file-to-docker-image.txt
+      - _node_modules
+      - package.json
     install: test/commands/install.sh
   - name: mongodb-image
     from: mongo:3.6.4
@@ -28,6 +32,9 @@ docker-containers:
 suites:
   integration:
     - name: logs
+      before:
+        docker:
+          command: test/commands/trace-env.sh
       services:
         - name: mongodb
           docker:

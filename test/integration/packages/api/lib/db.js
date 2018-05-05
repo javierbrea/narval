@@ -3,6 +3,9 @@
 const mongoose = require('mongoose')
 
 var connect = function (mongodb) {
+  if (mongodb === 'avoid') {
+    return Promise.resolve(null)
+  }
   console.log(`Connecting to database ${mongodb}`)
   let db
   mongoose.connect(mongodb)

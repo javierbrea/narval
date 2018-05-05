@@ -4,7 +4,6 @@ docker-images:
     expose:
       - 4000
     add:
-      - foo-added-file-to-docker-image.txt
       - _node_modules
       - package.json
     install: test/commands/install.sh
@@ -30,45 +29,31 @@ docker-containers:
     bind:
       - test/commands
 suites:
-  unit: 
-    - name: unit
-      test:
-        specs: test/unit
-      coverage:
-        config:
-          dir: .coverage/unit
   end-to-end:
     - name: books-api
       before:
         docker:
-          command: test/commands/trace-env.sh fooArgBeforeValue
-          env:
-            custom_before_var: fooValue
+          down-volumes: true
+          command: test/commands/trace-env.sh
       services:
         - name: mongodb
+          abort-on-error: true
           docker:
             container: mongodb-container
-            command: test/commands/mongodb-docker.sh
+            command: test/commands/mongodb-docker-fake.sh
         - name: api-server
           docker:
             container: api-container
-            command: test/commands/start-server.sh fooArgCommandValue
-            wait-on:
-              resources:
-                - tcp:mongodb-container:27017
-            env:
-              mongodb: mongodb://mongodb-container/narval-api-test
-              api_host: api-container
-              api_port: 4000
+            command: server.js --host=api-container --port=4000 --mongodb=mongodb://mongodb-container/narval-api-test
+            wait-on: tcp:mongodb-container:27017
+            exit_after: 60000
       test:
         specs: test/end-to-end/books
         docker:
           container: test-container
-          wait-on: 
-            resources:
-              - tcp:api-container:4000
+          wait-on: tcp:api-container:4000
           env:
             api_host: api-container
             api_port: 4000
       coverage:
-        enabled: false
+        from: api-server

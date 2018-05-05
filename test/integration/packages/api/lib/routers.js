@@ -7,10 +7,11 @@ const fs = require('fs')
 const express = require('express')
 
 const data = require('./data')
+const memoryData = require('./memoryData')
 
 const books = function (db) {
   const router = express.Router()
-  const booksData = new data.Books(db)
+  const booksData = db ? new data.Books(db) : new memoryData.Books()
 
   router.route('/').get((req, res, next) => {
     booksData.get()

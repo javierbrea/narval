@@ -37,60 +37,39 @@ suites:
       coverage:
         config:
           dir: .coverage/unit
-  integration:
-    - name: logs
-      services:
-        - name: mongodb
-          docker:
-            container: mongodb-container
-            command: test/commands/mongodb-docker.sh
-        - name: api-server
-          docker:
-            container: api-container
-            command: test/commands/start-server.sh
-            wait-on:
-              resources:
-                - tcp:mongodb-container:27017
-              timeout: 50000
-              interval: 50
-              delay: 100
-            env:
-              mongodb: mongodb://mongodb-container/narval-api-test
-              api_host: api-container
-              api_port: 4000
-      test:
-        specs: test/integration/logs
+          x: "**/_node_modules/**"
+  end-to-end:
+    - name: books-api
+      before:
         docker:
-          container: test-container
-          wait-on: 
-            resources:
-              - tcp:api-container:4000
-            timeout: 35000
-            interval: 60
-            delay: 150
-          env:
-            api_host: api-container
-            api_port: 4000
-      coverage:
-        enabled: false
-    - name: commands
+          down-volumes: true
       services:
         - name: mongodb
           docker:
             container: mongodb-container
             command: test/commands/mongodb-docker.sh
         - name: api-server
+          local:
+            command: test/commands/start-server.sh
+            env:
+              mongodb: avoid
+              api_host: localhost
+              api_port: 3000
           docker:
             container: api-container
             command: test/commands/start-server.sh
-            wait-on:
-              resources: tcp:mongodb-container:27017
+            wait-on: tcp:mongodb-container:27017
             env:
               mongodb: mongodb://mongodb-container/narval-api-test
               api_host: api-container
               api_port: 4000
       test:
-        specs: test/integration/commands
+        specs: test/end-to-end/books
+        local:
+          wait-on: tcp:localhost:3000
+          env:
+            api_host: localhost
+            api_port: 3000
         docker:
           container: test-container
           wait-on: tcp:api-container:4000

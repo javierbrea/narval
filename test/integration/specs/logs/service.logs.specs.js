@@ -4,10 +4,14 @@ const _ = require('lodash')
 const test = require('../../../../index')
 const utils = require('../utils')
 
+const splittedFolder = process.env.logs_folder.split('/')
+const suiteType = splittedFolder[0]
+const suite = splittedFolder[1]
+
 const expectServiceLog = function (serviceName, logFile, minLength) {
   minLength = _.isUndefined(minLength) ? 0 : minLength
   test.it(`should have written ${serviceName} service ${logFile} logs`, () => {
-    return utils.readPackageLogs('api', 'end-to-end', 'books-api', serviceName, logFile)
+    return utils.readPackageLogs('api', suiteType, suite, serviceName, logFile)
       .then((log) => {
         return test.expect(log).to.have.lengthOf.above(minLength)
       })
