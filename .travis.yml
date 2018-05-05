@@ -1,4 +1,4 @@
-sudo: required
+sudo: true
 
 env:
   - DOCKER_COMPOSE_VERSION=1.19.0
@@ -31,6 +31,6 @@ addons:
       name: "$TRAVIS_CURRENT_BRANCH"
 
 script:
-  - sudo $(which npm) test
+  - npm test
   - npm run coveralls
   - sonar-scanner
