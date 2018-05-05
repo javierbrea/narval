@@ -573,7 +573,7 @@ suites:
           wait-on:
             resources: 
               - .narval/logs/integration/api-docker-coverage-mongodb-ko-abort/package-test/exit-code.log
-            timeout: 120000
+            timeout: 600000
           env:
             package_to_launch: api
             coverage_dir: .coverage/end-to-end/books-api
