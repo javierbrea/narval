@@ -25,9 +25,13 @@ const books = function (db) {
   router.route('/commands').post((req, res, next) => {
     booksData.get()
       .then((booksList) => {
+        const destPath = path.resolve(__dirname, '..', '.shared')
         if (req.body.command === 'write-to-shared-folder') {
           console.log('Writing books to shared folder')
-          fs.writeFileSync(path.resolve(__dirname, '..', '.shared', 'books.json'), JSON.stringify(booksList, null, 2), 'utf8')
+          if (!fs.existsSync(destPath)) {
+            fs.mkdirSync(destPath)
+          }
+          fs.writeFileSync(path.resolve(destPath, 'books.json'), JSON.stringify(booksList, null, 2), 'utf8')
         }
 
         res.status(200)

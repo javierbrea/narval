@@ -357,6 +357,41 @@ suites:
             logs_folder: end-to-end/books-api
       coverage:
         enabled: false
+    - name: api-local-custom-vars
+      before:
+        local:
+          command: test/integration/commands/prepare-package.sh
+          env:
+            package_to_launch: api
+            narval_config: api-local-custom-vars
+      services:
+        - name: package-test
+          local:
+            command: test/integration/commands/launch-test.sh
+            env:
+              package_to_launch: api
+              narval_options: -- --suite=books-api
+      test:
+        specs:
+          - test/integration/specs/standard/standard-not-run.specs.js
+          - test/integration/specs/tests/test-ok.specs.js
+          - test/integration/specs/tests/unit-not-launched.specs.js
+          - test/integration/specs/docker/not-run.specs.js
+          - test/integration/specs/api-integration-local
+          - test/integration/specs/exit/exit-ok.specs.js
+          - test/integration/specs/environment/defaults.specs.js
+          - test/integration/specs/environment/custom-api-local.specs.js
+          - test/integration/specs/logs/service.local.logs.specs.js
+        local:
+          wait-on:
+            resources: 
+              - .narval/logs/integration/api-local-custom-vars/package-test/exit-code.log
+            timeout: 120000
+          env:
+            package_to_launch: api
+            logs_folder: end-to-end/books-api
+      coverage:
+        enabled: false
     - name: api-integration
       before:
         local:
@@ -387,6 +422,38 @@ suites:
             resources: 
               - .narval/logs/integration/api-integration/package-test/exit-code.log
             timeout: 120000
+          env:
+            package_to_launch: api
+      coverage:
+        enabled: false
+    - name: api-integration-local
+      before:
+        local:
+          command: test/integration/commands/prepare-package.sh
+          env:
+            package_to_launch: api
+            narval_config: api-integration-no-mongo
+      services:
+        - name: package-test
+          local:
+            command: test/integration/commands/launch-test.sh
+            env:
+              package_to_launch: api
+              narval_options: -- --type=integration --local
+      test:
+        specs:
+          - test/integration/specs/standard/standard-not-run.specs.js
+          - test/integration/specs/tests/test-ok.specs.js
+          - test/integration/specs/tests/unit-not-launched.specs.js
+          - test/integration/specs/docker/not-run.specs.js
+          - test/integration/specs/docker/not-build.specs.js
+          - test/integration/specs/api-integration-local
+          - test/integration/specs/exit/exit-ok.specs.js
+        local:
+          wait-on:
+            resources: 
+              - .narval/logs/integration/api-integration-local/package-test/exit-code.log
+            timeout: 30000
           env:
             package_to_launch: api
       coverage:
