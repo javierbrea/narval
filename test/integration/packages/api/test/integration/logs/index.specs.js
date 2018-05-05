@@ -3,6 +3,7 @@ const fs = require('fs')
 const path = require('path')
 
 const requestPromise = require('request-promise')
+const Promise = require('bluebird')
 
 const test = require('narval')
 
@@ -36,10 +37,13 @@ test.describe('Server logs', function () {
 
   test.it('should print a log when books are retrieved from database', () => {
     return requestPromise(requestOptions).then(() => {
-      return readServiceLogs('api-server', 'out')
-        .then((log) => {
-          return test.expect(log).to.include('Retrieving all books from database')
-        })
+      // Delay for let server write logs
+      return Promise.delay(2000).then(() => {
+        return readServiceLogs('api-server', 'out')
+          .then((log) => {
+            return test.expect(log).to.include('Retrieving all books from database')
+          })
+      })
     })
   })
 
@@ -48,13 +52,16 @@ test.describe('Server logs', function () {
     requestOptions.body = newBook
 
     return requestPromise(requestOptions).then(() => {
-      return readServiceLogs('api-server', 'out')
-        .then((log) => {
-          return Promise.all([
-            test.expect(log).to.include('Adding new book to database:'),
-            test.expect(log).to.include('{"title":"1984","author":"George Orwell"}')
-          ])
-        })
+      // Delay for let server write logs
+      return Promise.delay(2000).then(() => {
+        return readServiceLogs('api-server', 'out')
+          .then((log) => {
+            return Promise.all([
+              test.expect(log).to.include('Adding new book to database:'),
+              test.expect(log).to.include('{"title":"1984","author":"George Orwell"}')
+            ])
+          })
+      })
     })
   })
 })
