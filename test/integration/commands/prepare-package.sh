@@ -7,6 +7,7 @@ COVERAGE_FOLDER="test/integration/packages/${package_to_launch}/.coverage"
 LOG_SEP=">>>>>>>>>>>>>>>"
 
 echo "$LOG_SEP CLEANING \"${package_to_launch}\" PACKAGE"
+# sudo needed if docker write files with root user, as in Travis builds
 rm -rf $COVERAGE_FOLDER || sudo rm -rf $COVERAGE_FOLDER
 
 if [ -f $NARVAL_FILE ]; then
