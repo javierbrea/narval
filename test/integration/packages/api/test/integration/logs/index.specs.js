@@ -20,6 +20,7 @@ const readServiceLogs = function (serviceName, fileName) {
 }
 
 test.describe('Server logs', function () {
+  this.timeout(10000)
   const API_URL = `http://${process.env.api_host}:${process.env.api_port}/books/`
   let requestOptions = {}
   const newBook = {
