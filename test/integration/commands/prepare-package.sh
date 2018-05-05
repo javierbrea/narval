@@ -3,14 +3,12 @@
 NARVAL_FOO_NODE_MODULES="test/integration/packages/api/_node_modules"
 NARVAL_LIB_DEST="${NARVAL_FOO_NODE_MODULES}/narval"
 NARVAL_FILE="test/integration/packages/${package_to_launch}/.narval.yml"
+COVERAGE_FOLDER="test/integration/packages/${package_to_launch}/.coverage"
 LOG_SEP=">>>>>>>>>>>>>>>"
 
 echo "$LOG_SEP CLEANING \"${package_to_launch}\" PACKAGE"
-ls -la test/integration/packages/api
-echo '--------------------'
-ls -la test/integration/packages/api/.coverage/end-to-end/books-api
-chmod -R 775 test/integration/packages/${package_to_launch}/.coverage
-rm -rf test/integration/packages/${package_to_launch}/.coverage
+rm -rf $COVERAGE_FOLDER || sudo rm -rf $COVERAGE_FOLDER
+command1 || command2
 if [ -f $NARVAL_FILE ]; then
   rm $NARVAL_FILE
 fi
