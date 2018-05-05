@@ -33,6 +33,8 @@ suites:
   integration:
     - name: logs
       before:
+        local:
+          command: test/commands/trace-env.sh
         docker:
           command: test/commands/trace-env.sh
       services:
@@ -42,6 +44,12 @@ suites:
             command: test/commands/force-error.sh
         - name: api-server
           abort-on-error: true
+          local:
+            command: test/commands/start-server.sh
+            env:
+              mongodb: foo-mongodb://mongodb-container/narval-api-test
+              api_host: localhost
+              api_port: 3000
           docker:
             container: api-container
             command: test/commands/start-server.sh
@@ -50,7 +58,15 @@ suites:
               api_host: api-container
               api_port: 4000
       test:
-        specs: test/integration/logs
+        specs: test/integration/pass
+        local:
+          wait-on: 
+            resources:
+              - tcp:localhost:3000
+            timeout: 5000
+          env:
+            api_host: localhost
+            api_port: 3000
         docker:
           container: test-container
           wait-on: tcp:api-container:4000

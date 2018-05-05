@@ -11,7 +11,7 @@ const start = function () {
   const app = express()
   const opts = options.get()
 
-  db.connect(opts.mongodb)
+  return db.connect(opts.mongodb)
     .then((database) => {
       console.log(`Narval is docker in service node: ${process.env.narval_is_docker}`)
       console.log(`Narval suite in service node: ${process.env.narval_suite}`)

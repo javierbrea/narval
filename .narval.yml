@@ -489,6 +489,36 @@ suites:
             logs_folder: integration/logs
       coverage:
         enabled: false
+    - name: api-integration-abort-on-error-local
+      before:
+        local:
+          command: test/integration/commands/prepare-package.sh
+          env:
+            package_to_launch: api
+            narval_config: api-integration-abort-on-error
+      services:
+        - name: package-test
+          local:
+            command: test/integration/commands/launch-test.sh
+            env:
+              package_to_launch: api
+              narval_options: -- --local
+      test:
+        specs:
+          - test/integration/specs/docker/not-run.specs.js
+          - test/integration/specs/exit/exit-ko.specs.js
+          - test/integration/specs/api-abort-on-error-local
+          - test/integration/specs/logs/service.local.logs.specs.js
+        local:
+          wait-on:
+            resources: 
+              - .narval/logs/integration/api-integration-abort-on-error-local/package-test/exit-code.log
+            timeout: 120000
+          env:
+            package_to_launch: api
+            logs_folder: integration/logs
+      coverage:
+        enabled: false
     - name: api-docker-coverage
       before:
         local:
