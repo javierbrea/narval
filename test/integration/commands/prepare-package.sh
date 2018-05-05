@@ -8,7 +8,7 @@ LOG_SEP=">>>>>>>>>>>>>>>"
 
 echo "$LOG_SEP CLEANING \"${package_to_launch}\" PACKAGE"
 rm -rf $COVERAGE_FOLDER || sudo rm -rf $COVERAGE_FOLDER
-command1 || command2
+
 if [ -f $NARVAL_FILE ]; then
   rm $NARVAL_FILE
 fi
