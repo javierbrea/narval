@@ -6,6 +6,7 @@ NARVAL_FILE="test/integration/packages/${package_to_launch}/.narval.yml"
 LOG_SEP=">>>>>>>>>>>>>>>"
 
 echo "$LOG_SEP CLEANING \"${package_to_launch}\" PACKAGE"
+ls -la test/integration/packages/api/.coverage/end-to-end/books-api
 chmod -R 775 test/integration/packages/${package_to_launch}/.coverage
 rm -rf test/integration/packages/${package_to_launch}/.coverage
 if [ -f $NARVAL_FILE ]; then
