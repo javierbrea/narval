@@ -10,7 +10,7 @@ test.describe('api-docker-coverage suite execution mongodb failing', function ()
 
   test.before((done) => {
     // wait for process to end write logs
-    Promise.delay(2000).then(() => {
+    Promise.delay(5000).then(() => {
       utils.readOutErr()
         .then((log) => {
           outerrLog = log
