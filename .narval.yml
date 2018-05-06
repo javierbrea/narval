@@ -778,6 +778,58 @@ suites:
             logs_folder: end-to-end/books-api
       coverage:
         enabled: false
+    - name: api-local-coverage-only-api
+      before:
+        local:
+          command: test/integration/commands/prepare-package.sh
+          env:
+            package_to_launch: api
+            narval_config: api-coverage
+      services:
+        - name: package-test
+          local:
+            command: test/integration/commands/launch-test.sh
+            env:
+              package_to_launch: api
+              narval_options: -- --local=api-server
+      test:
+        specs:
+          - test/integration/packages/api/test/end-to-end/books
+        local:
+          wait-on:
+            resources: 
+              - tcp:localhost:3000
+            timeout: 12000
+          env:
+            api_host: localhost
+            api_port: 3000
+      coverage:
+        enabled: false
+    - name: api-local-coverage-only-test
+      before:
+        local:
+          command: test/integration/commands/prepare-package.sh
+          env:
+            package_to_launch: api
+            narval_config: api-coverage-test-not-wait
+      services:
+        - name: package-test
+          local:
+            command: test/integration/commands/launch-test.sh
+            env:
+              package_to_launch: api
+              narval_options: -- --local=test
+      test:
+        specs:
+          - test/integration/specs/exit/exit-ko.specs.js
+          - test/integration/specs/api-coverage/local.only-test.specs.js
+        local:
+          wait-on:
+            resources: 
+              - .narval/logs/integration/api-local-coverage-only-test/package-test/exit-code.log
+            timeout: 12000
+      coverage:
+        enabled: false
     - name: api-docker-coverage-mongodb-ko
       before:
         local:
