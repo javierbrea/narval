@@ -31,6 +31,7 @@ addons:
       name: "$TRAVIS_CURRENT_BRANCH"
 
 script:
-  - npm test -- --type=integration
+#  - npm test -- --type=integration
+  - npm test -- --suite=api-docker-coverage-mongodb-ko-abort
 #  - npm run coveralls
   - sonar-scanner

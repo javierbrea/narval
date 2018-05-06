@@ -5,18 +5,14 @@ const test = require('../../../../index')
 const utils = require('../utils')
 
 test.describe('api-docker-coverage suite execution mongodb failing', function () {
-  this.timeout(10000)
   let outerrLog
 
   test.before((done) => {
-    // wait for process to end write logs
-    Promise.delay(5000).then(() => {
-      utils.readOutErr()
-        .then((log) => {
-          outerrLog = log
-          done()
-        })
-    })
+    utils.readOutErr()
+      .then((log) => {
+        outerrLog = log
+        done()
+      })
   })
 
   test.it('should have not waited until "exit_after" time for exiting api', () => {
@@ -28,10 +24,10 @@ test.describe('api-docker-coverage suite execution mongodb failing', function ()
   })
 
   test.it('should have forced exit of api service', () => {
-    return test.expect(outerrLog).to.include('docker_api-container_1 exited with code 137')
+    return test.expect(outerrLog).to.include('[Narval] [WARN] Docker container "api-container" of service "api-server" exited with code "137"')
   })
 
   test.it('should have forced exit of tests service', () => {
-    return test.expect(outerrLog).to.include('docker_test-container_1 exited with code 137')
+    return test.expect(outerrLog).to.include('[Narval] [WARN] Docker container "test-container" of service "test" exited with code "137"')
   })
 })
