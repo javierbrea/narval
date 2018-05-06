@@ -32,5 +32,5 @@ addons:
 
 script:
   - npm test -- --type=integration
-  - npm run coveralls
+#  - npm run coveralls
   - sonar-scanner
