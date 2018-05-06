@@ -6,9 +6,10 @@ const _ = require('lodash')
 const test = require('../../../index')
 
 const ReadLogs = function (fileName) {
-  return function () {
+  return function (serviceName) {
+    serviceName = serviceName || 'package-test'
     return new Promise((resolve, reject) => {
-      fs.readFile(path.resolve(__dirname, '..', '..', '..', '.narval', 'logs', 'integration', process.env.narval_suite, 'package-test', `${fileName}.log`), 'utf8', (err, data) => {
+      fs.readFile(path.resolve(__dirname, '..', '..', '..', '.narval', 'logs', 'integration', process.env.narval_suite, serviceName, `${fileName}.log`), 'utf8', (err, data) => {
         if (err) {
           reject(err)
         } else {

@@ -786,7 +786,7 @@ suites:
             package_to_launch: api
             narval_config: api-coverage
       services:
-        - name: package-test
+        - name: package-api
           local:
             command: test/integration/commands/launch-test.sh
             env:
@@ -827,6 +827,37 @@ suites:
           wait-on:
             resources: 
               - .narval/logs/integration/api-local-coverage-only-test/package-test/exit-code.log
+            timeout: 12000
+      coverage:
+        enabled: false
+    - name: api-local-coverage-api-and-test
+      before:
+        local:
+          command: test/integration/commands/prepare-package.sh
+          env:
+            package_to_launch: api
+            narval_config: api-coverage
+      services:
+        - name: package-api
+          local:
+            command: test/integration/commands/launch-test.sh
+            env:
+              package_to_launch: api
+              narval_options: -- --local=api-server
+        - name: package-test
+          local:
+            command: test/integration/commands/launch-test.sh
+            env:
+              package_to_launch: api
+              narval_options: -- --local=test
+      test:
+        specs:
+          - test/integration/specs/exit/exit-ok.specs.js
+          - test/integration/specs/api-coverage/local.api-and-test.specs.js
+        local:
+          wait-on:
+            resources: 
+              - .narval/logs/integration/api-local-coverage-api-and-test/package-test/exit-code.log
             timeout: 12000
       coverage:
         enabled: false
