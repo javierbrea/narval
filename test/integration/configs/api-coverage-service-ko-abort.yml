@@ -43,6 +43,7 @@ suites:
             container: mongodb-container
             command: test/commands/mongodb-docker.sh
         - name: api-server
+          abort-on-error: true
           local:
             command: server.js --host=localhost --port=3000 --mongodb=mongodb://foo-host/narval-api-test
           docker:
@@ -51,20 +52,9 @@ suites:
             wait-on: tcp:mongodb-container:27017
             exit_after: 60000
       test:
-        specs: test/end-to-end/books
-        local:
-          wait-on:
-            resources:
-              - tcp:localhost:3000
-            timeout: 5000
-          env:
-            api_host: localhost
-            api_port: 3000
+        specs: test/integration/pass
         docker:
           container: test-container
           wait-on: tcp:api-container:4000
-          env:
-            api_host: api-container
-            api_port: 4000
       coverage:
         from: api-server

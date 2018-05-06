@@ -711,6 +711,73 @@ suites:
             logs_folder: end-to-end/books-api
       coverage:
         enabled: false
+    - name: api-local-coverage-service-ko
+      before:
+        local:
+          command: test/integration/commands/prepare-package.sh
+          env:
+            package_to_launch: api
+            narval_config: api-coverage-service-ko
+      services:
+        - name: package-test
+          local:
+            command: test/integration/commands/launch-test.sh
+            env:
+              package_to_launch: api
+              narval_options: -- --local
+      test:
+        specs:
+          - test/integration/specs/exit/exit-ko.specs.js
+          - test/integration/specs/logs/service.local.coverage.logs.specs.js
+          - test/integration/specs/coverage/json.specs.js
+          - test/integration/specs/coverage/lcov.specs.js
+          - test/integration/specs/coverage/summary.specs.js
+          - test/integration/specs/api-coverage/local.common.specs.js
+          - test/integration/specs/api-coverage/local.service-ko.specs.js
+        local:
+          wait-on:
+            resources: 
+              - .narval/logs/integration/api-local-coverage-service-ko/package-test/exit-code.log
+            timeout: 120000
+          env:
+            package_to_launch: api
+            coverage_dir: .coverage/end-to-end/books-api
+            logs_folder: end-to-end/books-api
+      coverage:
+        enabled: false
+    - name: api-local-coverage-service-ko-abort
+      before:
+        local:
+          command: test/integration/commands/prepare-package.sh
+          env:
+            package_to_launch: api
+            narval_config: api-coverage-service-ko-abort
+      services:
+        - name: package-test
+          local:
+            command: test/integration/commands/launch-test.sh
+            env:
+              package_to_launch: api
+              narval_options: -- --local
+      test:
+        specs:
+          - test/integration/specs/exit/exit-ko.specs.js
+          - test/integration/specs/logs/service.local.coverage.logs.specs.js
+          - test/integration/specs/coverage/json.specs.js
+          - test/integration/specs/coverage/lcov.specs.js
+          - test/integration/specs/coverage/summary.specs.js
+          - test/integration/specs/api-coverage/local.service-ko-abort.specs.js
+        local:
+          wait-on:
+            resources: 
+              - .narval/logs/integration/api-local-coverage-service-ko-abort/package-test/exit-code.log
+            timeout: 120000
+          env:
+            package_to_launch: api
+            coverage_dir: .coverage/end-to-end/books-api
+            logs_folder: end-to-end/books-api
+      coverage:
+        enabled: false
     - name: api-docker-coverage-mongodb-ko
       before:
         local:
