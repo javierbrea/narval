@@ -28,6 +28,7 @@ Multi test suites runner for Node.js packages. Docker based.
 		* [Working directory](#working-directory)
 		* [Docker absolute paths](#docker-absolute-paths)
 		* [Docker shared volume](#docker-shared-volume)
+	* [Services logs](#services-logs)
 	* [Environment variables](#environment-variables)
 
 ## Introduction
@@ -589,6 +590,36 @@ When Docker images are created, all files and folders of the package are added o
 #### Docker shared volume
 
 All Docker containers share a volume named `.shared`, created at the root of the package. In this way, you can check if a service is writting something or not in your specs, for example. Configure your service to write the output files inside the folder `.shared` (or `/narval/.shared`), and that folder will be available as well when tests are executed.
+
+### Services logs
+
+All services logs are written to files to make them available for other services or tests. Logs are written to `.narval/logs/[suite-type]/[suite-name]/[service-name]` folder. These folders are available inside all Docker containers too.
+
+For each service, all these files are generated:
+
+* `combined-outerr.log`. Contains all service logs, both "out" and "error".
+* `err.log`. Contains service "error" logs.
+* `out.log`. Contains service "out" logs.
+* `exit-code.log`. This file is created when service is closed, and contains the exit code of the service process.
+
+The `exit-code.log` can be useful to wait for a service to be finished before executing another service, or the tests. Using the `wait-on` property, you can wait for the creation of this file, which means that the service process has been closed.
+
+_In the next example, the tests will not be executed until the service "api" is closed:_
+
+```yml
+suites:
+  integration: 
+    - name: api-closed
+      services:
+        - name: api-service
+          local:
+            command: test/commands/start-api.sh
+      test:
+        specs: test/integration
+        wait-on: .narval/logs/integration/api-closed/api-service/exit-code.log
+```
+
+> Note: Log files are not generated for tests processes and for coveraged services processes when runned locally.
 
 ### Environment variables
 
