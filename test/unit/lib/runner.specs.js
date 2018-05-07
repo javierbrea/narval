@@ -91,7 +91,8 @@ test.describe('runner', () => {
       })
   })
 
-  test.it('should exit process when any error is received', () => {
+  test.it.skip('should exit process when any error is received and process has been marked to force exit', () => {
+    process.env.forceExit = true
     standard.run.rejects(new Error())
     require('../../../lib/runner')
     return waitForFinish()

@@ -2,6 +2,7 @@
 const emptyResult = {
   dockerImages: [],
   dockerContainers: [],
+  standard: {},
   suitesByType: []
 }
 
@@ -18,6 +19,7 @@ const customConfig = {
 const customResult = {
   dockerImages: [],
   dockerContainers: [],
+  standard: {},
   suitesByType: [{
     name: 'fooCustomType',
     suites: [{
@@ -37,6 +39,7 @@ const defaultSuites = {
 const defaultResult = {
   dockerImages: [],
   dockerContainers: [],
+  standard: {},
   suitesByType: [
     {
       name: 'fooType',
@@ -50,6 +53,7 @@ const defaultResult = {
 const manySuitesAndTypes = {
   dockerImages: [],
   dockerContainers: [],
+  standard: {},
   suitesByType: [
     {
       name: 'fooType',

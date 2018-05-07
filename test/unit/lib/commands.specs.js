@@ -9,7 +9,7 @@ const mocks = require('../mocks')
 const commands = require('../../../lib/commands')
 const options = require('../../../lib/options')
 
-test.describe('commands', () => {
+test.describe.skip('commands', () => {
   test.describe('run method', () => {
     const fooCommand = 'fooCommand'
     const fooCmdWindowsPath = 'fooCmdWindowsPath'

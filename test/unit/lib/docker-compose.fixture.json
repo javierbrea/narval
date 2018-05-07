@@ -8,7 +8,6 @@
       "build": {
         "context": "./fooImage1"
       },
-      "depends_on": [],
       "volumes": [
         {
           "type": "volume",
@@ -19,6 +18,11 @@
           "type": "bind",
           "source": "../../.coverage",
           "target": "/narval/.coverage"
+        },
+        {
+          "type": "bind",
+          "source": "../../.narval/logs",
+          "target": "/narval/.narval/logs"
         },
         {
           "type": "bind",
@@ -36,7 +40,7 @@
         "command_params": "${fooContainer1_command_params}",
         "coverage_options": "${coverage_options}",
         "coverage_enabled": "${fooContainer1_coverage_enabled}",
-        "wait_for": "${fooContainer1_wait_for}",
+        "wait_on": "${fooContainer1_wait_on}",
         "exit_after": "${fooContainer1_exit_after}",
         "narval_suite_type": "${fooContainer1_narval_suite_type}",
         "narval_suite": "${fooContainer1_narval_suite}",
@@ -49,7 +53,6 @@
       "build": {
         "context": "./fooImage2"
       },
-      "depends_on": [],
       "volumes": [
         {
           "type": "volume",
@@ -60,6 +63,11 @@
           "type": "bind",
           "source": "../../.coverage",
           "target": "/narval/.coverage"
+        },
+        {
+          "type": "bind",
+          "source": "../../.narval/logs",
+          "target": "/narval/.narval/logs"
         },
         {
           "type": "bind",
@@ -77,7 +85,7 @@
         "command_params": "${fooContainer2_command_params}",
         "coverage_options": "${coverage_options}",
         "coverage_enabled": "${fooContainer2_coverage_enabled}",
-        "wait_for": "${fooContainer2_wait_for}",
+        "wait_on": "${fooContainer2_wait_on}",
         "exit_after": "${fooContainer2_exit_after}",
         "narval_suite_type": "${fooContainer2_narval_suite_type}",
         "narval_suite": "${fooContainer2_narval_suite}",
@@ -90,7 +98,6 @@
       "build": {
         "context": "./fooImage2"
       },
-      "depends_on": [],
       "volumes": [
         {
           "type": "volume",
@@ -101,6 +108,11 @@
           "type": "bind",
           "source": "../../.coverage",
           "target": "/narval/.coverage"
+        },
+        {
+          "type": "bind",
+          "source": "../../.narval/logs",
+          "target": "/narval/.narval/logs"
         },
         {
           "type": "bind",
@@ -118,7 +130,7 @@
         "command_params": "${fooContainer3_command_params}",
         "coverage_options": "${coverage_options}",
         "coverage_enabled": "${fooContainer3_coverage_enabled}",
-        "wait_for": "${fooContainer3_wait_for}",
+        "wait_on": "${fooContainer3_wait_on}",
         "exit_after": "${fooContainer3_exit_after}",
         "narval_suite_type": "${fooContainer3_narval_suite_type}",
         "narval_suite": "${fooContainer3_narval_suite}",

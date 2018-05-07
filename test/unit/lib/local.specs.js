@@ -33,7 +33,7 @@ const StdinOnFake = function (options) {
   }
 }
 
-test.describe('local', () => {
+test.describe.skip('local', () => {
   test.describe('run method', () => {
     let sandbox
     let tracerMock
