@@ -11,6 +11,7 @@ Multi test suites runner for Node.js packages. Docker based.
 ## Table of Contents
 
 * [Introduction](#introduction)
+* [Requirements](#requirements)
 * [Quick Start](#quick-start)
 * [Configuration](#configuration)
 	* [docker-images](#docker-images)
@@ -51,6 +52,19 @@ It also provides a built-in javascript linter, using [Standard][standard-url].
 Narval is configured using a `.narval.yml` file at the root of your project.
 
 [back to top](#table-of-contents)
+
+## Requirements
+
+To run services and tests using Docker, Narval needs Docker and docker-compose to be installed on the system.
+
+Narval has been developed and tested on Linux and Mac with versions:
+* Docker: 17.05.0-ce
+* docker-compose: 1.19.0
+
+On Windows platforms, the "docker" feature is not available, but you can run suites using the `--local` option.
+
+Read more about [how to install Docker and docker-compose][docker-url].
+Here you can read about [how to use Docker and docker-compose in Travis builds][travis-docker-url].
 
 ## Quick Start
 
@@ -93,8 +107,8 @@ Create a `.narval.yml` file at the root of your project.
 `<Object>`. Configuration for Standard.
 
 * `directories` `<Array> of <String>`. Array of glob expressions that will determine in which folders Standard will be executed.
-  
-> *Partial example of standard configuration*
+
+> *Partial example of Standard configuration*
 ```yml
 standard:
   directories:
@@ -235,7 +249,7 @@ suites:
 * `docker` `<Object>`. If test suite is going to be executed using Docker, this objects contains the needed configuration for the service.
 	* `container` `<String>`. Reference name of the [docker-container](#docker-container) in which the service is going to be executed.
 	* `command` `<String>`. Path to the command that will start the service.
-	* `wait-on` `<String><Object>` The service will not be started until the provided `wait-on` condition is ready. Narval uses [wait-on][wait-on-url] to provide this feature. If an `String` is provided, then it specifies the resource to wait. NOTE: If the host you are waiting for is a service hosted in a [docker-container](#docker-container), you must use that docker-container name as `host` in the `host:port` expression.
+	* `wait-on` `<String>|<Object>` The service will not be started until the provided `wait-on` condition is ready. Narval uses [wait-on][wait-on-url] to provide this feature. If an `String` is provided, then it specifies the resource to wait. NOTE: If the host you are waiting for is a service hosted in a [docker-container](#docker-container), you must use that docker-container name as `host` in the `host:port` expression.
 		* `resources`. `<Array> of <String>`. Resources that will be waited for. Read about the available "resources" to be used as `wait-on` expressions in its [documentation][wait-on-url].
 		* `timeout` `<Number>`. Maximum time in ms to wait before exiting with failure (1) code,
   default Infinity.
@@ -246,7 +260,7 @@ suites:
 	* `exit_after` `<Number>` of miliseconds `default: 30000`. When [coverage](#coverage) is executed over a service instead of tests, in Docker is needed to define a time out for stopping the service and get the resultant coverage after running tests. This setting only applies if `coverage.from` property is set to this service name.
 * `local` `<Object>`. Contains instructions to execute the service locally.
 	* `command` `<String>`. Path to the command that will start the service.
-	* `wait-on` `<String><Object>` with format `protocol:host:port`, or path to a file. The service will not be started until the provided `protocol:host:port` is ready, or file exists. Narval uses [wait-on][wait-on-url] to provide this feature. If an `String` is provided, then it specifies the resource to wait.
+	* `wait-on` `<String>|<Object>` with format `protocol:host:port`, or path to a file. The service will not be started until the provided `protocol:host:port` is ready, or file exists. Narval uses [wait-on][wait-on-url] to provide this feature. If an `String` is provided, then it specifies the resource to wait.
 		* `resources`. `<Array> of <String>`. Resources that will be waited for. Read about the available "resources" to be used as `wait-on` expressions in its [documentation][wait-on-url].
 		* `timeout` `<Number>`. Maximum time in ms to wait before exiting with failure (1) code,
   default Infinity.
@@ -296,10 +310,10 @@ suites:
 
 `<Object>`. Object containing configuration for the test to be runned by a suite.
 
-* `specs` `<String>`. Path to the folder where the specs to be executed are. Relative to the root of the project.
+* `specs` `<String>|<Array>`. Path to the folder or file where the specs to be executed are. Relative to the root of the project. If an `Array` is specified, all provided folders or files in the `Array` will be executed.
 * `docker` `<Object>`. If test suite is going to be executed using Docker, this objects contains the needed configuration.
 	* `container` `<String>`. Reference name of the [docker-container](#docker-container) in which the tests are going to be executed.
-	* `wait-on` `<String><Object>` The tests will not be executed until the provided `wait-on` condition is ready. Narval uses [wait-on][wait-on-url] to provide this feature. If an `String` is provided, then it specifies the resource to wait. NOTE: If the host you are waiting for is a service hosted in a [docker-container](#docker-container), you must use that docker-container name as `host` in the `host:port` expression.
+	* `wait-on` `<String>|<Object>` The tests will not be executed until the provided `wait-on` condition is ready. Narval uses [wait-on][wait-on-url] to provide this feature. If an `String` is provided, then it specifies the resource to wait. NOTE: If the host you are waiting for is a service hosted in a [docker-container](#docker-container), you must use that docker-container name as `host` in the `host:port` expression.
 		* `resources`. `<Array> of <String>`. Resources that will be waited for. Read about the available "resources" to be used as `wait-on` expressions in its [documentation][wait-on-url].
 		* `timeout` `<Number>`. Maximum time in ms to wait before exiting with failure (1) code,
   default Infinity.
@@ -309,7 +323,7 @@ suites:
 	* `env` `<Object>`. Object containing custom variables names and values to be set in the docker environment for running test.
 * `local` `<Object>`. If test suite is going to be executed without Docker, this objects contains the needed configuration.
 	* `env` `<Object>`. Object containing custom variables names and values to be set in the local environment for running test.
-	* `wait-on` `<String><Object>` with format `protocol:host:port`, or path to a file. The tests will not be executed until the provided `protocol:host:port` is ready, or file exists. Narval uses [wait-on][wait-on-url] to provide this feature. If an `String` is provided, then it specifies the resource to wait.
+	* `wait-on` `<String>|<Object>` with format `protocol:host:port`, or path to a file. The tests will not be executed until the provided `protocol:host:port` is ready, or file exists. Narval uses [wait-on][wait-on-url] to provide this feature. If an `String` is provided, then it specifies the resource to wait.
 		* `resources`. `<Array> of <String>`. Resources that will be waited for. Read about the available "resources" to be used as `wait-on` expressions in its [documentation][wait-on-url].
 		* `timeout` `<Number>`. Maximum time in ms to wait before exiting with failure (1) code,
   default Infinity.
@@ -560,6 +574,8 @@ Outside Docker, in the "local" environment, commands are executed through nodejs
 * In Windows platforms, the commands are executed using the default system shell, using the nodejs `process.env.ComSpec` property. Usually, it should be something like: `c:\windows\system32\cmd.exe /d /s /c`.\
 Note that Windows shell can only execute `.bat` and `.cmd` commands, so, maybe you want to define your own shell.
 
+> Warning: Ensure that your command files have execution permissions, otherwise, the execution will obviously fail.
+
 ##### Using a custom shell
 
 It is possible to define a custom shell for running commands. This can be useful, for example, if you want to run commands locally in Windows using `gitBash` in order to make them compatible with Unix platforms. Use the [option](#command-line-options) "--shell" to define the path to the custom shell:
@@ -709,6 +725,7 @@ Now, you can write a test that can be runned locally, for development purposes, 
 [standard-image]: https://img.shields.io/badge/code%20style-standard-brightgreen.svg
 [standard-url]: http://standardjs.com/
 
+[travis-docker-url]: https://docs.travis-ci.com/user/docker
 [docker-url]: https://www.docker.com/
 [istanbul-url]: https://istanbul.js.org/
 [istanbul-usage-url]: https://istanbul.js.org/
