@@ -88,6 +88,20 @@ npm run test -- --suite=unit
 
 Create a `.narval.yml` file at the root of your project.
 
+### standard
+
+`<Object>`. Configuration for Standard.
+
+* `directories` `<Array> of <String>`. Array of glob expressions that will determine in which folders Standard will be executed.
+  
+> *Partial example of standard configuration*
+```yml
+standard:
+  directories:
+    - "**/.js"
+    - "!test/integration/packages/**/*.js"
+```
+
 ### docker-images
 
 `<Array>` of [docker-image objects](#docker-image). Configure your base Docker image or images that will be used to instanciate the different Docker containers used to start the services or tests.
