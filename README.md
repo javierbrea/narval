@@ -21,7 +21,6 @@ Multi test suites runner for Node.js packages. Docker based.
 		* [services](#service)
 		* [test](#test)
 		* [coverage](#coverage)
-* [Examples](#examples)
 * [Usage](#usage)
 	* [Command line options](#command-line-options)
 	* [Developing commands](#developing-commands)
@@ -31,6 +30,7 @@ Multi test suites runner for Node.js packages. Docker based.
 		* [Docker shared volume](#docker-shared-volume)
 	* [Services logs](#services-logs)
 	* [Environment variables](#environment-variables)
+* [Examples](#examples)
 
 ## Introduction
 
@@ -392,113 +392,6 @@ suites:
 
 [back to top](#table-of-contents)
 
-## Examples
-
-Here is a complex example that includes all available configuration properties. Obviously, in normal conditions there is no need to create such a complex configuration file.
-
-There are more examples with other configurations at the [examples folder of this repository][examples-url].
-
-Remember that the configuration file must to be named `.narval.yml`, and must be located at the root of your package.
-
-```yml
-docker-images:
-  # Reuse the same Docker image for all containers, to improve build time
-  - name: basic-image
-    from: node:8.9.4
-    add:
-      - package.json
-    expose:
-      - 3000
-    install: test/docker/install
-docker-containers:
-  # Container used for running service
-  - name: service-container
-    build: basic-image
-    bind:
-      - lib
-      - index.js
-  # Container used for running tests
-  - name: test-container
-    build: basic-image
-    bind:
-      - lib
-      - test
-      - index.js
-    depends_on:
-      - service-container
-suites:
-# Suites of type "unit"
-  unit:
-    # Example of suite that only runs unit tests execution without Docker.
-    - name: unit 
-      test:
-        specs: test/unit
-        env:
-          fooVar: true
-      coverage:
-        # Custom coverage folder
-        config:
-          dir: .coverage/unit
-# Suites of type "integration"
-  integration:
-    # Example of suite that gets coverage from a service
-    - name: api 
-      services:
-        - name: api-service
-          docker: 
-            container: service-container
-            command: test/services/app/start.js --name=service --path=/narval/.shared --host=service-container
-            exit_after: 10000
-            env:
-              fooVar: foo value 1
-          local:
-            command: test/services/app/start.js --name=service --path=.test
-            env:
-              fooVar: foo value 2
-      test:
-        specs: test/integration/api
-        docker:
-          container: test-container
-          wait-on: service-container:3000
-          env:
-            hostName: service-container
-        local:
-          wait-on: tcp:localhost:3000
-          env:
-            hostName: localhost
-      coverage:
-        from: api-service
-        config:
-          print: both
-    # Example of suite with coverage disabled. Clean Docker volumes or local environment before run it.
-    - name: tracer
-      before:
-        docker:
-          down-volumes: true
-        local:
-          command: test/services/commands/local/clean
-      services:
-        - name: api-service
-          docker:
-            container: service-container
-            command: test/services/commands/docker/log-level-warn
-          local:
-            command: test/services/commands/local/log-level-warn
-      test:
-        specs: test/integration/tracer
-        docker:
-          container: test-container
-          wait-on: service-container:3000
-        local:
-          wait-on: tcp:localhost:3000
-        config:
-          reporter: list
-      coverage:
-        enabled: false
-```
-
-[back to top](#table-of-contents)
-
 ## Usage
 
 * Add the "narval" dependency to your `package.json` file as described in the [quick start chapter](#quick-start).
@@ -702,6 +595,169 @@ Now, you can write a test that can be runned locally, for development purposes, 
 
 [back to top](#table-of-contents)
 
+## Examples
+
+Here you have an example that runs standard, unit, integration and end-to-end tests over a [very simple api package][integration-tests-foo-package-url] that includes a connection to a mongodb database, and some other fake features developed explictly for the example. The configuration is overloaded intendedly to provide different combinations of configurations examples.
+
+Remember that the configuration file must to be named `.narval.yml`, and must be located at the root of the package.
+
+In the example you can see how Narval is used to start a Mongodb service, and the api itself, and then run tests. The "end-to-end" tests are generating coverage, and integration tests are used to check the api logs, and if the service is writing some files as expected. For local executions, the mongodb connection is disabled and the api stores books in memory only, this was made to avoid the need of having mongodb installed in the system for running the example.
+
+```yml
+docker-images:
+  - name: node-image
+    from: node:8.11.1
+    expose:
+      - 4000
+    add:
+      - package.json
+    install: test/commands/install.sh
+  - name: mongodb-image
+    from: mongo:3.6.4
+    expose:
+      - 27017
+docker-containers:
+  - name: test-container
+    build: node-image
+    bind:
+      - lib
+      - test
+      - server.js
+  - name: api-container
+    build: node-image
+    bind:
+      - lib
+      - test
+      - server.js
+  - name: mongodb-container
+    build: mongodb-image
+    bind:
+      - test/commands
+suites:
+  unit: 
+    - name: unit
+      test:
+        specs: test/unit
+      coverage:
+        config:
+          dir: .coverage/unit
+  end-to-end:
+    - name: books-api
+      before:
+        docker:
+          down-volumes: true
+      services:
+        - name: mongodb
+          docker:
+            container: mongodb-container
+            command: test/commands/mongodb-docker.sh
+        - name: api-server
+          local:
+            command: server.js --host=localhost --port=3000 --mongodb=avoid
+          docker:
+            container: api-container
+            command: server.js --host=api-container --port=4000 --mongodb=mongodb://mongodb-container/narval-api-test
+            wait-on: tcp:mongodb-container:27017
+            exit_after: 10000
+      test:
+        specs: test/end-to-end/books
+        local:
+          wait-on: tcp:localhost:3000
+          env:
+            api_host: localhost
+            api_port: 3000
+        docker:
+          container: test-container
+          wait-on: tcp:api-container:4000
+          env:
+            api_host: api-container
+            api_port: 4000
+      coverage:
+        from: api-server
+  integration:
+    - name: logs
+      services:
+        - name: mongodb
+          docker:
+            container: mongodb-container
+            command: test/commands/mongodb-docker.sh
+        - name: api-server
+          local:
+            command: test/commands/start-server.sh
+            env:
+              mongodb: avoid
+              api_host: localhost
+              api_port: 3000
+          docker:
+            container: api-container
+            command: test/commands/start-server.sh
+            wait-on:
+              resources:
+                - tcp:mongodb-container:27017
+              timeout: 50000
+              interval: 50
+              delay: 100
+            env:
+              mongodb: mongodb://mongodb-container/narval-api-test
+              api_host: api-container
+              api_port: 4000
+      test:
+        specs: test/integration/logs
+        local:
+          wait-on: tcp:localhost:3000
+          env:
+            api_host: localhost
+            api_port: 3000
+        docker:
+          container: test-container
+          wait-on: tcp:api-container:4000
+          env:
+            api_host: api-container
+            api_port: 4000
+      coverage:
+        enabled: false
+    - name: commands
+      services:
+        - name: mongodb
+          docker:
+            container: mongodb-container
+            command: test/commands/mongodb-docker.sh
+        - name: api-server
+          local:
+            command: test/commands/start-server.sh
+            env:
+              mongodb: avoid
+              api_host: localhost
+              api_port: 3000
+          docker:
+            container: api-container
+            command: test/commands/start-server.sh
+            wait-on: tcp:mongodb-container:27017
+            env:
+              mongodb: mongodb://mongodb-container/narval-api-test
+              api_host: api-container
+              api_port: 4000
+      test:
+        specs: test/integration/commands
+        local:
+          wait-on: tcp:localhost:3000
+          env:
+            api_host: localhost
+            api_port: 3000
+        docker:
+          container: test-container
+          wait-on: tcp:api-container:4000
+          env:
+            api_host: api-container
+            api_port: 4000
+      coverage:
+        enabled: false
+```
+
+> NOTE: There are more files with many other configurations that may be useful as examples at the [integration tests folder of this repository][integration-tests-config-url]. All these Narval configuration files are used for testing Narval itself, and most of them are runned over a ["foo api package" in the integration tests folder][integration-tests-foo-package-url]. You can copy one of these example files to the foo package root and rename it to `.narval.yml` to see that configuration in action.
+
+[back to top](#table-of-contents)
+
 [coveralls-image]: https://coveralls.io/repos/github/javierbrea/narval/badge.svg
 [coveralls-url]: https://coveralls.io/github/javierbrea/narval
 [travisci-image]: https://travis-ci.org/javierbrea/narval.svg?branch=master
@@ -732,6 +788,7 @@ Now, you can write a test that can be runned locally, for development purposes, 
 [mocha-url]: https://mochajs.org
 [mocha-usage-url]: https://mochajs.org/#usage
 [wait-on-url]: https://www.npmjs.com/package/wait-on
-[examples-url]: https://github.com/javierbrea/narval/tree/master/examples
+[integration-tests-config-url]: https://github.com/javierbrea/narval/tree/master/test/integration/configs
+[integration-tests-foo-package-url]: https://github.com/javierbrea/narval/tree/master/test/integration/packages/api
 [shebang-url]: https://en.wikipedia.org/wiki/Shebang_(Unix)
 [child-process-url]: https://nodejs.org/docs/latest-v8.x/api/child_process.html#child_process_child_process_execfile_file_args_options_callback
