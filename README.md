@@ -124,7 +124,6 @@ docker-images:
 * `name` `<String>`. Reference for the container.
 * `build` `<String>`. Reference name of the [docker-image](#docker-image) from which this container will be started.
 * `bind` `<Array> of <String>`. Array of paths to be binded into the docker container. This "resources" will be "shared" from the local file system directly to the docker container, so if there are changes in the resources, there is no need to rebuild the Docker images to refresh changes. The full folder tree will be respected, and will be binded just as it is to the Docker image.
-* `depends_on` `<String>`. Reference name of another docker-container. This container will be started only after the other one is started. (Caution, because this does not implies that services inside the other container are ready as well)
 
 > *Partial example of docker-containers configuration*
 ```yml
@@ -140,8 +139,6 @@ docker-containers:
       - lib
       - test
       - index.js
-    depends_on:
-      - service
 ```
 
 ### suites
@@ -222,10 +219,24 @@ suites:
 * `docker` `<Object>`. If test suite is going to be executed using Docker, this objects contains the needed configuration for the service.
 	* `container` `<String>`. Reference name of the [docker-container](#docker-container) in which the service is going to be executed.
 	* `command` `<String>`. Path to the command that will start the service.
+	* `wait-on` `<String><Object>` The service will not be started until the provided `wait-on` condition is ready. Narval uses [wait-on][wait-on-url] to provide this feature. If an `String` is provided, then it specifies the resource to wait. NOTE: If the host you are waiting for is a service hosted in a [docker-container](#docker-container), you must use that docker-container name as `host` in the `host:port` expression.
+		* `resources`. `<Array> of <String>`. Resources that will be waited for. Read about the available "resources" to be used as `wait-on` expressions in its [documentation][wait-on-url].
+		* `timeout` `<Number>`. Maximum time in ms to wait before exiting with failure (1) code,
+  default Infinity.
+		* `delay` `<Number>`. Initial delay before checking for resources in ms, default 0.
+		* `interval` `<Number>`. Interval to poll resources in ms, default 250ms.
+		* `reverse` `<Boolean>`. Reverse operation, wait for resources to NOT be available.
 	* `env` `<Object>`. Object containing custom variables names and values to be set in the environment for running command.
 	* `exit_after` `<Number>` of miliseconds `default: 30000`. When [coverage](#coverage) is executed over a service instead of tests, in Docker is needed to define a time out for stopping the service and get the resultant coverage after running tests. This setting only applies if `coverage.from` property is set to this service name.
 * `local` `<Object>`. Contains instructions to execute the service locally.
 	* `command` `<String>`. Path to the command that will start the service.
+	* `wait-on` `<String><Object>` with format `protocol:host:port`, or path to a file. The service will not be started until the provided `protocol:host:port` is ready, or file exists. Narval uses [wait-on][wait-on-url] to provide this feature. If an `String` is provided, then it specifies the resource to wait.
+		* `resources`. `<Array> of <String>`. Resources that will be waited for. Read about the available "resources" to be used as `wait-on` expressions in its [documentation][wait-on-url].
+		* `timeout` `<Number>`. Maximum time in ms to wait before exiting with failure (1) code,
+  default Infinity.
+		* `delay` `<Number>`. Initial delay before checking for resources in ms, default 0.
+		* `interval` `<Number>`. Interval to poll resources in ms, default 250ms.
+		* `reverse` `<Boolean>`. Reverse operation, wait for resources to NOT be available.
 	* `env` `<Object>`. Object containing custom variables names and values to be set in the environment for running command.
 
 > *Partial example of a test suite "services" property*
@@ -248,6 +259,13 @@ suites:
           docker: 
             container: service-container
             command: test/services/app/start.js --name=service --path=/narval/.shared --host=service
+            wait-on:
+              resources:
+                - tcp:ddbb-container:27017
+              timeout: 5000
+              delay: 300
+              interval: 100
+              reverse: false
             env:
               fooVar: false
             exit_after: 10000
@@ -255,6 +273,7 @@ suites:
             command: test/services/app/start.js --name=service --path=.test
             env:
               fooVar: true
+            wait-on: tcp:localhost:27017
 ```
 
 ##### test
@@ -264,11 +283,23 @@ suites:
 * `specs` `<String>`. Path to the folder where the specs to be executed are. Relative to the root of the project.
 * `docker` `<Object>`. If test suite is going to be executed using Docker, this objects contains the needed configuration.
 	* `container` `<String>`. Reference name of the [docker-container](#docker-container) in which the tests are going to be executed.
-	* `wait-for` `<String>` with format `host:port`. The tests will not be executed until the provided `host:port` is ready. Narval uses [wait-for-it][wait-for-it-url] to provide this feature. NOTE: If the host you are waiting for is a service hosted in a [docker-container](#docker-container), you must use that docker-container name as `host` in the `host:port` expression.
+	* `wait-on` `<String><Object>` The tests will not be executed until the provided `wait-on` condition is ready. Narval uses [wait-on][wait-on-url] to provide this feature. If an `String` is provided, then it specifies the resource to wait. NOTE: If the host you are waiting for is a service hosted in a [docker-container](#docker-container), you must use that docker-container name as `host` in the `host:port` expression.
+		* `resources`. `<Array> of <String>`. Resources that will be waited for. Read about the available "resources" to be used as `wait-on` expressions in its [documentation][wait-on-url].
+		* `timeout` `<Number>`. Maximum time in ms to wait before exiting with failure (1) code,
+  default Infinity.
+		* `delay` `<Number>`. Initial delay before checking for resources in ms, default 0.
+		* `interval` `<Number>`. Interval to poll resources in ms, default 250ms.
+		* `reverse` `<Boolean>`. Reverse operation, wait for resources to NOT be available.
 	* `env` `<Object>`. Object containing custom variables names and values to be set in the docker environment for running test.
 * `local` `<Object>`. If test suite is going to be executed without Docker, this objects contains the needed configuration.
 	* `env` `<Object>`. Object containing custom variables names and values to be set in the local environment for running test.
-	* `wait-for` `<String>` with format `protocol:host:port`, or path to a file. The tests will not be executed until the provided `protocol:host:port` is ready, or file exists. Narval uses [wait-on][wait-on-url] to provide this feature in "local" executions. Read about the available "resources" to be used as `wait-for` expression in its [documentation][wait-on-url]. 
+	* `wait-on` `<String><Object>` with format `protocol:host:port`, or path to a file. The tests will not be executed until the provided `protocol:host:port` is ready, or file exists. Narval uses [wait-on][wait-on-url] to provide this feature. If an `String` is provided, then it specifies the resource to wait.
+		* `resources`. `<Array> of <String>`. Resources that will be waited for. Read about the available "resources" to be used as `wait-on` expressions in its [documentation][wait-on-url].
+		* `timeout` `<Number>`. Maximum time in ms to wait before exiting with failure (1) code,
+  default Infinity.
+		* `delay` `<Number>`. Initial delay before checking for resources in ms, default 0.
+		* `interval` `<Number>`. Interval to poll resources in ms, default 250ms.
+		* `reverse` `<Boolean>`. Reverse operation, wait for resources to NOT be available.
 * `config` `<Object>` containing Mocha configuration arguments for tests execution. All provided key value pairs will be translated into "--key=value" when Mocha is executed. As examples, some available `config` keys are provided in this documentation. For further reference about all available arguments, [please read Mocha usage documentation][mocha-usage-url].
 	* `recursive` `<Boolean>` `default: true`. Execute specs found in all subfolders of provided `specs` path.
 	* `reporter` `<String>` `default: spec` Mocha reporter to be used. Can be one of "spec", "dot", "nyan", "landing", "list", "progress", ...
@@ -283,11 +314,17 @@ suites:
         specs: test/integration/api
         docker:
           container: test-container
-          wait-for: api-service:3000
+          wait-on:
+            resources:
+              - tcp:api-service:3000
+            timeout: 5000
+            delay: 300
+            interval: 100
+            reverse: false
           env:
             fooVar: foo value for test execution in Docker
         local:
-          wait-for: tcp:localhost:3000
+          wait-on: tcp:localhost:3000
           env:
             fooVar: foo value for test execution in local
         config:
@@ -392,11 +429,11 @@ suites:
         specs: test/integration/api
         docker:
           container: test-container
-          wait-for: service-container:3000
+          wait-on: service-container:3000
           env:
             hostName: service-container
         local:
-          wait-for: tcp:localhost:3000
+          wait-on: tcp:localhost:3000
           env:
             hostName: localhost
       coverage:
@@ -421,9 +458,9 @@ suites:
         specs: test/integration/tracer
         docker:
           container: test-container
-          wait-for: service-container:3000
+          wait-on: service-container:3000
         local:
-          wait-for: tcp:localhost:3000
+          wait-on: tcp:localhost:3000
         config:
           reporter: list
       coverage:
@@ -631,7 +668,6 @@ Now, you can write a test that can be runned locally, for development purposes, 
 [istanbul-usage-url]: https://istanbul.js.org/
 [mocha-url]: https://mochajs.org
 [mocha-usage-url]: https://mochajs.org/#usage
-[wait-for-it-url]: https://github.com/vishnubob/wait-for-it
 [wait-on-url]: https://www.npmjs.com/package/wait-on
 [examples-url]: https://github.com/javierbrea/narval/tree/master/examples
 [shebang-url]: https://en.wikipedia.org/wiki/Shebang_(Unix)

@@ -6,7 +6,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [unreleased]
 ### Added
+- Add "wait-on" options to configuration.
+- Services can wait for other services.
+
 ### Changed
+- Use "wait-on" instead of "wait-for" inside Docker.
+
 ### Fixed
 ### Removed
 
