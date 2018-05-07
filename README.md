@@ -217,6 +217,7 @@ suites:
 `<Object>`. Object containing configuration for starting a test suite service.
 
 * `name` `<String>`. Reference name for the service. It can be the same in all suites starting the same service.
+* `abort-on-error` `<Boolean>`. Default `false`. If `true`, all other services and tests will be stopped if possible when this service is closed with an error code. Test suite will be considered as failed, even if the tests execution is successful.
 * `docker` `<Object>`. If test suite is going to be executed using Docker, this objects contains the needed configuration for the service.
 	* `container` `<String>`. Reference name of the [docker-container](#docker-container) in which the service is going to be executed.
 	* `command` `<String>`. Path to the command that will start the service.
@@ -611,12 +612,12 @@ suites:
   integration: 
     - name: api-closed
       services:
-        - name: api-service
+        - name: api
           local:
             command: test/commands/start-api.sh
       test:
         specs: test/integration
-        wait-on: .narval/logs/integration/api-closed/api-service/exit-code.log
+        wait-on: .narval/logs/integration/api-closed/api/exit-code.log
 ```
 
 > Note: Log files are not generated for tests processes and for coveraged services processes when runned locally.
