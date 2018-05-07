@@ -7,12 +7,22 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [unreleased]
 ### Added
 - Add "wait-on" options to configuration.
+- Add "abort-on-error" configuration option for services.
+- Add "Standard" directories option to configuration.
+- Specs can be defined as an Array of paths to files or folders.
 - Services can wait for other services.
+- Add narval default environment variables to all commands, services and tests.
+- Write services logs to files. These files are available inside Docker containers too.
+- Add integration tests.
 
 ### Changed
 - Use "wait-on" instead of "wait-for" inside Docker.
+- Changed method to start Docker services internally. Now use "docker-compose-up start" command independently for each service, for better control.
 
 ### Fixed
+- Do not force process exit on finish. Let it exit gracefully.
+- Install mandatory nodejs dependencies in Docker containers only in containers with nodejs available.
+
 ### Removed
 
 ## [1.0.0-beta.4] - 2018-04-25
