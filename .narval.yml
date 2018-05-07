@@ -882,7 +882,7 @@ suites:
           wait-on:
             resources: 
               - .narval/logs/integration/api-local-coverage-only-test/package-test/exit-code.log
-            timeout: 12000
+            timeout: 60000
       coverage:
         enabled: false
     - name: api-local-coverage-api-and-test
@@ -913,7 +913,7 @@ suites:
           wait-on:
             resources: 
               - .narval/logs/integration/api-local-coverage-api-and-test/package-test/exit-code.log
-            timeout: 12000
+            timeout: 60000
       coverage:
         enabled: false
     - name: api-docker-coverage-mongodb-ko
@@ -941,7 +941,7 @@ suites:
           wait-on:
             resources: 
               - .narval/logs/integration/api-docker-coverage-mongodb-ko/package-test/exit-code.log
-            timeout: 120000
+            timeout: 60000
           env:
             package_to_launch: api
             coverage_dir: .coverage/end-to-end/books-api

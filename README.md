@@ -599,9 +599,13 @@ Now, you can write a test that can be runned locally, for development purposes, 
 
 Here you have an example that runs standard, unit, integration and end-to-end tests over a [very simple api package][integration-tests-foo-package-url] that includes a connection to a mongodb database, and some other fake features developed explictly for the example. The configuration is overloaded intendedly to provide different combinations of configurations examples.
 
-Remember that the configuration file must to be named `.narval.yml`, and must be located at the root of the package.
-
 In the example you can see how Narval is used to start a Mongodb service, and the api itself, and then run tests. The "end-to-end" tests are generating coverage, and integration tests are used to check the api logs, and if the service is writing some files as expected. For local executions, the mongodb connection is disabled and the api stores books in memory only, this was made to avoid the need of having mongodb installed in the system for running the example.
+
+You can run this example following the next steps:
+1. Create a `.narval.yml` file into the [foo api package][integration-tests-foo-package-url] folder, and copy the example code inside it. _You can also copy directly the example file `test/integration/configs/example.yaml` into the same folder and rename it to `.narval.yml`_
+2. Edit the `package.json` file of the api package, and change the `narval` dependency to `latest`.
+3. Run `npm i`
+4. Run `npm test`, or `npm test -- --local`
 
 ```yml
 docker-images:
@@ -754,7 +758,7 @@ suites:
         enabled: false
 ```
 
-> NOTE: There are more files with many other configurations that may be useful as examples at the [integration tests folder of this repository][integration-tests-config-url]. All these Narval configuration files are used for testing Narval itself, and most of them are runned over a ["foo api package" in the integration tests folder][integration-tests-foo-package-url]. You can copy one of these example files to the foo package root and rename it to `.narval.yml` to see that configuration in action.
+> NOTE: There are more files with many other configurations that may be useful as examples at the [integration tests folder of this repository][integration-tests-config-url]. All these Narval configuration files are used for testing Narval itself, and most of them are runned over the ["foo api package" in the integration tests folder][integration-tests-foo-package-url].
 
 [back to top](#table-of-contents)
 
