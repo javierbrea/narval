@@ -10,6 +10,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 ### Removed
 
+## [1.0.0-beta.6] - 2018-05-08
+### Changed
+- Started refactor, and unit tests coverage increase.
+
+### Fixed
+- Fix unstable integration test spec.
+- Fix sonarcloud quality badge.
+
 ## [1.0.0-beta.5] - 2018-05-08
 ### Added
 - Add "wait-on" options to configuration.
