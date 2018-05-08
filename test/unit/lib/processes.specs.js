@@ -1,19 +1,14 @@
 
-const Boom = require('boom')
 const Promise = require('bluebird')
 
 const test = require('../../../index')
 const mocks = require('../mocks')
-const fixtures = require('../fixtures')
 
 const processes = require('../../../lib/processes')
-const config = require('../../../lib/config')
-const options = require('../../../lib/options')
 
-test.describe.only('processes', () => {
+test.describe('processes', () => {
   test.describe('fork method', () => {
     const fooPath = 'fooPath/fooFile.js'
-
     let sandbox
     let childProcessMock
     let pathsMock

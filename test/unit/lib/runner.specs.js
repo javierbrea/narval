@@ -1,12 +1,13 @@
 
 const Promise = require('bluebird')
-const Boom = require('boom')
 const mockery = require('mockery')
+const Boom = require('boom')
 
 const test = require('../../../index')
 const fixtures = require('../fixtures')
 
 test.describe('runner', () => {
+  const runnerPath = '../../../lib/runner'
   let sandbox
   let config
   let options
@@ -54,29 +55,13 @@ test.describe('runner', () => {
     mockery.disable()
   })
 
-  test.it('should run standard and suites, passing to them options and configuration', () => {
-    require('../../../lib/runner')
+  test.it('should run standard and suites', () => {
+    require(runnerPath)
     return waitForFinish()
       .then(() => {
         return Promise.all([
-          test.expect(standard.run.getCall(0).args[0]).to.deep.equal(fixtures.options.standard),
-          test.expect(standard.run.getCall(0).args[1]).to.deep.equal(fixtures.config.customResult),
-          test.expect(suites.run.getCall(0).args[0]).to.deep.equal(fixtures.options.standard),
-          test.expect(suites.run.getCall(0).args[1]).to.deep.equal(fixtures.config.customResult)
-        ])
-      })
-  })
-
-  test.it('should trace the error message when a controlled error is received', () => {
-    const fooErrorMessage = 'foo error message'
-    options.get.rejects(Boom.notFound(fooErrorMessage))
-    require('../../../lib/runner')
-    return waitForFinish()
-      .then(() => {
-        return Promise.all([
-          test.expect(suites.run).to.not.have.been.called(),
-          test.expect(standard.run).to.not.have.been.called(),
-          test.expect(tracer.error).to.have.been.calledWith(fooErrorMessage)
+          test.expect(standard.run).to.have.been.called(),
+          test.expect(suites.run).to.have.been.called()
         ])
       })
   })
@@ -84,17 +69,28 @@ test.describe('runner', () => {
   test.it('should trace the full error when a not controlled error is received', () => {
     const error = new Error()
     suites.run.rejects(error)
-    require('../../../lib/runner')
+    require(runnerPath)
     return waitForFinish()
       .then(() => {
         return test.expect(tracer.error).to.have.been.calledWith(error)
       })
   })
 
+  test.it('should trace only the error message when a controlled error is received', () => {
+    const fooMessage = 'Foo error message'
+    const error = Boom.notFound(fooMessage)
+    suites.run.rejects(error)
+    require(runnerPath)
+    return waitForFinish()
+      .then(() => {
+        return test.expect(tracer.error).to.have.been.calledWith(fooMessage)
+      })
+  })
+
   test.it('should mark process to exit with error when any error is received', () => {
     process.env.forceExit = 'false'
     standard.run.rejects(new Error())
-    require('../../../lib/runner')
+    require(runnerPath)
     return waitForFinish()
       .then(() => {
         return test.expect(process.exit).to.not.have.been.called()
@@ -104,7 +100,7 @@ test.describe('runner', () => {
   test.it('should exit process when any error is received and process has been marked to force exit', () => {
     process.env.forceExit = 'true'
     standard.run.rejects(new Error())
-    require('../../../lib/runner')
+    require(runnerPath)
     return waitForFinish()
       .then(() => {
         return test.expect(process.exit).to.have.been.called()
