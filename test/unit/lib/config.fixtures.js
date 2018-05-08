@@ -221,5 +221,16 @@ module.exports = {
   localSuiteWithNoService: localSuiteWithNoService,
   dockerSuite: dockerSuite,
   dockerConfig: dockerConfig,
-  dockerConfigComposeResult: require('./docker-compose.fixture.json')
+  dockerConfigComposeResult: require('./docker-compose.fixture.json'),
+  standard: {
+    empty: {
+      directories: []
+    },
+    customDirs: {
+      directories: [
+        'fooPath/*.*',
+        'fooPath2/**/*.*'
+      ]
+    }
+  }
 }

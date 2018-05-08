@@ -8,6 +8,8 @@ const fixtures = require('../fixtures')
 
 const local = require('../../../lib/local')
 const docker = require('../../../lib/docker')
+const config = require('../../../lib/config')
+const options = require('../../../lib/options')
 
 const suites = require('../../../lib/suites')
 
@@ -29,19 +31,24 @@ test.describe('suites', () => {
       sandbox.stub(docker, 'createFiles').usingPromise().resolves()
       sandbox.stub(docker, 'run').usingPromise().resolves()
       sandbox.stub(docker, 'downVolumes').usingPromise().resolves()
+      sandbox.stub(config, 'get').usingPromise().resolves(fixtures.config.manySuitesAndTypes)
+      sandbox.stub(options, 'get').usingPromise().resolves(fixtures.options.suite)
     })
 
     test.afterEach(() => {
-      tracerMock.restore()
       sandbox.restore()
+      tracerMock.restore()
     })
 
     test.it('should return a promise', () => {
-      return test.expect(suites.run()).to.be.an.instanceof(Promise)
+      return suites.run()
+        .then(() => {
+          return test.expect(true).to.be.true()
+        })
     })
 
     test.it('should log the execution of a suite type, an specific suite, and print an info log when suite execution finish OK', () => {
-      return suites.run(fixtures.options.suite, fixtures.config.manySuitesAndTypes)
+      return suites.run()
         .then(() => {
           return Promise.all([
             test.expect(tracerMock.stubs.info.callCount).to.equal(4), // try to run the other type and log it too
@@ -53,10 +60,12 @@ test.describe('suites', () => {
     })
 
     test.it('should run suite locally if local option is received', () => {
-      return suites.run({
+      options.get.resolves({
         local: true,
         suite: 'fooDockerSuite'
-      }, fixtures.config.manySuitesAndTypes)
+      })
+
+      return suites.run()
         .then(() => {
           return Promise.all([
             test.expect(docker.run).to.not.have.been.called(),
@@ -66,21 +75,27 @@ test.describe('suites', () => {
     })
 
     test.it('should run suite using docker if suite has any docker property in test', () => {
-      return suites.run(fixtures.options.dockerSuite, fixtures.config.manySuitesAndTypes)
+      options.get.resolves(fixtures.options.dockerSuite)
+
+      return suites.run()
         .then(specDockerUsed)
     })
 
     test.it('should run suite using docker if suite has any service configured for docker', () => {
-      return suites.run({
+      options.get.resolves({
         suite: 'fooDockerSuite2'
-      }, fixtures.config.manySuitesAndTypes)
+      })
+
+      return suites.run()
         .then(specDockerUsed)
     })
 
     test.it('should run suite locally if suite test is not configured for docker and has not any service configured for docker', () => {
-      return suites.run({
+      options.get.resolves({
         suite: 'fooSuite2'
-      }, fixtures.config.manySuitesAndTypes)
+      })
+
+      return suites.run()
         .then(() => {
           return Promise.all([
             test.expect(docker.createFiles).to.not.have.been.called(),
@@ -91,8 +106,9 @@ test.describe('suites', () => {
     })
 
     test.it('should trace the error from an errored suite execution if it is not controlled by developer', () => {
+      options.get.resolves(fixtures.options.suite)
       local.run.rejects(new Error())
-      return suites.run(fixtures.options.suite, fixtures.config.manySuitesAndTypes)
+      return suites.run()
         .then(() => {
           return Promise.reject(new Error())
         })
@@ -102,8 +118,9 @@ test.describe('suites', () => {
     })
 
     test.it('should reject the promise with a controlled error if suite execution fails', () => {
+      options.get.resolves(fixtures.options.suite)
       local.run.rejects(Boom.notImplemented('foo message'))
-      return suites.run(fixtures.options.suite, fixtures.config.manySuitesAndTypes)
+      return suites.run()
         .then(() => {
           return Promise.reject(new Error())
         })
@@ -116,15 +133,17 @@ test.describe('suites', () => {
     })
 
     test.it('should call to clean docker volumes after suites execution is OK', () => {
-      return suites.run(fixtures.options.suite, fixtures.config.manySuitesAndTypes)
+      options.get.resolves(fixtures.options.suite)
+      return suites.run()
         .then(() => {
           return test.expect(docker.downVolumes).to.have.been.called()
         })
     })
 
     test.it('should call to clean docker volumes even when suites execution fails', () => {
+      options.get.resolves(fixtures.options.suite)
       local.run.rejects(Boom.notImplemented('foo message'))
-      return suites.run(fixtures.options.suite, fixtures.config.manySuitesAndTypes)
+      return suites.run()
         .catch(() => {
           return test.expect(docker.downVolumes).to.have.been.called()
         })
@@ -132,7 +151,8 @@ test.describe('suites', () => {
 
     test.describe('when options do not specify to run all suites, an specific suite, or a suite type', () => {
       test.it('should print a warning log and resolve promise', () => {
-        return suites.run(fixtures.options.standard)
+        options.get.resolves(fixtures.options.standard)
+        return suites.run()
           .then(() => {
             return test.expect(tracerMock.stubs.warn).to.have.been.called()
           })
@@ -141,7 +161,8 @@ test.describe('suites', () => {
 
     test.describe('when an specific suite to be executed is defined in options', () => {
       test.it('should skip all other suites executions, and execute that one', () => {
-        return suites.run(fixtures.options.suite, fixtures.config.manySuitesAndTypes)
+        options.get.resolves(fixtures.options.suite)
+        return suites.run()
           .then(() => {
             return Promise.all([
               test.expect(tracerMock.stubs.warn.getCall(0).args[0]).to.contain('Skipping'),
@@ -152,9 +173,10 @@ test.describe('suites', () => {
       })
 
       test.it('should not execute any suite if provided one does not exists in config', () => {
-        return suites.run({
+        options.get.resolves({
           suite: 'unrealSuite'
-        }, fixtures.config.manySuitesAndTypes)
+        })
+        return suites.run()
           .then(() => {
             return Promise.all([
               test.expect(tracerMock.stubs.warn.callCount).to.equal(4),
@@ -166,7 +188,8 @@ test.describe('suites', () => {
 
     test.describe('when an specific suite type to be executed is defined in options', () => {
       test.it('should skip all other suites types executions, and run all suites in that type', () => {
-        return suites.run(fixtures.options.suiteType, fixtures.config.manySuitesAndTypes)
+        options.get.resolves(fixtures.options.suiteType)
+        return suites.run()
           .then(() => {
             return Promise.all([
               test.expect(tracerMock.stubs.warn.getCall(0).args[0]).to.contain('Skipping'),
@@ -177,9 +200,10 @@ test.describe('suites', () => {
       })
 
       test.it('should not execute any suite type if provided one does not exists in config', () => {
-        return suites.run({
+        options.get.resolves({
           type: 'unrealType'
-        }, fixtures.config.manySuitesAndTypes)
+        })
+        return suites.run()
           .then(() => {
             return Promise.all([
               test.expect(tracerMock.stubs.warn.callCount).to.equal(2),
@@ -189,9 +213,10 @@ test.describe('suites', () => {
       })
 
       test.it('should execute all suites in that specific type', () => {
-        return suites.run({
+        options.get.resolves({
           type: 'fakeType'
-        }, fixtures.config.manySuitesAndTypes)
+        })
+        return suites.run()
           .then(() => {
             return Promise.all([
               test.expect(docker.createFiles).to.have.been.calledTwice(),

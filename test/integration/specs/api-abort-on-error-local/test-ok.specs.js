@@ -28,6 +28,6 @@ test.describe('api-abort-on-error local tests execution', () => {
   })
 
   test.it('should have marked the suite as failed', () => {
-    return test.expect(outerrLog).to.include('ERR! Test failed')
+    return test.expect(outerrLog).to.include('Test failed')
   })
 })
