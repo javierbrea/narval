@@ -6,7 +6,7 @@ const mockery = require('mockery')
 const test = require('../../../index')
 const fixtures = require('../fixtures')
 
-test.describe.only('runner', () => {
+test.describe('runner', () => {
   let sandbox
   let config
   let options
