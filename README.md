@@ -778,8 +778,8 @@ suites:
 [npm-downloads-url]: https://www.npmjs.com/package/narval
 [npm-dependencies-image]: https://img.shields.io/david/javierbrea/narval.svg
 [npm-dependencies-url]: https://david-dm.org/javierbrea/narval
-[quality-gate-image]: https://sonarcloud.io/api/badges/gate?key=narval
-[quality-gate-url]: https://sonarcloud.io/dashboard/index/narval
+[quality-gate-image]: https://sonarcloud.io/api/project_badges/measure?project=narval&metric=alert_status
+[quality-gate-url]: https://sonarcloud.io/dashboard?id=narval
 [release-image]: https://img.shields.io/github/release-date/javierbrea/narval.svg
 [release-url]: https://github.com/javierbrea/narval/releases
 [standard-image]: https://img.shields.io/badge/code%20style-standard-brightgreen.svg
