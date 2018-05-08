@@ -92,7 +92,7 @@ test.describe('runner', () => {
   })
 
   test.it('should mark process to exit with error when any error is received', () => {
-    process.env.forceExit = "false"
+    process.env.forceExit = 'false'
     standard.run.rejects(new Error())
     require('../../../lib/runner')
     return waitForFinish()
@@ -102,7 +102,7 @@ test.describe('runner', () => {
   })
 
   test.it('should exit process when any error is received and process has been marked to force exit', () => {
-    process.env.forceExit = "true"
+    process.env.forceExit = 'true'
     standard.run.rejects(new Error())
     require('../../../lib/runner')
     return waitForFinish()

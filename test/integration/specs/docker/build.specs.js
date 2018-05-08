@@ -45,8 +45,8 @@ test.describe('docker build', () => {
 
   test.it('should have built api-container', () => {
     return Promise.all([
-      test.expect(outerrLog).to.include('Building api-container'),
-      
+      test.expect(outerrLog).to.include('Building api-container')
+
     ])
   })
 

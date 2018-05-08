@@ -18,7 +18,7 @@ test.describe('api-local tests execution', () => {
   })
 
   test.it('should have timed out waiting for service', () => {
-     return test.expect(outerrLog).to.include('Wait timed out. "tcp:localhost:3000" is not available.')
+    return test.expect(outerrLog).to.include('Wait timed out. "tcp:localhost:3000" is not available.')
   })
 
   test.it('should have printed and error because the path to custom shell was not found', () => {

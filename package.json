@@ -27,6 +27,11 @@
     "test": "./bin/narval",
     "coveralls": "cat ./.coverage/unit/lcov.info | coveralls"
   },
+  "standard": {
+    "ignore": [
+      "test/integration/packages/**/*.js"
+    ]
+  },
   "dependencies": {
     "bluebird": "3.5.1",
     "boom": "7.2.0",

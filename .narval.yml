@@ -1,7 +1,3 @@
-standard:
-  directories:
-    - "**/.js"
-    - "!test/integration/packages/**/*.js"
 suites:
   unit: 
     - name: unit
