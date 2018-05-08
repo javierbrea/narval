@@ -26,7 +26,7 @@ test.describe('api-local-coverage suite running api and test in different servic
 
     test.it('should have not started the api server', () => {
       return test.expect(outerrLogTest).to.not.include(startApiLog)
-    }) 
+    })
   })
 
   test.describe('api service', () => {
@@ -36,6 +36,6 @@ test.describe('api-local-coverage suite running api and test in different servic
 
     test.it('should have started the api server', () => {
       return test.expect(outerrLogApi).to.include(startApiLog)
-    }) 
+    })
   })
 })

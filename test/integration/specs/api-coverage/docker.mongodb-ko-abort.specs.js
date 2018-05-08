@@ -1,6 +1,4 @@
 
-const Promise = require('bluebird')
-
 const test = require('../../../../index')
 const utils = require('../utils')
 

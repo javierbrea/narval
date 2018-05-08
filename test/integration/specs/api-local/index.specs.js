@@ -27,7 +27,7 @@ test.describe('api-local tests execution', () => {
   test.it('should have started api', () => {
     return test.expect(outerrLog).to.include('Starting server at port 3000')
   })
-  
+
   test.it('should have executed tests', () => {
     return test.expect(outerrLog).to.include('[Narval] [DEBUG] Starting tests of suite "books-api" without coverage')
   })

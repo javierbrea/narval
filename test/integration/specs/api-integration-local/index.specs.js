@@ -24,7 +24,7 @@ test.describe('api-integration local tests execution', () => {
       test.expect(outerrLog).to.include('"timeout":35000,"interval":60,"delay":150}')
     ])
   })
-  
+
   test.it('should have executed tests locally', () => {
     return test.expect(outerrLog).to.match(/Starting tests of suite "[\w|-]*" without coverage/)
   })

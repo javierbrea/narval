@@ -31,7 +31,7 @@ test.describe('api-docker tests execution', () => {
   test.it('should have started api', () => {
     return test.expect(outerrLog).to.include('Starting server at port 4000')
   })
-  
+
   test.it('should have executed tests', () => {
     return test.expect(outerrLog).to.include('RUNNING COMMAND: node_modules/.bin/narval-msc_mocha --recursive --colors --reporter spec test/end-to-end/books')
   })

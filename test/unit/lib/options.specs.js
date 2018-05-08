@@ -30,7 +30,7 @@ const CommanderMock = function () {
     returns: returns
   }
 }
- 
+
 // TODO, use mockery to clean cache
 test.describe.skip('options', () => {
   test.describe('get method', () => {

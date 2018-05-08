@@ -19,7 +19,7 @@ test.describe('api-integration tests execution', () => {
       test.expect(outerrLog).to.include('WAITING FOR: --timeout=35000 --delay=150 --interval=60 tcp:api-container:4000')
     ])
   })
-  
+
   test.it('should have executed tests', () => {
     return test.expect(outerrLog).to.include('RUNNING COMMAND: node_modules/.bin/narval-msc_mocha --recursive --colors --reporter spec test/integration/logs')
   })
