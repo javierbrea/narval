@@ -1,0 +1,1 @@
+This file is used only to be added to Docker image for Narval testing purposes

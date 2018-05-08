@@ -1,0 +1,69 @@
+docker-images:
+  - name: node-image
+    from: node:8.11.1
+    expose:
+      - 4000
+    add:
+      - foo-added-file-to-docker-image.txt
+      - _node_modules
+      - package.json
+    install: test/commands/install.sh
+  - name: mongodb-image
+    from: mongo:3.6.4
+    expose:
+      - 27017
+docker-containers:
+  - name: test-container
+    build: node-image
+    bind:
+      - lib
+      - test
+      - server.js
+  - name: api-container
+    build: node-image
+    bind:
+      - lib
+      - test
+      - server.js
+  - name: mongodb-container
+    build: mongodb-image
+    bind:
+      - test/commands
+suites:
+  integration:
+    - name: logs
+      before:
+        local:
+          command: test/commands/trace-env.sh
+        docker:
+          command: test/commands/trace-env.sh
+      services:
+        - name: mongodb
+          docker:
+            container: mongodb-container
+            command: test/commands/force-error.sh
+        - name: api-server
+          abort-on-error: true
+          local:
+            command: test/commands/start-server.sh
+            env:
+              mongodb: foo-mongodb://mongodb-container/narval-api-test
+              api_host: localhost
+              api_port: 3000
+          docker:
+            container: api-container
+            command: test/commands/start-server.sh
+            env:
+              mongodb: mongodb://mongodb-container/narval-api-test
+              api_host: api-container
+              api_port: 4000
+      test:
+        specs: test/integration/pass
+        docker:
+          container: test-container
+          wait-on: tcp:api-container:4000
+          env:
+            api_host: api-container
+            api_port: 4000
+      coverage:
+        enabled: false

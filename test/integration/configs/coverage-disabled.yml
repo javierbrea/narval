@@ -1,0 +1,9 @@
+suites:
+  unit: 
+    - name: unit
+      test:
+        specs: test
+        config:
+          reporter: dot
+      coverage:
+        enabled: false

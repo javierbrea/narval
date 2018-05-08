@@ -11,6 +11,7 @@ Multi test suites runner for Node.js packages. Docker based.
 ## Table of Contents
 
 * [Introduction](#introduction)
+* [Requirements](#requirements)
 * [Quick Start](#quick-start)
 * [Configuration](#configuration)
 	* [docker-images](#docker-images)
@@ -20,7 +21,6 @@ Multi test suites runner for Node.js packages. Docker based.
 		* [services](#service)
 		* [test](#test)
 		* [coverage](#coverage)
-* [Examples](#examples)
 * [Usage](#usage)
 	* [Command line options](#command-line-options)
 	* [Developing commands](#developing-commands)
@@ -28,7 +28,9 @@ Multi test suites runner for Node.js packages. Docker based.
 		* [Working directory](#working-directory)
 		* [Docker absolute paths](#docker-absolute-paths)
 		* [Docker shared volume](#docker-shared-volume)
+	* [Services logs](#services-logs)
 	* [Environment variables](#environment-variables)
+* [Examples](#examples)
 
 ## Introduction
 
@@ -50,6 +52,19 @@ It also provides a built-in javascript linter, using [Standard][standard-url].
 Narval is configured using a `.narval.yml` file at the root of your project.
 
 [back to top](#table-of-contents)
+
+## Requirements
+
+To run services and tests using Docker, Narval needs Docker and docker-compose to be installed on the system.
+
+Narval has been developed and tested on Linux and Mac with versions:
+* Docker: 17.05.0-ce
+* docker-compose: 1.19.0
+
+On Windows platforms, the "docker" feature is not available, but you can run suites using the `--local` option.
+
+Read more about [how to install Docker and docker-compose][docker-url].
+Here you can read about [how to use Docker and docker-compose in Travis builds][travis-docker-url].
 
 ## Quick Start
 
@@ -86,6 +101,20 @@ npm run test -- --suite=unit
 ## Configuration
 
 Create a `.narval.yml` file at the root of your project.
+
+### standard
+
+`<Object>`. Configuration for Standard.
+
+* `directories` `<Array> of <String>`. Array of glob expressions that will determine in which folders Standard will be executed.
+
+> *Partial example of Standard configuration*
+```yml
+standard:
+  directories:
+    - "**/.js"
+    - "!test/integration/packages/**/*.js"
+```
 
 ### docker-images
 
@@ -124,7 +153,6 @@ docker-images:
 * `name` `<String>`. Reference for the container.
 * `build` `<String>`. Reference name of the [docker-image](#docker-image) from which this container will be started.
 * `bind` `<Array> of <String>`. Array of paths to be binded into the docker container. This "resources" will be "shared" from the local file system directly to the docker container, so if there are changes in the resources, there is no need to rebuild the Docker images to refresh changes. The full folder tree will be respected, and will be binded just as it is to the Docker image.
-* `depends_on` `<String>`. Reference name of another docker-container. This container will be started only after the other one is started. (Caution, because this does not implies that services inside the other container are ready as well)
 
 > *Partial example of docker-containers configuration*
 ```yml
@@ -140,8 +168,6 @@ docker-containers:
       - lib
       - test
       - index.js
-    depends_on:
-      - service
 ```
 
 ### suites
@@ -219,13 +245,28 @@ suites:
 `<Object>`. Object containing configuration for starting a test suite service.
 
 * `name` `<String>`. Reference name for the service. It can be the same in all suites starting the same service.
+* `abort-on-error` `<Boolean>`. Default `false`. If `true`, all other services and tests will be stopped if possible when this service is closed with an error code. Test suite will be considered as failed, even if the tests execution is successful.
 * `docker` `<Object>`. If test suite is going to be executed using Docker, this objects contains the needed configuration for the service.
 	* `container` `<String>`. Reference name of the [docker-container](#docker-container) in which the service is going to be executed.
 	* `command` `<String>`. Path to the command that will start the service.
+	* `wait-on` `<String>|<Object>` The service will not be started until the provided `wait-on` condition is ready. Narval uses [wait-on][wait-on-url] to provide this feature. If an `String` is provided, then it specifies the resource to wait. NOTE: If the host you are waiting for is a service hosted in a [docker-container](#docker-container), you must use that docker-container name as `host` in the `host:port` expression.
+		* `resources`. `<Array> of <String>`. Resources that will be waited for. Read about the available "resources" to be used as `wait-on` expressions in its [documentation][wait-on-url].
+		* `timeout` `<Number>`. Maximum time in ms to wait before exiting with failure (1) code,
+  default Infinity.
+		* `delay` `<Number>`. Initial delay before checking for resources in ms, default 0.
+		* `interval` `<Number>`. Interval to poll resources in ms, default 250ms.
+		* `reverse` `<Boolean>`. Reverse operation, wait for resources to NOT be available.
 	* `env` `<Object>`. Object containing custom variables names and values to be set in the environment for running command.
 	* `exit_after` `<Number>` of miliseconds `default: 30000`. When [coverage](#coverage) is executed over a service instead of tests, in Docker is needed to define a time out for stopping the service and get the resultant coverage after running tests. This setting only applies if `coverage.from` property is set to this service name.
 * `local` `<Object>`. Contains instructions to execute the service locally.
 	* `command` `<String>`. Path to the command that will start the service.
+	* `wait-on` `<String>|<Object>` with format `protocol:host:port`, or path to a file. The service will not be started until the provided `protocol:host:port` is ready, or file exists. Narval uses [wait-on][wait-on-url] to provide this feature. If an `String` is provided, then it specifies the resource to wait.
+		* `resources`. `<Array> of <String>`. Resources that will be waited for. Read about the available "resources" to be used as `wait-on` expressions in its [documentation][wait-on-url].
+		* `timeout` `<Number>`. Maximum time in ms to wait before exiting with failure (1) code,
+  default Infinity.
+		* `delay` `<Number>`. Initial delay before checking for resources in ms, default 0.
+		* `interval` `<Number>`. Interval to poll resources in ms, default 250ms.
+		* `reverse` `<Boolean>`. Reverse operation, wait for resources to NOT be available.
 	* `env` `<Object>`. Object containing custom variables names and values to be set in the environment for running command.
 
 > *Partial example of a test suite "services" property*
@@ -248,6 +289,13 @@ suites:
           docker: 
             container: service-container
             command: test/services/app/start.js --name=service --path=/narval/.shared --host=service
+            wait-on:
+              resources:
+                - tcp:ddbb-container:27017
+              timeout: 5000
+              delay: 300
+              interval: 100
+              reverse: false
             env:
               fooVar: false
             exit_after: 10000
@@ -255,20 +303,33 @@ suites:
             command: test/services/app/start.js --name=service --path=.test
             env:
               fooVar: true
+            wait-on: tcp:localhost:27017
 ```
 
 ##### test
 
 `<Object>`. Object containing configuration for the test to be runned by a suite.
 
-* `specs` `<String>`. Path to the folder where the specs to be executed are. Relative to the root of the project.
+* `specs` `<String>|<Array>`. Path to the folder or file where the specs to be executed are. Relative to the root of the project. If an `Array` is specified, all provided folders or files in the `Array` will be executed.
 * `docker` `<Object>`. If test suite is going to be executed using Docker, this objects contains the needed configuration.
 	* `container` `<String>`. Reference name of the [docker-container](#docker-container) in which the tests are going to be executed.
-	* `wait-for` `<String>` with format `host:port`. The tests will not be executed until the provided `host:port` is ready. Narval uses [wait-for-it][wait-for-it-url] to provide this feature. NOTE: If the host you are waiting for is a service hosted in a [docker-container](#docker-container), you must use that docker-container name as `host` in the `host:port` expression.
+	* `wait-on` `<String>|<Object>` The tests will not be executed until the provided `wait-on` condition is ready. Narval uses [wait-on][wait-on-url] to provide this feature. If an `String` is provided, then it specifies the resource to wait. NOTE: If the host you are waiting for is a service hosted in a [docker-container](#docker-container), you must use that docker-container name as `host` in the `host:port` expression.
+		* `resources`. `<Array> of <String>`. Resources that will be waited for. Read about the available "resources" to be used as `wait-on` expressions in its [documentation][wait-on-url].
+		* `timeout` `<Number>`. Maximum time in ms to wait before exiting with failure (1) code,
+  default Infinity.
+		* `delay` `<Number>`. Initial delay before checking for resources in ms, default 0.
+		* `interval` `<Number>`. Interval to poll resources in ms, default 250ms.
+		* `reverse` `<Boolean>`. Reverse operation, wait for resources to NOT be available.
 	* `env` `<Object>`. Object containing custom variables names and values to be set in the docker environment for running test.
 * `local` `<Object>`. If test suite is going to be executed without Docker, this objects contains the needed configuration.
 	* `env` `<Object>`. Object containing custom variables names and values to be set in the local environment for running test.
-	* `wait-for` `<String>` with format `protocol:host:port`, or path to a file. The tests will not be executed until the provided `protocol:host:port` is ready, or file exists. Narval uses [wait-on][wait-on-url] to provide this feature in "local" executions. Read about the available "resources" to be used as `wait-for` expression in its [documentation][wait-on-url]. 
+	* `wait-on` `<String>|<Object>` with format `protocol:host:port`, or path to a file. The tests will not be executed until the provided `protocol:host:port` is ready, or file exists. Narval uses [wait-on][wait-on-url] to provide this feature. If an `String` is provided, then it specifies the resource to wait.
+		* `resources`. `<Array> of <String>`. Resources that will be waited for. Read about the available "resources" to be used as `wait-on` expressions in its [documentation][wait-on-url].
+		* `timeout` `<Number>`. Maximum time in ms to wait before exiting with failure (1) code,
+  default Infinity.
+		* `delay` `<Number>`. Initial delay before checking for resources in ms, default 0.
+		* `interval` `<Number>`. Interval to poll resources in ms, default 250ms.
+		* `reverse` `<Boolean>`. Reverse operation, wait for resources to NOT be available.
 * `config` `<Object>` containing Mocha configuration arguments for tests execution. All provided key value pairs will be translated into "--key=value" when Mocha is executed. As examples, some available `config` keys are provided in this documentation. For further reference about all available arguments, [please read Mocha usage documentation][mocha-usage-url].
 	* `recursive` `<Boolean>` `default: true`. Execute specs found in all subfolders of provided `specs` path.
 	* `reporter` `<String>` `default: spec` Mocha reporter to be used. Can be one of "spec", "dot", "nyan", "landing", "list", "progress", ...
@@ -283,11 +344,17 @@ suites:
         specs: test/integration/api
         docker:
           container: test-container
-          wait-for: api-service:3000
+          wait-on:
+            resources:
+              - tcp:api-service:3000
+            timeout: 5000
+            delay: 300
+            interval: 100
+            reverse: false
           env:
             fooVar: foo value for test execution in Docker
         local:
-          wait-for: tcp:localhost:3000
+          wait-on: tcp:localhost:3000
           env:
             fooVar: foo value for test execution in local
         config:
@@ -305,7 +372,7 @@ suites:
 	* `root` `<String>` `default:.`. Path to folder containing sources to cover.
 	* `include-all-sources` `<Boolean>` `default:true`. Show 0% coverage for files with no tests executed.
 	* `dir` `<String>` `default:.coverage/[suite-type]/[suite-name]`. Path to folder in which reports will be created.
-	* `reports` `<String>` `default:lcov/html`. Type of Istanbul reports to generate.
+	* `report` `<String>` `default:lcov/html`. Type of Istanbul reports to generate.
 	* `print` `<String>` `default:summary`. Type of Istanbul reports to print. You can use types as "detail", "both", etc..
 	* `verbose` `<Boolean>` `default:false`. Run Istanbul in "verbose" mode.  
 	* `default-excludes` `<Boolean>` `default:true`. Use Istanbul default excludes (node_modules, etc...)
@@ -321,113 +388,6 @@ suites:
         from: api-service
         config:
           print: both
-```
-
-[back to top](#table-of-contents)
-
-## Examples
-
-Here is a complex example that includes all available configuration properties. Obviously, in normal conditions there is no need to create such a complex configuration file.
-
-There are more examples with other configurations at the [examples folder of this repository][examples-url].
-
-Remember that the configuration file must to be named `.narval.yml`, and must be located at the root of your package.
-
-```yml
-docker-images:
-  # Reuse the same Docker image for all containers, to improve build time
-  - name: basic-image
-    from: node:8.9.4
-    add:
-      - package.json
-    expose:
-      - 3000
-    install: test/docker/install
-docker-containers:
-  # Container used for running service
-  - name: service-container
-    build: basic-image
-    bind:
-      - lib
-      - index.js
-  # Container used for running tests
-  - name: test-container
-    build: basic-image
-    bind:
-      - lib
-      - test
-      - index.js
-    depends_on:
-      - service-container
-suites:
-# Suites of type "unit"
-  unit:
-    # Example of suite that only runs unit tests execution without Docker.
-    - name: unit 
-      test:
-        specs: test/unit
-        env:
-          fooVar: true
-      coverage:
-        # Custom coverage folder
-        config:
-          dir: .coverage/unit
-# Suites of type "integration"
-  integration:
-    # Example of suite that gets coverage from a service
-    - name: api 
-      services:
-        - name: api-service
-          docker: 
-            container: service-container
-            command: test/services/app/start.js --name=service --path=/narval/.shared --host=service-container
-            exit_after: 10000
-            env:
-              fooVar: foo value 1
-          local:
-            command: test/services/app/start.js --name=service --path=.test
-            env:
-              fooVar: foo value 2
-      test:
-        specs: test/integration/api
-        docker:
-          container: test-container
-          wait-for: service-container:3000
-          env:
-            hostName: service-container
-        local:
-          wait-for: tcp:localhost:3000
-          env:
-            hostName: localhost
-      coverage:
-        from: api-service
-        config:
-          print: both
-    # Example of suite with coverage disabled. Clean Docker volumes or local environment before run it.
-    - name: tracer
-      before:
-        docker:
-          down-volumes: true
-        local:
-          command: test/services/commands/local/clean
-      services:
-        - name: api-service
-          docker:
-            container: service-container
-            command: test/services/commands/docker/log-level-warn
-          local:
-            command: test/services/commands/local/log-level-warn
-      test:
-        specs: test/integration/tracer
-        docker:
-          container: test-container
-          wait-for: service-container:3000
-        local:
-          wait-for: tcp:localhost:3000
-        config:
-          reporter: list
-      coverage:
-        enabled: false
 ```
 
 [back to top](#table-of-contents)
@@ -507,6 +467,8 @@ Outside Docker, in the "local" environment, commands are executed through nodejs
 * In Windows platforms, the commands are executed using the default system shell, using the nodejs `process.env.ComSpec` property. Usually, it should be something like: `c:\windows\system32\cmd.exe /d /s /c`.\
 Note that Windows shell can only execute `.bat` and `.cmd` commands, so, maybe you want to define your own shell.
 
+> Warning: Ensure that your command files have execution permissions, otherwise, the execution will obviously fail.
+
 ##### Using a custom shell
 
 It is possible to define a custom shell for running commands. This can be useful, for example, if you want to run commands locally in Windows using `gitBash` in order to make them compatible with Unix platforms. Use the [option](#command-line-options) "--shell" to define the path to the custom shell:
@@ -552,6 +514,36 @@ When Docker images are created, all files and folders of the package are added o
 #### Docker shared volume
 
 All Docker containers share a volume named `.shared`, created at the root of the package. In this way, you can check if a service is writting something or not in your specs, for example. Configure your service to write the output files inside the folder `.shared` (or `/narval/.shared`), and that folder will be available as well when tests are executed.
+
+### Services logs
+
+All services logs are written to files to make them available for other services or tests. Logs are written to `.narval/logs/[suite-type]/[suite-name]/[service-name]` folder. These folders are available inside all Docker containers too.
+
+For each service, all these files are generated:
+
+* `combined-outerr.log`. Contains all service logs, both "out" and "error".
+* `err.log`. Contains service "error" logs.
+* `out.log`. Contains service "out" logs.
+* `exit-code.log`. This file is created when service is closed, and contains the exit code of the service process.
+
+The `exit-code.log` can be useful to wait for a service to be finished before executing another service, or the tests. Using the `wait-on` property, you can wait for the creation of this file, which means that the service process has been closed.
+
+_In the next example, the tests will not be executed until the service "api" is closed:_
+
+```yml
+suites:
+  integration: 
+    - name: api-closed
+      services:
+        - name: api
+          local:
+            command: test/commands/start-api.sh
+      test:
+        specs: test/integration
+        wait-on: .narval/logs/integration/api-closed/api/exit-code.log
+```
+
+> Note: Log files are not generated for tests processes and for coveraged services processes when runned locally.
 
 ### Environment variables
 
@@ -603,6 +595,173 @@ Now, you can write a test that can be runned locally, for development purposes, 
 
 [back to top](#table-of-contents)
 
+## Examples
+
+Here you have an example that runs standard, unit, integration and end-to-end tests over a [very simple api package][integration-tests-foo-package-url] that includes a connection to a mongodb database, and some other fake features developed explictly for the example. The configuration is overloaded intendedly to provide different combinations of configurations examples.
+
+In the example you can see how Narval is used to start a Mongodb service, and the api itself, and then run tests. The "end-to-end" tests are generating coverage, and integration tests are used to check the api logs, and if the service is writing some files as expected. For local executions, the mongodb connection is disabled and the api stores books in memory only, this was made to avoid the need of having mongodb installed in the system for running the example.
+
+You can run this example following the next steps:
+1. Create a `.narval.yml` file into the [foo api package][integration-tests-foo-package-url] folder, and copy the example code inside it. _You can also copy directly the example file `test/integration/configs/example.yaml` into the same folder and rename it to `.narval.yml`_
+2. Edit the `package.json` file of the api package, and change the `narval` dependency to `latest`.
+3. Run `npm i`
+4. Run `npm test`, or `npm test -- --local`
+
+```yml
+docker-images:
+  - name: node-image
+    from: node:8.11.1
+    expose:
+      - 4000
+    add:
+      - package.json
+    install: test/commands/install.sh
+  - name: mongodb-image
+    from: mongo:3.6.4
+    expose:
+      - 27017
+docker-containers:
+  - name: test-container
+    build: node-image
+    bind:
+      - lib
+      - test
+      - server.js
+  - name: api-container
+    build: node-image
+    bind:
+      - lib
+      - test
+      - server.js
+  - name: mongodb-container
+    build: mongodb-image
+    bind:
+      - test/commands
+suites:
+  unit: 
+    - name: unit
+      test:
+        specs: test/unit
+      coverage:
+        config:
+          dir: .coverage/unit
+  end-to-end:
+    - name: books-api
+      before:
+        docker:
+          down-volumes: true
+      services:
+        - name: mongodb
+          docker:
+            container: mongodb-container
+            command: test/commands/mongodb-docker.sh
+        - name: api-server
+          local:
+            command: server.js --host=localhost --port=3000 --mongodb=avoid
+          docker:
+            container: api-container
+            command: server.js --host=api-container --port=4000 --mongodb=mongodb://mongodb-container/narval-api-test
+            wait-on: tcp:mongodb-container:27017
+            exit_after: 10000
+      test:
+        specs: test/end-to-end/books
+        local:
+          wait-on: tcp:localhost:3000
+          env:
+            api_host: localhost
+            api_port: 3000
+        docker:
+          container: test-container
+          wait-on: tcp:api-container:4000
+          env:
+            api_host: api-container
+            api_port: 4000
+      coverage:
+        from: api-server
+  integration:
+    - name: logs
+      services:
+        - name: mongodb
+          docker:
+            container: mongodb-container
+            command: test/commands/mongodb-docker.sh
+        - name: api-server
+          local:
+            command: test/commands/start-server.sh
+            env:
+              mongodb: avoid
+              api_host: localhost
+              api_port: 3000
+          docker:
+            container: api-container
+            command: test/commands/start-server.sh
+            wait-on:
+              resources:
+                - tcp:mongodb-container:27017
+              timeout: 50000
+              interval: 50
+              delay: 100
+            env:
+              mongodb: mongodb://mongodb-container/narval-api-test
+              api_host: api-container
+              api_port: 4000
+      test:
+        specs: test/integration/logs
+        local:
+          wait-on: tcp:localhost:3000
+          env:
+            api_host: localhost
+            api_port: 3000
+        docker:
+          container: test-container
+          wait-on: tcp:api-container:4000
+          env:
+            api_host: api-container
+            api_port: 4000
+      coverage:
+        enabled: false
+    - name: commands
+      services:
+        - name: mongodb
+          docker:
+            container: mongodb-container
+            command: test/commands/mongodb-docker.sh
+        - name: api-server
+          local:
+            command: test/commands/start-server.sh
+            env:
+              mongodb: avoid
+              api_host: localhost
+              api_port: 3000
+          docker:
+            container: api-container
+            command: test/commands/start-server.sh
+            wait-on: tcp:mongodb-container:27017
+            env:
+              mongodb: mongodb://mongodb-container/narval-api-test
+              api_host: api-container
+              api_port: 4000
+      test:
+        specs: test/integration/commands
+        local:
+          wait-on: tcp:localhost:3000
+          env:
+            api_host: localhost
+            api_port: 3000
+        docker:
+          container: test-container
+          wait-on: tcp:api-container:4000
+          env:
+            api_host: api-container
+            api_port: 4000
+      coverage:
+        enabled: false
+```
+
+> NOTE: There are more files with many other configurations that may be useful as examples at the [integration tests folder of this repository][integration-tests-config-url]. All these Narval configuration files are used for testing Narval itself, and most of them are runned over the ["foo api package" in the integration tests folder][integration-tests-foo-package-url].
+
+[back to top](#table-of-contents)
+
 [coveralls-image]: https://coveralls.io/repos/github/javierbrea/narval/badge.svg
 [coveralls-url]: https://coveralls.io/github/javierbrea/narval
 [travisci-image]: https://travis-ci.org/javierbrea/narval.svg?branch=master
@@ -626,13 +785,14 @@ Now, you can write a test that can be runned locally, for development purposes, 
 [standard-image]: https://img.shields.io/badge/code%20style-standard-brightgreen.svg
 [standard-url]: http://standardjs.com/
 
+[travis-docker-url]: https://docs.travis-ci.com/user/docker
 [docker-url]: https://www.docker.com/
 [istanbul-url]: https://istanbul.js.org/
 [istanbul-usage-url]: https://istanbul.js.org/
 [mocha-url]: https://mochajs.org
 [mocha-usage-url]: https://mochajs.org/#usage
-[wait-for-it-url]: https://github.com/vishnubob/wait-for-it
 [wait-on-url]: https://www.npmjs.com/package/wait-on
-[examples-url]: https://github.com/javierbrea/narval/tree/master/examples
+[integration-tests-config-url]: https://github.com/javierbrea/narval/tree/master/test/integration/configs
+[integration-tests-foo-package-url]: https://github.com/javierbrea/narval/tree/master/test/integration/packages/api
 [shebang-url]: https://en.wikipedia.org/wiki/Shebang_(Unix)
 [child-process-url]: https://nodejs.org/docs/latest-v8.x/api/child_process.html#child_process_child_process_execfile_file_args_options_callback

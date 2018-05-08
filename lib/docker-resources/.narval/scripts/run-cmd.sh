@@ -4,7 +4,7 @@ command_to_run=$1
 command_params=$2
 coverage_options=$3
 coverage_enabled=$4
-wait_for=$5
+wait_on=$5
 exit_after=$6
 
 log_title="[Narval] [DEBUG]"
@@ -16,7 +16,7 @@ log_sep="================================"
 # echo "$log_title command_params: $command_params"
 # echo "$log_title coverage_options: $coverage_options"
 # echo "$log_title coverage_enabled: $coverage_enabled"
-# echo "$log_title wait_for: $wait_for"
+# echo "$log_title wait_on: $wait_on"
 # echo "$log_title exit_after: $exit_after"
 
 if [ -z "$command_to_run" ]; then
@@ -43,8 +43,9 @@ else
     command_to_run="node_modules/.bin/narval-msc-istanbul $coverage_options cover ./$command_to_run"
   fi
 
-  if [ "$wait_for" != "" ]; then
-    command_to_run=".narval/scripts/wait-for-it.sh $wait_for -- ./$command_to_run"
+  if [ "$wait_on" != "" ]; then
+    echo "WAITING FOR: $wait_on"
+    wait-on $wait_on
   fi
       
   echo "$log_sep"

@@ -1,0 +1,60 @@
+docker-images:
+  - name: node-image
+    from: node:8.11.1
+    expose:
+      - 4000
+    add:
+      - _node_modules
+      - package.json
+    install: test/commands/install.sh
+  - name: mongodb-image
+    from: mongo:3.6.4
+    expose:
+      - 27017
+docker-containers:
+  - name: test-container
+    build: node-image
+    bind:
+      - lib
+      - test
+      - server.js
+  - name: api-container
+    build: node-image
+    bind:
+      - lib
+      - test
+      - server.js
+  - name: mongodb-container
+    build: mongodb-image
+    bind:
+      - test/commands
+suites:
+  end-to-end:
+    - name: books-api
+      before:
+        docker:
+          down-volumes: true
+          command: test/commands/trace-env.sh
+      services:
+        - name: mongodb
+          docker:
+            container: mongodb-container
+            command: test/commands/mongodb-docker-fake.sh
+        - name: api-server
+          docker:
+            container: api-container
+            command: server.js --host=api-container --port=4000 --mongodb=mongodb://mongodb-container/narval-api-test
+            wait-on:
+              resources: tcp:mongodb-container:27017
+              timeout: 5000
+            exit_after: 60000
+      test:
+        specs: test/end-to-end/books
+        docker:
+          container: test-container
+          wait-on: tcp:api-container:4000
+          env:
+            api_host: api-container
+            api_port: 4000
+      coverage:
+        from: api-server
