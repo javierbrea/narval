@@ -850,7 +850,7 @@ suites:
           wait-on:
             resources: 
               - tcp:localhost:3000
-            timeout: 12000
+            timeout: 120000
           env:
             api_host: localhost
             api_port: 3000
