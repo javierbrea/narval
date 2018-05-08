@@ -23,7 +23,6 @@ test.describe('suites', () => {
         test.expect(local.run).to.not.have.been.called()
       ])
     }
-    let pathsMock
     let tracerMock
 
     test.beforeEach(() => {
