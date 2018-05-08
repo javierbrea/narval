@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [unreleased]
 ### Added
+### Changed
+### Fixed
+### Removed
+
+## [1.0.0-beta.5] - 2018-05-08
+### Added
 - Add "wait-on" options to configuration.
 - Add "abort-on-error" configuration option for services.
 - Add "Standard" directories option to configuration.
@@ -24,6 +30,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Install mandatory nodejs dependencies in Docker containers only in containers with nodejs available.
 
 ### Removed
+- Remove "depends_on" docker-containers property. Not necessary any more because of new feature "wait-on".
 
 ## [1.0.0-beta.4] - 2018-04-25
 ### Added
