@@ -7,7 +7,7 @@ const fixtures = require('../fixtures')
 
 const standard = require('../../../lib/standard')
 
-test.describe('standard', () => {
+test.describe.only('standard', () => {
   test.describe('run method', () => {
     let tracerMock
     let childProcessMock

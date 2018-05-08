@@ -10,7 +10,7 @@ const local = require('../../../lib/local')
 
 const commands = require('../../../lib/commands')
 const options = require('../../../lib/options')
-const treeKill = require('../../../lib/tree-kill')
+const libs = require('../../../lib/libs')
 
 const deepClone = function (obj) {
   return JSON.parse(JSON.stringify(obj))
@@ -56,7 +56,7 @@ test.describe.skip('local', () => {
       sandbox.stub(options, 'get').usingPromise().resolves({
         local: 'fooService'
       })
-      sandbox.stub(treeKill, 'kill')
+      sandbox.stub(libs, 'treeKill')
       sandbox.stub(commands, 'run').usingPromise().resolves({
         on: childProcessMock.stubs.spawn.on.fake
       })
@@ -342,7 +342,7 @@ test.describe.skip('local', () => {
 
       test.it('should kill all not coveraged services when test finish', () => {
         return local.run(localSuiteFixture).then(() => {
-          return test.expect(treeKill.kill).to.have.been.calledTwice()
+          return test.expect(libs.treeKill).to.have.been.calledTwice()
         })
       })
 

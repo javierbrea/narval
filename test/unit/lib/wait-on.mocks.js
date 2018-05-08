@@ -1,7 +1,7 @@
 
 const test = require('../../../index')
 
-const waitOn = require('../../../lib/wait-on')
+const libs = require('../../../lib/libs')
 
 const Mock = function () {
   const sandbox = test.sinon.sandbox.create()
@@ -26,7 +26,7 @@ const Mock = function () {
   }
 
   waitFake = new WaitFake()
-  waitStub = sandbox.stub(waitOn, 'wait').callsFake(waitFake.fake)
+  waitStub = sandbox.stub(libs, 'waitOn').callsFake(waitFake.fake)
 
   waitStub.returns = waitFake.returns
 
