@@ -6,7 +6,7 @@ const mockery = require('mockery')
 const test = require('../../../index')
 const fixtures = require('../fixtures')
 
-test.describe('runner', () => {
+test.describe.only('runner', () => {
   let sandbox
   let config
   let options
@@ -91,8 +91,18 @@ test.describe('runner', () => {
       })
   })
 
-  test.it.skip('should exit process when any error is received and process has been marked to force exit', () => {
-    process.env.forceExit = true
+  test.it('should mark process to exit with error when any error is received', () => {
+    process.env.forceExit = "false"
+    standard.run.rejects(new Error())
+    require('../../../lib/runner')
+    return waitForFinish()
+      .then(() => {
+        return test.expect(process.exit).to.not.have.been.called()
+      })
+  })
+
+  test.it('should exit process when any error is received and process has been marked to force exit', () => {
+    process.env.forceExit = "true"
     standard.run.rejects(new Error())
     require('../../../lib/runner')
     return waitForFinish()
