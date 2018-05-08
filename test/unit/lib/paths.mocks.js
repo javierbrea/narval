@@ -8,6 +8,7 @@ const Mock = function () {
 
   const PathMethods = function (base) {
     return {
+      base: sandbox.stub(paths[base], 'base'),
       ensureDir: sandbox.stub(paths[base], 'ensureDir'),
       existsSync: sandbox.stub(paths[base], 'existsSync'),
       readFile: sandbox.stub(paths[base], 'readFile'),
