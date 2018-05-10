@@ -5,6 +5,7 @@ const Promise = require('bluebird')
 const test = require('../../../index')
 
 const options = require('../../../lib/options')
+const states = require('../../../lib/states')
 
 const CommanderMock = function () {
   let dataToReturn
@@ -31,18 +32,21 @@ const CommanderMock = function () {
   }
 }
 
-// TODO, use mockery to clean cache
-test.describe.skip('options', () => {
+test.describe('options', () => {
   test.describe('get method', () => {
     let commanderMock
+    let sandbox
 
     test.beforeEach(() => {
       commanderMock = new CommanderMock()
-      test.sinon.stub(commander, 'option').callsFake(commanderMock.option)
+      sandbox = test.sinon.sandbox.create()
+      sandbox.stub(commander, 'option').callsFake(commanderMock.option)
+      sandbox.stub(states, 'get').returns(undefined)
+      sandbox.stub(states, 'set')
     })
 
     test.afterEach(() => {
-      commander.option.restore()
+      sandbox.restore()
     })
 
     test.it('should return a promise', () => {
@@ -56,6 +60,24 @@ test.describe.skip('options', () => {
             test.expect(commanderMock.option.callCount).to.equal(7),
             test.expect(commanderMock.parse.callCount).to.equal(1),
             test.expect(commanderMock.parse).to.have.been.calledWith(process.argv)
+          ])
+        })
+    })
+
+    test.it('should save options as a state in order to return them next time is called', () => {
+      return options.get()
+        .then(() => {
+          return test.expect(states.set).to.have.been.called()
+        })
+    })
+
+    test.it('should return options from state if it is defined', () => {
+      states.get.returns({})
+      return options.get()
+        .then(() => {
+          return Promise.all([
+            test.expect(commanderMock.option.callCount).to.equal(0),
+            test.expect(commanderMock.parse.callCount).to.equal(0)
           ])
         })
     })
