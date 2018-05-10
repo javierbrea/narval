@@ -9,7 +9,7 @@ const fixtures = require('../fixtures')
 
 const commands = require('../../../lib/commands')
 const docker = require('../../../lib/docker')
-const dockerState = require('../../../lib/docker-state')
+const states = require('../../../lib/states')
 
 const options = require('../../../lib/options')
 const config = require('../../../lib/config')
@@ -50,7 +50,7 @@ test.describe('docker', () => {
     childProcessMock.restore()
     pathsMock.restore()
     sandbox.restore()
-    dockerState.reset()
+    states.clean()
   })
 
   test.describe.skip('run method', () => {
@@ -399,11 +399,11 @@ test.describe('docker', () => {
 
   test.describe('downVolumes method', () => {
     test.beforeEach(() => {
-      dockerState.executed(true)
+      states.set('docker-executed', true)
     })
 
     test.it('should do nothing and resolve promise if docker has not been executed', () => {
-      dockerState.reset()
+      states.clean()
       return docker.downVolumes()
         .then(() => {
           return test.expect(childProcessMock.stubs.execSync).to.not.have.been.called()
