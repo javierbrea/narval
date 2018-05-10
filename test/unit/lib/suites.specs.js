@@ -24,9 +24,11 @@ test.describe('suites', () => {
       ])
     }
     let tracerMock
+    let pathsMock
 
     test.beforeEach(() => {
       tracerMock = new mocks.Tracer()
+      pathsMock = new mocks.Paths()
       sandbox.stub(local, 'run').usingPromise().resolves()
       sandbox.stub(docker, 'createFiles').usingPromise().resolves()
       sandbox.stub(docker, 'run').usingPromise().resolves()
@@ -38,6 +40,7 @@ test.describe('suites', () => {
     test.afterEach(() => {
       sandbox.restore()
       tracerMock.restore()
+      pathsMock.restore()
     })
 
     test.it('should return a promise', () => {
@@ -129,6 +132,16 @@ test.describe('suites', () => {
             test.expect(Boom.isBoom(error)).to.be.true(),
             test.expect(error.message).to.contain('Error running')
           ])
+        })
+    })
+
+    test.it('should clean logs folder before executing suites', () => {
+      const fooLogsPath = 'fooPath'
+      options.get.resolves(fixtures.options.suite)
+      pathsMock.stubs.logs.returns(fooLogsPath)
+      return suites.run()
+        .then(() => {
+          return test.expect(pathsMock.stubs.cwd.remove).to.have.been.calledWith(fooLogsPath)
         })
     })
 

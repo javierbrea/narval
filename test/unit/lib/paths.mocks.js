@@ -13,7 +13,8 @@ const Mock = function () {
       existsSync: sandbox.stub(paths[base], 'existsSync'),
       readFile: sandbox.stub(paths[base], 'readFile'),
       resolve: sandbox.stub(paths[base], 'resolve'),
-      writeFile: sandbox.stub(paths[base], 'writeFile')
+      writeFile: sandbox.stub(paths[base], 'writeFile'),
+      remove: sandbox.stub(paths[base], 'remove').usingPromise().resolves()
     }
   }
 
@@ -22,6 +23,7 @@ const Mock = function () {
     package: new PathMethods('package'),
     defaultConfig: sandbox.stub(paths, 'defaultConfig'),
     customConfig: sandbox.stub(paths, 'customConfig'),
+    logs: sandbox.stub(paths, 'logs'),
     findDependencyFile: sandbox.stub(paths, 'findDependencyFile')
   }
 
