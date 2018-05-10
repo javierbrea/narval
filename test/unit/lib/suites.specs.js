@@ -33,7 +33,7 @@ test.describe('suites', () => {
       sandbox.stub(docker, 'createFiles').usingPromise().resolves()
       sandbox.stub(docker, 'run').usingPromise().resolves()
       sandbox.stub(docker, 'downVolumes').usingPromise().resolves()
-      sandbox.stub(config, 'get').usingPromise().resolves(fixtures.config.manySuitesAndTypes)
+      sandbox.stub(config, 'suitesByType').usingPromise().resolves(fixtures.config.manySuitesAndTypes.suitesByType)
       sandbox.stub(options, 'get').usingPromise().resolves(fixtures.options.suite)
     })
 
