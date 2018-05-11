@@ -6,7 +6,7 @@ const test = require('../../../index')
 const mocks = require('../mocks')
 const fixtures = require('../fixtures')
 
-const local = require('../../../lib/local')
+const local = require('../../../lib/suite-local')
 
 const commands = require('../../../lib/commands')
 const options = require('../../../lib/options')
