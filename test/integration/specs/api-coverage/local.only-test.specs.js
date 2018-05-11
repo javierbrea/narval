@@ -14,7 +14,7 @@ test.describe('api-local-coverage suite running only tests', () => {
   })
 
   test.it('should have executed tests', () => {
-    return test.expect(outerrLog).to.include('Starting tests of suite "books-api"')
+    return test.expect(outerrLog).to.include('Starting tests of "end-to-end" suite "books-api"')
   })
 
   test.it('should have not started the api server', () => {

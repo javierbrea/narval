@@ -26,7 +26,7 @@ test.describe('api-integration local tests execution', () => {
   })
 
   test.it('should have executed tests locally', () => {
-    return test.expect(outerrLog).to.match(/Starting tests of suite "[\w|-]*" without coverage/)
+    return test.expect(outerrLog).to.match(/Starting tests of "[\w|-]*" suite "[\w|-]*" without coverage/)
   })
 
   test.it('should have stopped services', () => {

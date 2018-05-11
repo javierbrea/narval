@@ -29,7 +29,7 @@ test.describe('api-local tests execution', () => {
   })
 
   test.it('should have executed tests', () => {
-    return test.expect(outerrLog).to.include('[Narval] [DEBUG] Starting tests of suite "books-api" without coverage')
+    return test.expect(outerrLog).to.include('[Narval] [DEBUG] Starting tests of "end-to-end" suite "books-api" without coverage')
   })
 
   test.it('should have stopped services', () => {

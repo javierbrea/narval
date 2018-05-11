@@ -3,7 +3,7 @@ const test = require('../../../../index')
 const utils = require('../utils')
 
 test.describe('api-local-coverage suite running api and test in different services', () => {
-  const startTestLog = 'Starting tests of suite "books-api"'
+  const startTestLog = 'Starting tests of "end-to-end" suite "books-api"'
   const startApiLog = 'Starting locally service "api-server" of suite "books-api" with coverage'
   let outerrLogTest
   let outerrLogApi
