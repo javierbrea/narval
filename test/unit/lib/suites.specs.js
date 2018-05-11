@@ -20,16 +20,20 @@ test.describe('suites', () => {
       return Promise.all([
         test.expect(docker.createFiles).to.have.been.called(),
         test.expect(docker.run).to.have.been.called(),
-        test.expect(local.run).to.not.have.been.called()
+        test.expect(local.Runner).to.not.have.been.called()
       ])
     }
     let tracerMock
     let pathsMock
+    let localRunStub
 
     test.beforeEach(() => {
+      localRunStub = sandbox.stub().usingPromise().resolves()
       tracerMock = new mocks.Tracer()
       pathsMock = new mocks.Paths()
-      sandbox.stub(local, 'run').usingPromise().resolves()
+      sandbox.stub(local, 'Runner').returns({
+        run: localRunStub
+      })
       sandbox.stub(docker, 'createFiles').usingPromise().resolves()
       sandbox.stub(docker, 'run').usingPromise().resolves()
       sandbox.stub(docker, 'downVolumes').usingPromise().resolves()
@@ -72,7 +76,7 @@ test.describe('suites', () => {
         .then(() => {
           return Promise.all([
             test.expect(docker.run).to.not.have.been.called(),
-            test.expect(local.run).to.have.been.called()
+            test.expect(local.Runner).to.have.been.called()
           ])
         })
     })
@@ -103,14 +107,14 @@ test.describe('suites', () => {
           return Promise.all([
             test.expect(docker.createFiles).to.not.have.been.called(),
             test.expect(docker.run).to.not.have.been.called(),
-            test.expect(local.run).to.have.been.called()
+            test.expect(local.Runner).to.have.been.called()
           ])
         })
     })
 
     test.it('should trace the error from an errored suite execution if it is not controlled by developer', () => {
       options.get.resolves(fixtures.options.suite)
-      local.run.rejects(new Error())
+      localRunStub.rejects(new Error())
       return suites.run()
         .then(() => {
           return Promise.reject(new Error())
@@ -122,7 +126,7 @@ test.describe('suites', () => {
 
     test.it('should reject the promise with a controlled error if suite execution fails', () => {
       options.get.resolves(fixtures.options.suite)
-      local.run.rejects(Boom.notImplemented('foo message'))
+      localRunStub.rejects(Boom.notImplemented('foo message'))
       return suites.run()
         .then(() => {
           return Promise.reject(new Error())
@@ -155,7 +159,7 @@ test.describe('suites', () => {
 
     test.it('should call to clean docker volumes even when suites execution fails', () => {
       options.get.resolves(fixtures.options.suite)
-      local.run.rejects(Boom.notImplemented('foo message'))
+      localRunStub.rejects(Boom.notImplemented('foo message'))
       return suites.run()
         .catch(() => {
           return test.expect(docker.downVolumes).to.have.been.called()
@@ -180,7 +184,7 @@ test.describe('suites', () => {
             return Promise.all([
               test.expect(tracerMock.stubs.warn.getCall(0).args[0]).to.contain('Skipping'),
               test.expect(tracerMock.stubs.warn.callCount).to.equal(3),
-              test.expect(local.run.callCount).to.equal(1)
+              test.expect(local.Runner.callCount).to.equal(1)
             ])
           })
       })
@@ -193,7 +197,7 @@ test.describe('suites', () => {
           .then(() => {
             return Promise.all([
               test.expect(tracerMock.stubs.warn.callCount).to.equal(4),
-              test.expect(local.run).to.not.have.been.called()
+              test.expect(local.Runner).to.not.have.been.called()
             ])
           })
       })
@@ -207,7 +211,7 @@ test.describe('suites', () => {
             return Promise.all([
               test.expect(tracerMock.stubs.warn.getCall(0).args[0]).to.contain('Skipping'),
               test.expect(tracerMock.stubs.warn.callCount).to.equal(1),
-              test.expect(local.run.callCount).to.equal(2)
+              test.expect(local.Runner.callCount).to.equal(2)
             ])
           })
       })
@@ -220,7 +224,7 @@ test.describe('suites', () => {
           .then(() => {
             return Promise.all([
               test.expect(tracerMock.stubs.warn.callCount).to.equal(2),
-              test.expect(local.run).to.not.have.been.called()
+              test.expect(local.Runner).to.not.have.been.called()
             ])
           })
       })
