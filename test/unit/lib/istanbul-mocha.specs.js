@@ -4,30 +4,6 @@ const test = require('../../../index')
 const istanbulMocha = require('../../../lib/istanbul-mocha')
 
 test.describe('istanbul-mocha', () => {
-  test.describe('getCommandAndParams method', () => {
-    test.it('should return null if no command is provided', () => {
-      test.expect(istanbulMocha.getCommandAndParams()).to.equal(null)
-    })
-
-    test.it('should return property command with the command to execute', () => {
-      const fooCommand = 'fooCommand'
-      test.expect(istanbulMocha.getCommandAndParams(`${fooCommand} fooParam1 --fooParam2=testing`).command).to.equal(fooCommand)
-    })
-
-    test.it('should return property params with arguments for the command', () => {
-      const fooParam1 = 'fooParam1'
-      const fooParam2 = '--fooParam2=testing'
-      test.expect(istanbulMocha.getCommandAndParams(`command ${fooParam1} ${fooParam2}`).params).to.equal(`${fooParam1} ${fooParam2}`)
-    })
-
-    test.it('should return params as empty string if received command has no arguments', () => {
-      const fooCommand = 'fooCommand'
-      const commandAndParams = istanbulMocha.getCommandAndParams(fooCommand)
-      test.expect(commandAndParams.command).to.equal(fooCommand)
-      test.expect(commandAndParams.params).to.equal('')
-    })
-  })
-
   test.describe('mocha.params method', () => {
     test.it('should return an string containing mocha command line arguments given a test configuration', () => {
       test.expect(istanbulMocha.mocha.params({
