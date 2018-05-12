@@ -463,6 +463,7 @@ test.describe('docker', () => {
       pathsMock.stubs.package.readFile.usingPromise().resolves()
       pathsMock.stubs.cwd.ensureDir.usingPromise().resolves('')
       pathsMock.stubs.cwd.resolve.returns('')
+      pathsMock.stubs.docker.returns('.narval/docker')
     })
 
     test.it('should return a promise', () => {

@@ -7,6 +7,7 @@ const mocks = require('../mocks')
 const fixtures = require('../fixtures')
 
 const local = require('../../../lib/suite-local')
+const dockerSuite = require('../../../lib/suite-docker')
 const docker = require('../../../lib/docker')
 const config = require('../../../lib/config')
 const options = require('../../../lib/options')
@@ -19,23 +20,27 @@ test.describe('suites', () => {
     const specDockerUsed = function () {
       return Promise.all([
         test.expect(docker.createFiles).to.have.been.called(),
-        test.expect(docker.run).to.have.been.called(),
+        test.expect(dockerSuite.Runner).to.have.been.called(),
         test.expect(local.Runner).to.not.have.been.called()
       ])
     }
     let tracerMock
     let pathsMock
     let localRunStub
+    let dockerRunStub
 
     test.beforeEach(() => {
       localRunStub = sandbox.stub().usingPromise().resolves()
+      dockerRunStub = sandbox.stub().usingPromise().resolves()
       tracerMock = new mocks.Tracer()
       pathsMock = new mocks.Paths()
       sandbox.stub(local, 'Runner').returns({
         run: localRunStub
       })
+      sandbox.stub(dockerSuite, 'Runner').returns({
+        run: dockerRunStub
+      })
       sandbox.stub(docker, 'createFiles').usingPromise().resolves()
-      sandbox.stub(docker, 'run').usingPromise().resolves()
       sandbox.stub(docker, 'downVolumes').usingPromise().resolves()
       sandbox.stub(config, 'suitesByType').usingPromise().resolves(fixtures.config.manySuitesAndTypes.suitesByType)
       sandbox.stub(options, 'get').usingPromise().resolves(fixtures.options.suite)
@@ -75,7 +80,7 @@ test.describe('suites', () => {
       return suites.run()
         .then(() => {
           return Promise.all([
-            test.expect(docker.run).to.not.have.been.called(),
+            test.expect(dockerSuite.Runner).to.not.have.been.called(),
             test.expect(local.Runner).to.have.been.called()
           ])
         })
@@ -106,7 +111,7 @@ test.describe('suites', () => {
         .then(() => {
           return Promise.all([
             test.expect(docker.createFiles).to.not.have.been.called(),
-            test.expect(docker.run).to.not.have.been.called(),
+            test.expect(dockerSuite.Runner).to.not.have.been.called(),
             test.expect(local.Runner).to.have.been.called()
           ])
         })
@@ -237,7 +242,7 @@ test.describe('suites', () => {
           .then(() => {
             return Promise.all([
               test.expect(docker.createFiles).to.have.been.calledTwice(),
-              test.expect(docker.run).to.have.been.calledTwice()
+              test.expect(dockerSuite.Runner).to.have.been.calledTwice()
             ])
           })
       })

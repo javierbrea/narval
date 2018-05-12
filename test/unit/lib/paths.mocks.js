@@ -24,7 +24,8 @@ const Mock = function () {
     defaultConfig: sandbox.stub(paths, 'defaultConfig'),
     customConfig: sandbox.stub(paths, 'customConfig'),
     logs: sandbox.stub(paths, 'logs'),
-    findDependencyFile: sandbox.stub(paths, 'findDependencyFile')
+    findDependencyFile: sandbox.stub(paths, 'findDependencyFile'),
+    docker: sandbox.stub(paths, 'docker')
   }
 
   const restore = function () {
