@@ -1,9 +1,9 @@
 
-const test = require('../../../index')
+/* const test = require('../../../index')
 
 const istanbulMocha = require('../../../lib/istanbul-mocha')
 
-test.describe('istanbul-mocha', () => {
+test.describe.skip('istanbul-mocha', () => {
   test.describe('mocha.params method', () => {
     test.it('should return an string containing mocha command line arguments given a test configuration', () => {
       test.expect(istanbulMocha.mocha.params({
@@ -79,4 +79,4 @@ test.describe('istanbul-mocha', () => {
       }, 'fooSuiteType')).to.equal('--include-all-sources --root=. --colors --print=summary --dir=.coverage/fooSuiteType/fooTest -x -i')
     })
   })
-})
+}) */

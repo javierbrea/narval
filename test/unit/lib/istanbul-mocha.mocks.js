@@ -1,5 +1,5 @@
 
-const test = require('../../../index')
+/* const test = require('../../../index')
 
 const istanbulMocha = require('../../../lib/istanbul-mocha')
 
@@ -27,3 +27,4 @@ const Mock = function () {
 }
 
 module.exports = Mock
+*/
