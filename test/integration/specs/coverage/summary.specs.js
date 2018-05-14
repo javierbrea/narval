@@ -13,11 +13,11 @@ test.describe('coverage summary reports', () => {
       })
   })
 
-  test.it('should have print coverage summary title', () => {
+  test.it('should have printed coverage summary title', () => {
     return test.expect(outerrLog).to.include('== Coverage summary ==')
   })
 
-  test.it('should have print Statements, Branches, Functions and Lines summary', () => {
+  test.it('should have printed Statements, Branches, Functions and Lines summary', () => {
     return Promise.all([
       test.expect(outerrLog).to.include('Statements   :'),
       test.expect(outerrLog).to.include('Branches     :'),
