@@ -7,6 +7,7 @@ const mocks = require('../mocks')
 const fixtures = require('../fixtures')
 
 const config = require('../../../lib/config')
+const states = require('../../../lib/states')
 
 test.describe('config', () => {
   test.describe('get method', () => {
@@ -15,9 +16,8 @@ test.describe('config', () => {
     const sandbox = test.sinon.sandbox.create()
 
     const getConfigClean = function () {
-      return config.get({
-        cleanCache: true
-      })
+      states.clean()
+      return config.get()
     }
 
     let tracerMock
@@ -53,7 +53,7 @@ test.describe('config', () => {
         })
     })
 
-    test.it('should calculate configuration again if cleanCache option is specified', () => {
+    test.it('should calculate configuration again if states are reset', () => {
       return getConfigClean()
         .then(config.get)
         .then(getConfigClean)
