@@ -8,6 +8,7 @@ Bluebird.config({
 
 const mocks = {
   ChildProcess: require('./lib/childProcess.mocks'),
+  Commands: require('./lib/commands.mocks'),
   Config: require('./lib/config.mocks'),
   Fs: require('./lib/fs.mocks'),
   IstanbulMocha: require('./lib/istanbul-mocha.mocks'), // TODO, remove after refactor

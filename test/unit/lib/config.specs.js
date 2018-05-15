@@ -109,3 +109,34 @@ test.describe('config', () => {
     })
   })
 })
+
+/*
+test.it.skip('should set empty environment variables for all configured docker containers', () => {
+      return docker.downVolumes()
+        .then(() => {
+          const envVars = childProcessMock.stubs.execSync.getCall(0).args[1].env
+          return Promise.all([
+            test.expect(envVars.coverage_options).to.equal(''),
+            test.expect(envVars.fooContainer1_coverage_enabled).to.equal(''),
+            test.expect(envVars.fooContainer2_coverage_enabled).to.equal(''),
+            test.expect(envVars.fooContainer3_coverage_enabled).to.equal(''),
+            test.expect(envVars.fooContainer1_narval_is_docker).to.equal(''),
+            test.expect(envVars.fooContainer2_narval_suite_type).to.equal(''),
+            test.expect(envVars.fooContainer3_narval_suite).to.equal(''),
+            test.expect(envVars.fooContainer3_narval_service).to.equal(''),
+            test.expect(envVars.fooContainer1_command).to.equal(''),
+            test.expect(envVars.fooContainer2_command).to.equal(''),
+            test.expect(envVars.fooContainer3_command).to.equal(''),
+            test.expect(envVars.fooContainer1_command_params).to.equal(''),
+            test.expect(envVars.fooContainer2_command_params).to.equal(''),
+            test.expect(envVars.fooContainer3_command_params).to.equal(''),
+            test.expect(envVars.fooContainer1_wait_for).to.equal(''),
+            test.expect(envVars.fooContainer2_wait_for).to.equal(''),
+            test.expect(envVars.fooContainer3_wait_for).to.equal(''),
+            test.expect(envVars.fooContainer1_exit_after).to.equal(''),
+            test.expect(envVars.fooContainer2_exit_after).to.equal(''),
+            test.expect(envVars.fooContainer3_exit_after).to.equal('')
+          ])
+        })
+    })
+*/

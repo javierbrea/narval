@@ -29,16 +29,14 @@ const Mock = function () {
   }
 
   let stubs = {
-    standard: sandbox.stub(config, 'standard'),
-    suitesByType: sandbox.stub(config, 'suitesByType'),
-    dockerImages: sandbox.stub(config, 'dockerImages'),
-    dockerContainers: sandbox.stub(config, 'dockerContainers'),
-    allDockerCustomEnvVars: sandbox.stub(config, 'allDockerCustomEnvVars'),
-    allComposeEnvVars: sandbox.stub(config, 'allComposeEnvVars'),
+    standard: sandbox.stub(config, 'standard').usingPromise().resolves(true),
+    suitesByType: sandbox.stub(config, 'suitesByType').usingPromise().resolves([]),
+    dockerImages: sandbox.stub(config, 'dockerImages').usingPromise().resolves([]),
+    dockerContainers: sandbox.stub(config, 'dockerContainers').usingPromise().resolves([]),
+    allDockerCustomEnvVars: sandbox.stub(config, 'allDockerCustomEnvVars').usingPromise().resolves({}),
+    allComposeEnvVars: sandbox.stub(config, 'allComposeEnvVars').usingPromise().resolves({}),
     SuiteResolver: sandbox.stub(config, 'SuiteResolver').returns(suiteResolverStubs)
   }
-
-  // stubs.SuiteResolver = Object.assign({}, stubs.SuiteResolver, suiteResolverStubs)
 
   const restore = function () {
     sandbox.restore()
