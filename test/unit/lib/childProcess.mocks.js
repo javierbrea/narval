@@ -2,6 +2,7 @@
 const childProcess = require('child_process')
 
 const test = require('../../../index')
+const utils = require('../utils')
 
 const Mock = function () {
   const sandbox = test.sinon.sandbox.create()
@@ -14,31 +15,7 @@ const Mock = function () {
   let spawnStderrOnFake
   let spawnOnFake
 
-  const CallBackRunnerFake = function (options) {
-    options = options || {}
-
-    const fake = function (eventName, cb) {
-      if (options.runOnRegister) {
-        cb(options.returns)
-      }
-    }
-
-    const returns = function (code) {
-      options.returns = code
-    }
-
-    const runOnRegister = function (run) {
-      options.runOnRegister = run
-    }
-
-    return {
-      fake: fake,
-      returns: returns,
-      runOnRegister: runOnRegister
-    }
-  }
-
-  forkOnFake = new CallBackRunnerFake({
+  forkOnFake = new utils.CallBackRunnerFake({
     runOnRegister: true
   })
   forkSendFake = sandbox.stub()
@@ -57,11 +34,11 @@ const Mock = function () {
 
   execSync = sandbox.stub(childProcess, 'execSync')
 
-  spawnStdoutOnFake = new CallBackRunnerFake({
+  spawnStdoutOnFake = new utils.CallBackRunnerFake({
     runOnRegister: true
   })
-  spawnStderrOnFake = new CallBackRunnerFake()
-  spawnOnFake = new CallBackRunnerFake({
+  spawnStderrOnFake = new utils.CallBackRunnerFake()
+  spawnOnFake = new utils.CallBackRunnerFake({
     runOnRegister: true,
     returns: 0
   })

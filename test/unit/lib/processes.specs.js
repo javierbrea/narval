@@ -15,6 +15,7 @@ test.describe('processes', () => {
 
     test.beforeEach(() => {
       sandbox = test.sinon.sandbox.create()
+      // sandbox.spy(console, 'log')
       childProcessMock = new mocks.ChildProcess()
       childProcessMock.stubs.fork.on.returns(0)
       pathsMock = new mocks.Paths()
@@ -100,5 +101,40 @@ test.describe('processes', () => {
           })
       })
     })
+
+    /* test.describe('when logging data from the child process', () => {
+      const option = {
+        sync: true
+      }
+      test.beforeEach(() => {
+        childProcessMock.stubs.spawn.stdout.on.runOnRegister(true)
+      })
+
+      test.it('should log the data received from the execution, aplying a trim function', () => {
+        const fooData = 'foo process data'
+        childProcessMock.stubs.spawn.stdout.on.returns(`   ${fooData}    `)
+
+        return commands.run(fooCommand, option).then(() => {
+          return test.expect(console.log).to.have.been.calledWith(fooData)
+        })
+      })
+
+      test.it('should log the errors received from the execution, aplying a trim function', () => {
+        const fooData = 'foo error data'
+        childProcessMock.stubs.spawn.stderr.on.runOnRegister(true)
+        childProcessMock.stubs.spawn.stderr.on.returns(`   ${fooData}    `)
+        return commands.run(fooCommand, option).then(() => {
+          return test.expect(console.log).to.have.been.calledWith(fooData)
+        })
+      })
+
+      test.it('should not log empty data received from the execution', () => {
+        const fooData = '   '
+        childProcessMock.stubs.spawn.stdout.on.returns(fooData)
+        return commands.run(fooCommand, option).then(() => {
+          return test.expect(console.log).to.not.have.been.calledWith(fooData)
+        })
+      })
+    }) */
   })
 })
