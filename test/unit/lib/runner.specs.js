@@ -4,13 +4,10 @@ const mockery = require('mockery')
 const Boom = require('boom')
 
 const test = require('../../../index')
-const fixtures = require('../fixtures')
 
 test.describe('runner', () => {
   const runnerPath = '../../../lib/runner'
   let sandbox
-  let config
-  let options
   let states
   let tracer
   let standard
@@ -26,15 +23,11 @@ test.describe('runner', () => {
 
     sandbox = test.sinon.sandbox.create()
 
-    config = require('../../../lib/config')
-    options = require('../../../lib/options')
     tracer = require('../../../lib/tracer')
     states = require('../../../lib/states')
     standard = require('../../../lib/standard')
     suites = require('../../../lib/suites')
 
-    sandbox.stub(config, 'get').usingPromise().resolves(fixtures.config.customResult)
-    sandbox.stub(options, 'get').usingPromise().resolves(fixtures.options.standard)
     sandbox.stub(standard, 'run').usingPromise().resolves()
     sandbox.stub(suites, 'run').usingPromise().resolves()
     sandbox.stub(states, 'get').returns(false)

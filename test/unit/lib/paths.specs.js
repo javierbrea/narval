@@ -195,6 +195,13 @@ test.describe('paths', () => {
     })
   })
 
+  test.describe('docker method', () => {
+    test.it('should return the absolute path to the path where all docker files has to be written', () => {
+      const dockerPath = path.resolve(process.cwd(), '.narval', 'docker')
+      return test.expect(paths.docker()).to.equal(dockerPath)
+    })
+  })
+
   test.describe('findDependencyFile method', () => {
     test.it('should find and return the absolute path to the provided file path in "node_modules/" self or parents folders', () => {
       const standardPath = path.resolve(__dirname, '..', '..', '..', 'node_modules', 'standard', 'bin', 'cmd.js')
