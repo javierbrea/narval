@@ -138,10 +138,11 @@ test.describe('processes', () => {
     }
     let fooProcess
     test.beforeEach(() => {
-      fooProcess = childProcessMock.stubs.fork()
+      fooProcess = childProcessMock.stubs.spawn()
+      mocksSandbox.paths.stubs.cwd.resolve.returns('fooFolder')
     })
 
-    test.it.skip('should return an event bus', () => {
+    test.it('should return an event bus', () => {
       test.expect(new processes.Handler(fooProcess, fooSuiteData).on).to.not.be.undefined()
     })
   })
