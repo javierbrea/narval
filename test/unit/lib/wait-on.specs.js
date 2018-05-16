@@ -64,10 +64,10 @@ test.describe('wait-on', () => {
 
     test.it('should print a log when the promise is resolved', () => {
       return waitOn.wait({
-        resources: ['foo resource', 'foo']
+        resources: ['foo resource']
       }).then(() => {
         return test.expect(mocksSandbox.logs.stubs.waitFinish).to.have.been.calledWith({
-          resources: 'foo resource,foo'
+          resources: ['foo resource']
         })
       })
     })
@@ -92,7 +92,7 @@ test.describe('wait-on', () => {
         resources: ['resource', 'foo']
       }).catch(() => {
         return test.expect(mocksSandbox.logs.stubs.waitTimeOut).to.have.been.calledWith({
-          resources: 'resource,foo'
+          resources: ['resource', 'foo']
         })
       })
     })

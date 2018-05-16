@@ -6,7 +6,7 @@ const mocks = require('../mocks')
 
 const processes = require('../../../lib/processes')
 
-test.describe('processes', () => {
+test.describe.skip('processes', () => {
   test.describe('fork method', () => {
     const fooPath = 'fooPath/fooFile.js'
     let sandbox

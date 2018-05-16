@@ -44,6 +44,16 @@ test.describe('logs', () => {
       test.expect(log).to.equal(result)
     })
 
+    test.it('should join an array using commas when "comma-separated" helper is used', () => {
+      test.expect(logger.dockerServicesStillRunning({
+        services: ['foo-service-name', 'foo-service-2']
+      })).to.include('foo-service-name,foo-service-2')
+
+      test.expect(logger.dockerServicesStillRunning({
+        services: 'foo-service-name'
+      })).to.include('foo-service-name')
+    })
+
     test.it('should add to all templates predefined data from suite config', () => {
       const fooService = 'foo-service-name'
       const log = logger.noDockerServiceConfig({

@@ -14,7 +14,7 @@ const states = require('../../../lib/states')
 const options = require('../../../lib/options')
 const config = require('../../../lib/config')
 
-test.describe('docker', () => {
+test.describe.skip('docker', () => {
   let sandbox
   let childProcessMock
   let pathsMock

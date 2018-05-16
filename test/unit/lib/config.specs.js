@@ -9,7 +9,7 @@ const fixtures = require('../fixtures')
 const config = require('../../../lib/config')
 const states = require('../../../lib/states')
 
-test.describe('config', () => {
+test.describe.skip('config', () => {
   test.describe('get method', () => {
     const fooDefaultConfigPath = '/fooDefaultConfig'
     const fooCustomConfigPath = '/fooCustomConfig'
