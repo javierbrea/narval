@@ -11,7 +11,6 @@ const mocks = {
   Commands: require('./lib/commands.mocks'),
   Config: require('./lib/config.mocks'),
   Fs: require('./lib/fs.mocks'),
-  IstanbulMocha: require('./lib/istanbul-mocha.mocks'), // TODO, remove after refactor
   Logs: require('./lib/logs.mocks'),
   Options: require('./lib/options.mocks'),
   Paths: require('./lib/paths.mocks'),

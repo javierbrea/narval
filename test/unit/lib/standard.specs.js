@@ -15,7 +15,6 @@ test.describe('standard', () => {
 
     test.beforeEach(() => {
       sandbox = test.sinon.sandbox.create()
-      // TODO, use mocks sandbox. Do not stub tracer, but logs
       mocksSandbox = new mocks.Sandbox([
         'logs',
         'paths',
