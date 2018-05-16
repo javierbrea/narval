@@ -221,3 +221,63 @@ test.describe.skip('istanbul-mocha', () => {
     })
   })
 }) */
+
+/* test.it('should run suite using docker if suite has any docker property in test', () => {
+      options.get.resolves(fixtures.options.dockerSuite)
+
+      return suites.run()
+        .then(specDockerUsed)
+    })
+
+    test.it('should run suite using docker if suite has any service configured for docker', () => {
+      options.get.resolves({
+        suite: 'fooDockerSuite2'
+      })
+
+      return suites.run()
+        .then(specDockerUsed)
+    })
+
+    test.it('should run suite locally if suite test is not configured for docker and has not any service configured for docker', () => {
+      options.get.resolves({
+        suite: 'fooSuite2'
+      })
+
+      return suites.run()
+        .then(() => {
+          return Promise.all([
+            test.expect(docker.createFiles).to.not.have.been.called(),
+            test.expect(dockerSuite.Runner).to.not.have.been.called(),
+            test.expect(local.Runner).to.have.been.called()
+          ])
+        })
+    }) */
+
+/* test.describe('when an specific suite to be executed is defined in options', () => {
+      test.it('should skip all other suites executions, and execute that one', () => {
+        options.get.resolves(fixtures.options.suite)
+        return suites.run()
+          .then(() => {
+            return Promise.all([
+              test.expect(tracerMock.stubs.warn.getCall(0).args[0]).to.contain('Skipping'),
+              test.expect(tracerMock.stubs.warn.callCount).to.equal(3),
+              test.expect(local.Runner.callCount).to.equal(1)
+            ])
+          })
+      })
+
+      test.it('should not execute any suite if provided one does not exists in config', () => {
+        options.get.resolves({
+          suite: 'unrealSuite'
+        })
+        return suites.run()
+          .then(() => {
+            return Promise.all([
+              test.expect(tracerMock.stubs.warn.callCount).to.equal(4),
+              test.expect(local.Runner).to.not.have.been.called()
+            ])
+          })
+      })
+    })
+
+    */

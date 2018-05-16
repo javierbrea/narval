@@ -34,7 +34,9 @@ const Mock = function () {
     dockerExitCode: sandbox.stub()
   }
 
-  let stubs = {}
+  let stubs = {
+    suiteLogger: suiteLoggerStubs
+  }
 
   _.each(logs, (logMethod, logMethodKey) => {
     stubs[logMethodKey] = sandbox.stub(logs, logMethodKey)
@@ -42,8 +44,6 @@ const Mock = function () {
 
   stubs.SuiteLogger.restore()
   stubs.SuiteLogger = sandbox.stub(logs, 'SuiteLogger').returns(suiteLoggerStubs)
-
-  // stubs.SuiteLogger = Object.assign({}, stubs.SuiteLogger, suiteLoggerStubs)
 
   const restore = function () {
     sandbox.restore()

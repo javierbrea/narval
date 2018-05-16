@@ -35,7 +35,8 @@ const Mock = function () {
     dockerContainers: sandbox.stub(config, 'dockerContainers').usingPromise().resolves([]),
     allDockerCustomEnvVars: sandbox.stub(config, 'allDockerCustomEnvVars').usingPromise().resolves({}),
     allComposeEnvVars: sandbox.stub(config, 'allComposeEnvVars').usingPromise().resolves({}),
-    SuiteResolver: sandbox.stub(config, 'SuiteResolver').returns(suiteResolverStubs)
+    SuiteResolver: sandbox.stub(config, 'SuiteResolver').returns(suiteResolverStubs),
+    suiteResolver: suiteResolverStubs
   }
 
   const restore = function () {
