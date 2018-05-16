@@ -1,5 +1,6 @@
 
 const fsExtra = require('fs-extra')
+const path = require('path')
 
 const test = require('../../../index')
 const mocks = require('../mocks')
@@ -131,19 +132,132 @@ test.describe('processes', () => {
   })
 
   test.describe('Handler constructor', () => {
+    const fooLogsFolder = 'fooFolder'
+    const fooOutFile = path.join(fooLogsFolder, 'out.log')
+    const fooErrFile = path.join(fooLogsFolder, 'err.log')
+    const fooCombinedFile = path.join(fooLogsFolder, 'combined-outerr.log')
+    const fooCloseFile = path.join(fooLogsFolder, 'exit-code.log')
     const fooSuiteData = {
       type: 'fooType',
       suite: 'fooSuite',
       service: 'fooService'
     }
     let fooProcess
+    let handler
     test.beforeEach(() => {
       fooProcess = childProcessMock.stubs.spawn()
-      mocksSandbox.paths.stubs.cwd.resolve.returns('fooFolder')
+      mocksSandbox.paths.stubs.cwd.resolve.returns(fooLogsFolder)
     })
 
     test.it('should return an event bus', () => {
-      test.expect(new processes.Handler(fooProcess, fooSuiteData).on).to.not.be.undefined()
+      handler = new processes.Handler(fooProcess, fooSuiteData)
+      test.expect(handler.on).to.not.be.undefined()
+    })
+
+    test.it('should ensure that logs folder exists', (done) => {
+      handler = new processes.Handler(fooProcess, fooSuiteData)
+      handler.on('close', () => {
+        test.expect(mocksSandbox.paths.stubs.cwd.ensureDir).to.have.been.calledWith(fooLogsFolder)
+        done()
+      })
+    })
+
+    test.it('should delete previous logs files', (done) => {
+      handler = new processes.Handler(fooProcess, fooSuiteData)
+      handler.on('close', () => {
+        test.expect(fsExtra.remove).to.have.been.calledWith(fooOutFile)
+        test.expect(fsExtra.remove).to.have.been.calledWith(fooErrFile)
+        test.expect(fsExtra.remove).to.have.been.calledWith(fooCombinedFile)
+        done()
+      })
+    })
+
+    test.it('should have opened new logs files', (done) => {
+      handler = new processes.Handler(fooProcess, fooSuiteData)
+      handler.on('close', () => {
+        test.expect(fsMock.stubs.open).to.have.been.calledWith(fooOutFile)
+        test.expect(fsMock.stubs.open).to.have.been.calledWith(fooErrFile)
+        test.expect(fsMock.stubs.open).to.have.been.calledWith(fooCombinedFile)
+        done()
+      })
+    })
+
+    test.it('should write the process output aplying a trim function', (done) => {
+      const fooData = 'foo data'
+      childProcessMock.stubs.spawn.stdout.on.returns(`  ${fooData}`)
+      handler = new processes.Handler(fooProcess, fooSuiteData)
+      handler.on('close', () => {
+        test.expect(console.log).to.have.been.calledWith(fooData)
+        test.expect(fsMock.stubs.appendFile.getCall(0).args[1]).to.contain(fooData)
+        done()
+      })
+    })
+
+    test.it('should write a file with the end code if the option close is received', function (done) {
+      this.timeout(5000)
+      const fooData = 'foo data'
+      childProcessMock.stubs.spawn.on.runOnRegister(false)
+      handler = new processes.Handler(fooProcess, fooSuiteData, {
+        close: true
+      })
+
+      setTimeout(() => {
+        childProcessMock.stubs.spawn.stderr.on.run(fooData)
+        childProcessMock.stubs.spawn.stdout.on.run(fooData)
+        childProcessMock.stubs.spawn.on.run(0)
+      }, 200)
+
+      handler.on('close', (data) => {
+        test.expect(data.lastLog).to.equal(fooData)
+        test.expect(data.processCode).to.equal(0)
+        test.expect(console.log).to.have.been.calledWith(fooData)
+        test.expect(fsExtra.remove).to.have.been.calledWith(fooCloseFile)
+        test.expect(fsMock.stubs.writeFileSync.getCall(0).args[1]).to.equal(0)
+        done()
+      })
+    })
+
+    test.it('should work even when process has finished before preparing files', function (done) {
+      const fooData = 'foo data'
+      const fooError = 'foo error'
+      childProcessMock.stubs.spawn.stderr.on.runOnRegister(true)
+      childProcessMock.stubs.spawn.stderr.on.returns(`  ${fooError}`)
+      childProcessMock.stubs.spawn.stdout.on.returns(`  ${fooData}`)
+      childProcessMock.stubs.spawn.on.runOnRegister(true)
+      handler = new processes.Handler(fooProcess, fooSuiteData, {
+        close: true
+      })
+      handler.on('close', (data) => {
+        test.expect(data.lastLog).to.equal(fooError)
+        test.expect(data.processCode).to.equal(0)
+        test.expect(console.log).to.have.been.calledWith(fooData)
+        test.expect(console.log).to.have.been.calledWith(fooError)
+        test.expect(fsExtra.remove).to.have.been.calledWith(fooCloseFile)
+        test.expect(fsMock.stubs.writeFileSync.getCall(0).args[1]).to.equal(0)
+        done()
+      })
+    })
+
+    test.it('should write the process error aplying a trim function', (done) => {
+      const fooErrorData = 'foo error data'
+      childProcessMock.stubs.spawn.stderr.on.returns(`  ${fooErrorData}   `)
+      childProcessMock.stubs.spawn.stderr.on.runOnRegister(true)
+      handler = new processes.Handler(fooProcess, fooSuiteData)
+      handler.on('close', () => {
+        test.expect(console.log).to.have.been.calledWith(fooErrorData)
+        test.expect(fsMock.stubs.appendFile.getCall(0).args[1]).to.contain(fooErrorData)
+        done()
+      })
+    })
+
+    test.it('should not log empty data received from the process execution', (done) => {
+      childProcessMock.stubs.spawn.stdout.on.returns('   ')
+      handler = new processes.Handler(fooProcess, fooSuiteData)
+      handler.on('close', () => {
+        test.expect(console.log).to.not.have.been.called()
+        test.expect(fsMock.stubs.appendFile).to.not.have.been.called()
+        done()
+      })
     })
   })
 })

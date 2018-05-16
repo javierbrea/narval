@@ -57,21 +57,24 @@ const Mock = function () {
   spawnStub.stdout = {
     on: {
       returns: spawnStdoutOnFake.returns,
-      runOnRegister: spawnStdoutOnFake.runOnRegister
+      runOnRegister: spawnStdoutOnFake.runOnRegister,
+      run: spawnStdoutOnFake.run
     }
   }
 
   spawnStub.stderr = {
     on: {
       returns: spawnStderrOnFake.returns,
-      runOnRegister: spawnStderrOnFake.runOnRegister
+      runOnRegister: spawnStderrOnFake.runOnRegister,
+      run: spawnStderrOnFake.run
     }
   }
 
   spawnStub.on = {
     fake: spawnOnFake.fake,
     returns: spawnOnFake.returns,
-    runOnRegister: spawnOnFake.runOnRegister
+    runOnRegister: spawnOnFake.runOnRegister,
+    run: spawnOnFake.run
   }
 
   const restore = function () {
