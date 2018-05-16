@@ -155,7 +155,7 @@ test.describe('commands', () => {
         .then((result) => {
           return Promise.all([
             test.expect(result.process.on).to.not.be.undefined(),
-            test.expect(result.logs.on).to.not.be.undefined() // TODO, check that it is a Handler
+            test.expect(result.logs.on).to.not.be.undefined()
           ])
         })
     })

@@ -1,5 +1,6 @@
 
-const Promise = require('bluebird')
+/* const Promise = require('bluebird')
+const fsExtra = require('fs-extra')
 
 const test = require('../../../index')
 const mocks = require('../mocks')
@@ -7,26 +8,34 @@ const mocks = require('../mocks')
 const processes = require('../../../lib/processes')
 
 test.describe.skip('processes', () => {
+  const fooPath = 'fooPath/fooFile.js'
+  let sandbox
+  let mocksSandbox
+  let childProcessMock
+  let fsMock
+
+  test.beforeEach(() => {
+    sandbox = test.sinon.sandbox.create()
+    sandbox.spy(console, 'log')
+    mocksSandbox = new mocks.Sandbox([
+      'paths',
+      'tracer',
+      'logs'
+    ])
+    childProcessMock = new mocks.ChildProcess()
+    childProcessMock.stubs.fork.on.returns(0)
+    fsMock = new mocks.Fs()
+    sandbox.stub(fsExtra, 'remove').usingPromise().resolves()
+  })
+
+  test.afterEach(() => {
+    sandbox.restore()
+    mocksSandbox.restore()
+    childProcessMock.restore()
+    fsMock.restore()
+  })
+
   test.describe('fork method', () => {
-    const fooPath = 'fooPath/fooFile.js'
-    let sandbox
-    let childProcessMock
-    let pathsMock
-
-    test.beforeEach(() => {
-      sandbox = test.sinon.sandbox.create()
-      // sandbox.spy(console, 'log')
-      childProcessMock = new mocks.ChildProcess()
-      childProcessMock.stubs.fork.on.returns(0)
-      pathsMock = new mocks.Paths()
-    })
-
-    test.afterEach(() => {
-      childProcessMock.restore()
-      pathsMock.restore()
-      sandbox.restore()
-    })
-
     test.it('should return a promise', () => {
       return processes.fork()
         .then(() => {
@@ -100,9 +109,9 @@ test.describe.skip('processes', () => {
             ])
           })
       })
-    })
+    }) */
 
-    /* test.describe('when logging data from the child process', () => {
+/* test.describe('when logging data from the child process', () => {
       const option = {
         sync: true
       }
@@ -135,6 +144,6 @@ test.describe.skip('processes', () => {
           return test.expect(console.log).to.not.have.been.calledWith(fooData)
         })
       })
-    }) */
+    })
   })
-})
+}) */

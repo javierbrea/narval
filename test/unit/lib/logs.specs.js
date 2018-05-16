@@ -47,7 +47,7 @@ test.describe('logs', () => {
     test.it('should join an array using commas when "comma-separated" helper is used', () => {
       test.expect(logger.dockerServicesStillRunning({
         services: ['foo-service-name', 'foo-service-2']
-      })).to.include('foo-service-name,foo-service-2')
+      })).to.include('foo-service-name, foo-service-2')
 
       test.expect(logger.dockerServicesStillRunning({
         services: 'foo-service-name'
