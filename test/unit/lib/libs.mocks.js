@@ -36,7 +36,7 @@ const Mock = function () {
 
   return {
     stubs: {
-      wait: waitStub
+      waitOn: waitStub
     },
     restore: restore
   }

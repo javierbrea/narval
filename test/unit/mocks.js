@@ -17,7 +17,7 @@ const mocks = {
   Processes: require('./lib/processes.mocks'),
   Tracer: require('./lib/tracer.mocks'),
   Utils: require('./lib/utils.mocks'),
-  WaitOn: require('./lib/wait-on.mocks')
+  Libs: require('./lib/libs.mocks')
 }
 
 const Sandbox = function (mocksList) {
