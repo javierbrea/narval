@@ -17,7 +17,7 @@ const Mock = function () {
   childProcessMock.stubs.spawn.on.runOnRegister(false)
 
   const stubs = {
-    fork: sandbox.stub(processes, 'fork'),
+    fork: sandbox.stub(processes, 'fork').usingPromise().resolves(0),
     spawn: sandbox.stub(processes, 'spawn').usingPromise().resolves(childProcess.spawn()),
     execSync: sandbox.stub(processes, 'execSync'),
     Handler: sandbox.stub(processes, 'Handler').returns({
@@ -30,7 +30,8 @@ const Mock = function () {
 
   stubs.Handler.on = {
     returns: handlerOnFake.returns,
-    runOnRegister: handlerOnFake.runOnRegister
+    runOnRegister: handlerOnFake.runOnRegister,
+    run: handlerOnFake.run
   }
 
   const restore = function () {

@@ -20,7 +20,8 @@ const mocks = {
   Suitelocal: require('./lib/suite-type.mocks'),
   Tracer: require('./lib/tracer.mocks'),
   Utils: require('./lib/utils.mocks'),
-  Libs: require('./lib/libs.mocks')
+  Libs: require('./lib/libs.mocks'),
+  Waiton: require('./lib/wait-on.mocks')
 }
 
 const Sandbox = function (mocksList) {

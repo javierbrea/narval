@@ -8,7 +8,10 @@ const Mock = function () {
 
   const stubs = {
     ObjectToArguments: sandbox.stub(utils, 'ObjectToArguments'),
-    commandArguments: sandbox.stub(utils, 'commandArguments'),
+    commandArguments: sandbox.stub(utils, 'commandArguments').returns({
+      command: '',
+      arguments: []
+    }),
     serviceNameToVarName: sandbox.stub(utils, 'serviceNameToVarName'),
     extendProcessEnvVars: sandbox.stub(utils, 'extendProcessEnvVars')
   }

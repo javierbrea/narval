@@ -6,14 +6,25 @@ const config = require('../../../lib/config')
 const Mock = function () {
   const sandbox = test.sinon.sandbox.create()
 
+  const serviceResolverStubs = {
+    waitOn: sandbox.stub(),
+    command: sandbox.stub(),
+    isCoveraged: sandbox.stub(),
+    envVars: sandbox.stub(),
+    abortOnError: sandbox.stub(),
+    name: sandbox.stub(),
+    dockerContainer: sandbox.stub(),
+    exitAfter: sandbox.stub()
+  }
+
   const suiteResolverStubs = {
     typeName: sandbox.stub(),
     name: sandbox.stub(),
     hasToRun: sandbox.stub(),
     isDocker: sandbox.stub(),
-    istanbulArguments: sandbox.stub(),
-    mochaArguments: sandbox.stub(),
-    singleServiceToRun: sandbox.stub(),
+    istanbulArguments: sandbox.stub().returns(''),
+    mochaArguments: sandbox.stub().returns(''),
+    singleServiceToRun: sandbox.stub().returns(serviceResolverStubs),
     runSingleTest: sandbox.stub(),
     testWaitOn: sandbox.stub(),
     testIsCoveraged: sandbox.stub(),
@@ -21,7 +32,7 @@ const Mock = function () {
     testDockerContainer: sandbox.stub(),
     beforeCommand: sandbox.stub(),
     beforeEnvVars: sandbox.stub(),
-    services: sandbox.stub(),
+    services: sandbox.stub().returns([serviceResolverStubs]),
     runDownVolumes: sandbox.stub(),
     buildDocker: sandbox.stub(),
     dockerEnvVars: sandbox.stub(),
@@ -36,7 +47,8 @@ const Mock = function () {
     allDockerCustomEnvVars: sandbox.stub(config, 'allDockerCustomEnvVars').usingPromise().resolves({}),
     allComposeEnvVars: sandbox.stub(config, 'allComposeEnvVars').usingPromise().resolves({}),
     SuiteResolver: sandbox.stub(config, 'SuiteResolver').returns(suiteResolverStubs),
-    suiteResolver: suiteResolverStubs
+    suiteResolver: suiteResolverStubs,
+    serviceResolver: serviceResolverStubs
   }
 
   const restore = function () {
