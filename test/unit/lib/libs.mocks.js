@@ -7,6 +7,7 @@ const Mock = function () {
   const sandbox = test.sinon.sandbox.create()
   let waitFake
   let waitStub
+  let treeKillStub
 
   const WaitFake = function () {
     let errorToReturn
@@ -30,13 +31,16 @@ const Mock = function () {
 
   waitStub.returns = waitFake.returns
 
+  treeKillStub = sandbox.stub(libs, 'treeKill')
+
   const restore = function () {
     sandbox.restore()
   }
 
   return {
     stubs: {
-      waitOn: waitStub
+      waitOn: waitStub,
+      treeKill: treeKillStub
     },
     restore: restore
   }

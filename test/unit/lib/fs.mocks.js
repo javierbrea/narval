@@ -88,7 +88,7 @@ const Mock = function () {
   writeFileSyncStub = sandbox.stub(fs, 'writeFileSync')
 
   readFileStub.returns = readFileFake.returns
-  openFileStub.returs = openFileFake.returns
+  openFileStub.returns = openFileFake.returns
   closeFileStub.returns = closeFileFake.returns
   appendFileStub.returns = appendFileFake.returns
   writeFileStub.returns = writeFileFake.returns
