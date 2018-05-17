@@ -348,12 +348,31 @@ test.describe('processes', () => {
       })
     })
 
-    test.it.skip('should emit an error event when an error occurs writing end-code file', (done) => {
-      done()
-    })
+    test.it('should emit an error event when an error occurs writing the exit-code file, and should not kill process, because it was already closed', (done) => {
+      const error = new Error('Foo close file error')
+      let errorExecuted = false
+      childProcessMock.stubs.spawn.on.runOnRegister(false)
+      mocksSandbox.fs.stubs.writeFileSync.throws(error)
+      handler = new processes.Handler(fooProcess, fooSuiteData, {
+        close: true
+      })
 
-    test.it.skip('should not kill process when an error occurs writing end-code file, because it was already closed', (done) => {
-      done()
+      setTimeout(() => {
+        childProcessMock.stubs.spawn.on.run(0)
+      }, 200)
+
+      handler.on('error', (err) => {
+        errorExecuted = true
+        test.expect(mocksSandbox.logs.stubs.writeLogsError).to.have.been.called.with(fooSuiteData)
+        test.expect(mocksSandbox.tracer.stubs.error).to.have.been.called.with(error)
+        test.expect(err).to.equal(error)
+      })
+
+      handler.on('close', () => {
+        test.expect(errorExecuted).to.be.true()
+        test.expect(mocksSandbox.libs.stubs.treeKill).to.not.have.been.called()
+        done()
+      })
     })
   })
 })
