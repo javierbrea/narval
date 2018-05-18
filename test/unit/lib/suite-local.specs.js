@@ -232,8 +232,72 @@ test.describe('suite-local', () => {
             ])
           })
         })
+
+        test.it('should add istanbul configuration, environment variables and command arguments to the istanbul execution', () => {
+          const fooIstanbulArgs = '--fooOption=foo --foo'
+          configMock.istanbulArguments.returns(fooIstanbulArgs)
+          mocksSandbox.utils.stubs.commandArguments.returns({
+            command: fooCommand,
+            arguments: ['fooarg1', 'fooarg2']
+          })
+          return run().then(() => {
+            const forkArgs = mocksSandbox.processes.stubs.fork.getCall(0).args
+            return Promise.all([
+              // TODO, environment vars
+              test.expect(forkArgs[1].args[0]).to.equal('--fooOption=foo'),
+              test.expect(forkArgs[1].args[1]).to.equal('--foo'),
+              test.expect(forkArgs[1].args[2]).to.equal('cover'),
+              test.expect(forkArgs[1].args[forkArgs[1].args.length - 2]).to.equal('fooarg1'),
+              test.expect(forkArgs[1].args[forkArgs[1].args.length - 1]).to.equal('fooarg2')
+            ])
+          })
+        })
+
+        test.describe('when it is started in "alone" mode', () => {
+          test.it('should set the process stdin to raw mode, in order to intercept CTRL-C and stop the service', () => {
+            return run().then(() => {
+              return Promise.all([
+                test.expect(process.stdin.setRawMode).to.have.been.called(),
+                test.expect(process.stdin.resume).to.have.been.called()
+              ])
+            })
+          })
+
+          test.it('should intercept the CTRL-C and send and exit signal to service', () => {
+            stdinOnFake.returns('\u0003')
+            return run().then(() => {
+              return Promise.all([
+                test.expect(mocksSandbox.processes.stubs.childProcess.stubs.fork.send).to.have.been.calledWith({exit: true}),
+                test.expect(mocksSandbox.logs.stubs.suiteLogger.forceServiceExit).to.have.been.called()
+              ])
+            })
+          })
+
+          test.it('should restore the stdin raw mode, and stop intercepting CTRL-C when process finish', () => {
+            return run().then(() => {
+              return Promise.all([
+                test.expect(process.stdin.setRawMode).to.have.been.calledTwice(),
+                test.expect(process.stdin.pause).to.have.been.called()
+              ])
+            })
+          })
+        })
+
+        test.describe.skip('when all suite is ran', () => {
+          test.it('should not set the process stdin to raw mode when all suite is ran', () => {
+            // TODO, set not single mode
+            return run().then(() => {
+              return Promise.all([
+                test.expect(process.stdin.setRawMode).to.not.have.been.called(),
+                test.expect(process.stdin.resume).to.not.have.been.called()
+              ])
+            })
+          })
+        })
       })
     })
+    /*
+    */
 
     /* test.describe('when runs "before" command', () => {
       const commandPath = 'fooBeforeLocalCommand'
@@ -789,27 +853,6 @@ test.describe('suite-local', () => {
         })
       })
 
-      test.it('should set the process stdin to raw mode, in order to intercept CTRL-C and stop only the coveraged service when service is started alone', () => {
-        return runner.run(localSuiteFixture).then(() => {
-          return Promise.all([
-            test.expect(process.stdin.setRawMode).to.have.been.called(),
-            test.expect(process.stdin.resume).to.have.been.called()
-          ])
-        })
-      })
-
-      test.it('should not set the process stdin to raw mode when all suite is ran', () => {
-        options.get.resolves({
-          local: true
-        })
-        return runner.run(localSuiteFixture).then(() => {
-          return Promise.all([
-            test.expect(process.stdin.setRawMode).to.not.have.been.called(),
-            test.expect(process.stdin.resume).to.not.have.been.called()
-          ])
-        })
-      })
-
       test.it('should fork an istanbul child process, passing to it the istanbul and command arguments', () => {
         return runner.run(localSuiteFixture).then(() => {
           let forkCall = childProcessMock.stubs.fork.getCall(0)
@@ -844,25 +887,6 @@ test.describe('suite-local', () => {
       test.it('should add custom environment variables', () => {
         return runner.run(localSuiteFixture, fooSuiteTypeName).then(() => {
           return test.expect(childProcessMock.stubs.fork.getCall(0).args[2].env.fooEnv).to.equal('fooEnv value')
-        })
-      })
-
-      test.it('should intercept the CTRL-C and send and exit signal to service', () => {
-        stdinOnFake.returns('\u0003')
-        return runner.run(localSuiteFixture).then(() => {
-          return Promise.all([
-            test.expect(childProcessMock.stubs.fork.send).to.have.been.calledWith({exit: true}),
-            test.expect(tracerMock.stubs.debug.getCall(1).args[0]).to.contain('CTRL-C')
-          ])
-        })
-      })
-
-      test.it('should restore the stdin raw mode, and stop intercepting CTRL-C when process finish', () => {
-        return runner.run(localSuiteFixture).then(() => {
-          return Promise.all([
-            test.expect(process.stdin.setRawMode).to.have.been.calledTwice(),
-            test.expect(process.stdin.pause).to.have.been.called()
-          ])
         })
       })
     }) */
