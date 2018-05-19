@@ -395,6 +395,17 @@ test.describe('config', () => {
         })
         test.expect(suiteResolver.singleServiceToRun()).to.equal(false)
       })
+
+      test.it('should throw an error if the desired service to run locally does not exiss in config', () => {
+        initResolver({
+          local: 'fake suite'
+        })
+        try {
+          suiteResolver.singleServiceToRun()
+        } catch (err) {
+          test.expect(Boom.isBoom(err)).to.be.true()
+        }
+      })
     })
 
     test.describe('runSingleTest method', () => {
@@ -534,6 +545,117 @@ test.describe('config', () => {
         const services = suiteResolver.services()
         test.expect(services[0].name()).to.equal('fooService1')
         test.expect(services[1].name()).to.equal('fooService2')
+      })
+
+      test.describe('for each returned service', () => {
+        let service
+        test.beforeEach(() => {
+          service = suiteResolver.services()[0]
+        })
+
+        test.describe('waitOn method', () => {
+          test.it('should return the wait-on config of the service', () => {
+            baseData.services[0].docker['wait-on'] = {
+              resources: 'foo'
+            }
+            service = suiteResolver.services()[0]
+            test.expect(service.waitOn()).to.deep.equal({
+              resources: 'foo'
+            })
+          })
+        })
+
+        test.describe('command method', () => {
+          test.it('should return undefined if the service has not command configured', () => {
+            delete baseData.services[0].docker.command
+            service = suiteResolver.services()[0]
+            test.expect(service.command()).to.be.undefined()
+          })
+
+          test.it('should return the command of the service', () => {
+            test.expect(service.command()).to.equal('foo-docker-command2.js --fooParam1 --fooParam2')
+          })
+
+          test.it('should return the local command of the service if it is defined in options', () => {
+            baseData = fixtures.config.localSuite
+            initResolver({
+              local: true
+            })
+            service = suiteResolver.services()[0]
+            test.expect(service.command()).to.equal('foo-local-command')
+          })
+        })
+
+        test.describe('isCoveraged method', () => {
+          test.it('should return true if the service is coveraged in config', () => {
+            test.expect(service.isCoveraged()).to.be.true()
+          })
+
+          test.it('should return false if the service is not coveraged in config', () => {
+            delete baseData.coverage
+            initResolver()
+            service = suiteResolver.services()[0]
+            test.expect(service.isCoveraged()).to.be.undefined()
+          })
+        })
+
+        test.describe('envVars method', () => {
+          test.it('should return the environment variables defined for the service', () => {
+            test.expect(service.envVars()).to.deep.equal({
+              'fooVar': 'foo value',
+              'narval_is_docker': true,
+              'narval_service': 'fooService1',
+              'narval_suite': 'fooDockerSuite',
+              'narval_suite_type': 'fooType'
+            })
+          })
+        })
+
+        test.describe('abortOnError method', () => {
+          test.it('should return true if the service is coveraged in config', () => {
+            test.expect(service.abortOnError()).to.be.true()
+          })
+
+          test.it('should return false if the service is not coveraged in config', () => {
+            delete baseData.coverage
+            initResolver()
+            service = suiteResolver.services()[0]
+            test.expect(service.abortOnError()).to.be.false()
+          })
+
+          test.it('should return true if the abort-on-error behavior is explicitly defined in config', () => {
+            baseData.services[0]['abort-on-error'] = true
+            initResolver()
+            service = suiteResolver.services()[0]
+            test.expect(service.abortOnError()).to.be.true()
+          })
+        })
+
+        test.describe('dockerContainer method', () => {
+          test.it('should return the docker container of the service', () => {
+            test.expect(service.dockerContainer()).to.equal('fooContainer1')
+          })
+
+          test.it('should return undefined if the service has not docker container configured', () => {
+            delete baseData.services[0].docker.container
+            initResolver()
+            service = suiteResolver.services()[0]
+            test.expect(service.dockerContainer()).to.be.undefined()
+          })
+        })
+
+        test.describe('exitAfter method', () => {
+          test.it('should return the exit_after property of the service', () => {
+            test.expect(service.exitAfter()).to.equal(10000)
+          })
+
+          test.it('should return an empty string if the service has not exit_after configured', () => {
+            delete baseData.services[0].docker.exit_after
+            initResolver()
+            service = suiteResolver.services()[0]
+            test.expect(service.exitAfter()).to.equal('')
+          })
+        })
       })
     })
 
