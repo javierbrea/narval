@@ -1,20 +1,83 @@
 
-const Boom = require('boom')
+// const Boom = require('boom')
 const fsExtra = require('fs-extra')
-const handlebars = require('handlebars')
+const fs = require('fs')
 
 const test = require('../../../index')
 const mocks = require('../mocks')
-const fixtures = require('../fixtures')
 
-const commands = require('../../../lib/commands')
-const docker = require('../../../lib/docker')
 const states = require('../../../lib/states')
+const suiteDocker = require('../../../lib/suite-docker')
 
-const options = require('../../../lib/options')
-const config = require('../../../lib/config')
+test.describe('suite-docker', () => {
+  let sandbox
+  let mocksSandbox
 
-test.describe.skip('docker', () => {
+  test.beforeEach(() => {
+    sandbox = test.sinon.sandbox.create()
+    mocksSandbox = new mocks.Sandbox([
+      'docker',
+      'paths',
+      'commands',
+      'processes',
+      'config',
+      'logs'
+    ])
+    sandbox.stub(states, 'set')
+    sandbox.stub(fs, 'writeFileSync')
+    sandbox.stub(fsExtra, 'ensureDirSync')
+  })
+
+  test.afterEach(() => {
+    sandbox.restore()
+    mocksSandbox.restore()
+  })
+
+  test.describe('Runner constructor', () => {
+    const fooCommand = 'foo-command'
+    const fooServiceName = 'foo-service'
+    const fooSuiteName = 'foo name'
+    const fooTypeName = 'foo type name'
+    const fooLogsPath = 'foo-logs-path'
+    let runner
+    let configMock
+    let loggerMock
+
+    const run = function () {
+      runner = new suiteDocker.Runner(configMock, loggerMock)
+      return runner.run(configMock, loggerMock)
+    }
+
+    test.beforeEach(() => {
+      configMock = new mocksSandbox.config.stubs.SuiteResolver()
+      loggerMock = new mocksSandbox.logs.stubs.SuiteLogger()
+
+      mocksSandbox.paths.stubs.logs.returns(fooLogsPath)
+      mocksSandbox.processes.stubs.Handler.on.returns({
+        lastLog: 'code 0'
+      })
+      mocksSandbox.processes.stubs.Handler.on.runOnRegister(true)
+      configMock.name.returns(fooSuiteName)
+      configMock.typeName.returns(fooTypeName)
+      configMock.testDockerContainer.returns('foo-docker-container')
+      mocksSandbox.config.stubs.serviceResolver.command.returns(fooCommand)
+      mocksSandbox.config.stubs.serviceResolver.name.returns(fooServiceName)
+      process.env.fooProcessEnv = 'foo process env'
+    })
+
+    test.afterEach(() => {
+      delete process.env.fooProcessEnv
+    })
+
+    test.it('should set an state with docker-executed as true', () => {
+      return run().then(() => {
+        return test.expect(states.set).to.have.been.calledWith('docker-executed', true)
+      })
+    })
+  })
+})
+
+/* test.describe.skip('docker', () => {
   let sandbox
   let childProcessMock
   let pathsMock
@@ -591,4 +654,4 @@ test.describe.skip('docker', () => {
       })
     })
   })
-})
+}) */
