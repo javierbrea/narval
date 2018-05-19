@@ -275,177 +275,136 @@ test.describe('config', () => {
     })
 
     test.it('should extend all docker compose needed vars with proccess environment vars', () => {
+      returnsConfig(fixtures.config.fullConfig)
+      return config.allComposeEnvVars()
+        .then(() => {
+          return test.expect(utils.extendProcessEnvVars).to.have.been.called()
+        })
+    })
+  })
+
+  test.describe('SuiteResolver constructor', () => {
+    let suiteResolver
+    let fooOptions = {}
+    let initResolver
+    let baseData = JSON.parse(JSON.stringify(fixtures.config.dockerSuite))
+
+    test.beforeEach(() => {
+      initResolver = function (options = fooOptions, suiteTypeName = 'fooType', suitesByType = fixtures.config.dockerConfig.suitesByType) {
+        suiteResolver = new config.SuiteResolver(baseData, suiteTypeName, options, suitesByType)
+      }
+      initResolver()
+    })
+
+    test.describe('typeName method', () => {
+      test.it('should return the suite type name', () => {
+        test.expect(suiteResolver.typeName()).to.equal('fooType')
+      })
+    })
+
+    test.describe('name method', () => {
+      test.it('should return the name of the suite', () => {
+        test.expect(suiteResolver.name()).to.equal('fooDockerSuite')
+      })
+    })
+
+    test.describe('hasToRun method', () => {
+      test.it('should return true if no suite option is received', () => {
+        test.expect(suiteResolver.hasToRun()).to.equal(true)
+      })
+
+      test.it('should return false if suite option is received and does not match with the suite name', () => {
+        initResolver({
+          suite: 'fake-suite'
+        })
+        test.expect(suiteResolver.hasToRun()).to.equal(false)
+      })
+    })
+
+    test.describe('isDocker method', () => {
+      test.it('should return false if local option is received', () => {
+        initResolver({
+          local: true
+        })
+        test.expect(suiteResolver.isDocker()).to.equal(false)
+      })
+
+      test.it('should return true if the test has configured a docker container', () => {
+        test.expect(suiteResolver.isDocker()).to.equal(true)
+      })
+
+      test.it('should return true if any service has configured a docker container', () => {
+        delete baseData.test.docker
+        initResolver()
+        test.expect(suiteResolver.isDocker()).to.equal(true)
+      })
+
+      test.it('should return false if no service, nor test, has configured a docker container', () => {
+        baseData = fixtures.config.localSuite
+        initResolver()
+        test.expect(suiteResolver.isDocker()).to.equal(false)
+      })
+    })
+
+    test.describe('istanbulArguments method', () => {
+      test.it('should return the coverage configuration, parsed to istanbul arguments', () => {
+        baseData.coverage = {
+          config: {
+            dir: '.coverage/custom',
+            verbose: true,
+            print: 'detail',
+            report: 'text'
+          }
+        }
+        initResolver()
+        test.expect(suiteResolver.istanbulArguments()).to.equal('--include-all-sources --root=. --colors --print=detail --dir=.coverage/custom --verbose --report=text')
+      })
+    })
+
+    test.describe('mochaArguments method', () => {
+      test.it('should return the test configuration, parsed to mocha arguments', () => {
+        baseData = fixtures.config.localSuite
+        baseData.test.config = {
+          recursive: false,
+          reporter: 'list',
+          grep: 'grepped'
+        }
+        initResolver()
+        test.expect(suiteResolver.mochaArguments()).to.equal('--colors --reporter list --grep grepped foo/path/specs')
+      })
+    })
+
+    test.describe('singleServiceToRun method', () => {
+      test.it('should return a new serviceResolver of the service to run defined in options', () => {
+        initResolver({
+          local: 'fooService'
+        })
+        test.expect(suiteResolver.singleServiceToRun().name()).to.equal('fooService')
+      })
+
+      test.it('should return false if there is no service to run defined in options', () => {
+        test.expect(suiteResolver.singleServiceToRun()).to.equal(false)
+      })
+
+      test.it('should return false if the service to run defined in options is the test', () => {
+        initResolver({
+          local: 'test'
+        })
+        test.expect(suiteResolver.singleServiceToRun()).to.equal(false)
+      })
+    })
+
+    test.describe('runSingleTest method', () => {
+      test.it('should return true if it is defined in options to run only test locally', () => {
+        initResolver({
+          local: 'test'
+        })
+        test.expect(suiteResolver.runSingleTest()).to.equal(true)
+      })
+
+      test.it('should return false if it is not defined in options', () => {
+        test.expect(suiteResolver.runSingleTest()).to.equal(false)
+      })
     })
   })
 })
-/*
-test.it.skip('should set empty environment variables for all configured docker containers', () => {
-      return docker.downVolumes()
-        .then(() => {
-          const envVars = childProcessMock.stubs.execSync.getCall(0).args[1].env
-          return Promise.all([
-            test.expect(envVars.coverage_options).to.equal(''),
-            test.expect(envVars.fooContainer1_coverage_enabled).to.equal(''),
-            test.expect(envVars.fooContainer2_coverage_enabled).to.equal(''),
-            test.expect(envVars.fooContainer3_coverage_enabled).to.equal(''),
-            test.expect(envVars.fooContainer1_narval_is_docker).to.equal(''),
-            test.expect(envVars.fooContainer2_narval_suite_type).to.equal(''),
-            test.expect(envVars.fooContainer3_narval_suite).to.equal(''),
-            test.expect(envVars.fooContainer3_narval_service).to.equal(''),
-            test.expect(envVars.fooContainer1_command).to.equal(''),
-            test.expect(envVars.fooContainer2_command).to.equal(''),
-            test.expect(envVars.fooContainer3_command).to.equal(''),
-            test.expect(envVars.fooContainer1_command_params).to.equal(''),
-            test.expect(envVars.fooContainer2_command_params).to.equal(''),
-            test.expect(envVars.fooContainer3_command_params).to.equal(''),
-            test.expect(envVars.fooContainer1_wait_for).to.equal(''),
-            test.expect(envVars.fooContainer2_wait_for).to.equal(''),
-            test.expect(envVars.fooContainer3_wait_for).to.equal(''),
-            test.expect(envVars.fooContainer1_exit_after).to.equal(''),
-            test.expect(envVars.fooContainer2_exit_after).to.equal(''),
-            test.expect(envVars.fooContainer3_exit_after).to.equal('')
-          ])
-        })
-    })
-*/
-/* const test = require('../../../index')
-
-const istanbulMocha = require('../../../lib/istanbul-mocha')
-
-test.describe.skip('istanbul-mocha', () => {
-  test.describe('mocha.params method', () => {
-    test.it('should return an string containing mocha command line arguments given a test configuration', () => {
-      test.expect(istanbulMocha.mocha.params({
-        test: {
-          specs: 'fooSpec/path',
-          config: {
-            reporter: 'list',
-            grep: 'foo'
-          }
-        }
-      })).to.equal('--recursive --colors --reporter list --grep foo fooSpec/path')
-    })
-
-    test.it('should add mocha default configuration to returned command', () => {
-      test.expect(istanbulMocha.mocha.params({
-        test: {
-          specs: 'fooSpec/path'
-        }
-      })).to.equal('--recursive --colors --reporter spec fooSpec/path')
-    })
-
-    test.it('should convert boolean values, and add only the key to the command', () => {
-      test.expect(istanbulMocha.mocha.params({
-        test: {
-          specs: 'foo2',
-          config: {
-            grep: true
-          }
-        }
-      })).to.equal('--recursive --colors --reporter spec --grep foo2')
-    })
-
-    test.it('should ignore false boolean values', () => {
-      test.expect(istanbulMocha.mocha.params({
-        test: {
-          specs: 'foo2',
-          config: {
-            grep: false
-          }
-        }
-      })).to.equal('--recursive --colors --reporter spec foo2')
-    })
-  })
-
-  test.describe('istanbul.params method', () => {
-    test.it('should return an string containing istanbul command line arguments given a test configuration', () => {
-      test.expect(istanbulMocha.istanbul.params({
-        name: 'fooTest',
-        coverage: {
-          config: {
-            print: 'both',
-            foo: 'fooValue'
-          }
-        }
-      }, 'fooSuiteType')).to.equal('--include-all-sources --root=. --colors --print=both --dir=.coverage/fooSuiteType/fooTest --foo=fooValue')
-    })
-
-    test.it('should include default istanbul command line arguments if no coverage config is provided', () => {
-      test.expect(istanbulMocha.istanbul.params({
-        name: 'fooTest'
-      }, 'fooSuiteType')).to.equal('--include-all-sources --root=. --colors --print=summary --dir=.coverage/fooSuiteType/fooTest')
-    })
-
-    test.it('should add a single arguments separator to istanbul arguments that need that special format', () => {
-      test.expect(istanbulMocha.istanbul.params({
-        name: 'fooTest',
-        coverage: {
-          config: {
-            x: true,
-            i: true
-          }
-        }
-      }, 'fooSuiteType')).to.equal('--include-all-sources --root=. --colors --print=summary --dir=.coverage/fooSuiteType/fooTest -x -i')
-    })
-  })
-}) */
-
-/* test.it('should run suite using docker if suite has any docker property in test', () => {
-      options.get.resolves(fixtures.options.dockerSuite)
-
-      return suites.run()
-        .then(specDockerUsed)
-    })
-
-    test.it('should run suite using docker if suite has any service configured for docker', () => {
-      options.get.resolves({
-        suite: 'fooDockerSuite2'
-      })
-
-      return suites.run()
-        .then(specDockerUsed)
-    })
-
-    test.it('should run suite locally if suite test is not configured for docker and has not any service configured for docker', () => {
-      options.get.resolves({
-        suite: 'fooSuite2'
-      })
-
-      return suites.run()
-        .then(() => {
-          return Promise.all([
-            test.expect(docker.createFiles).to.not.have.been.called(),
-            test.expect(dockerSuite.Runner).to.not.have.been.called(),
-            test.expect(local.Runner).to.have.been.called()
-          ])
-        })
-    })
-
-    test.describe('when an specific suite to be executed is defined in options', () => {
-      test.it('should skip all other suites executions, and execute that one', () => {
-        options.get.resolves(fixtures.options.suite)
-        return suites.run()
-          .then(() => {
-            return Promise.all([
-              test.expect(tracerMock.stubs.warn.getCall(0).args[0]).to.contain('Skipping'),
-              test.expect(tracerMock.stubs.warn.callCount).to.equal(3),
-              test.expect(local.Runner.callCount).to.equal(1)
-            ])
-          })
-      })
-
-      test.it('should not execute any suite if provided one does not exists in config', () => {
-        options.get.resolves({
-          suite: 'unrealSuite'
-        })
-        return suites.run()
-          .then(() => {
-            return Promise.all([
-              test.expect(tracerMock.stubs.warn.callCount).to.equal(4),
-              test.expect(local.Runner).to.not.have.been.called()
-            ])
-          })
-      })
-    })
-
-    */
