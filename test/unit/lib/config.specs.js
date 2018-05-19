@@ -4,11 +4,92 @@ const yaml = require('js-yaml')
 
 const test = require('../../../index')
 const mocks = require('../mocks')
-const fixtures = require('../fixtures')
+// const fixtures = require('../fixtures')
 
 const config = require('../../../lib/config')
 const states = require('../../../lib/states')
 
+test.describe('config', () => {
+  let sandbox
+  let mocksSandbox
+
+  test.beforeEach(() => {
+    sandbox = test.sinon.sandbox.create()
+    mocksSandbox = new mocks.Sandbox([
+      'paths',
+      'logs',
+      'utils',
+      'waiton',
+      'fs'
+    ])
+    sandbox.stub(yaml, 'safeLoad')
+  })
+
+  test.afterEach(() => {
+    sandbox.restore()
+    mocksSandbox.restore()
+  })
+
+  const fileReadTests = function (method) {
+    const fooDefaultConfigPath = '/fooDefaultConfig'
+    const fooCustomConfigPath = '/fooCustomConfig'
+
+    test.describe('when reading data from config file', () => {
+      test.beforeEach(() => {
+        states.clean()
+        mocksSandbox.paths.stubs.defaultConfig.returns(fooDefaultConfigPath)
+        mocksSandbox.paths.stubs.customConfig.returns(fooCustomConfigPath)
+      })
+
+      test.it('should calculate configuration only once, no matter how many times is called', () => {
+        return config[method]()
+          .then(config[method])
+          .then(() => {
+            return test.expect(mocksSandbox.fs.stubs.readFile).to.have.been.calledTwice()
+          })
+      })
+
+      test.it('should calculate configuration again if states are reset', () => {
+        return config[method]()
+          .then(config[method])
+          .then(states.clean)
+          .then(config[method])
+          .then(() => {
+            return test.expect(mocksSandbox.fs.stubs.readFile.callCount).to.equal(4)
+          })
+      })
+
+      test.it('should calculate configuration based on custom package configuration and on default Narval configuration', () => {
+        const fooFilesContent = 'fooContent'
+        mocksSandbox.fs.stubs.readFile.returns(null, fooFilesContent)
+        return config[method]()
+          .then(() => {
+            return Promise.all([
+              test.expect(mocksSandbox.fs.stubs.readFile).to.have.been.calledWith(fooDefaultConfigPath),
+              test.expect(mocksSandbox.fs.stubs.readFile).to.have.been.calledWith(fooCustomConfigPath),
+              test.expect(yaml.safeLoad.callCount).to.equal(2),
+              test.expect(yaml.safeLoad).to.have.been.calledWith(fooFilesContent)
+            ])
+          })
+      })
+
+      test.it('should ignore errors reading files, log a warn, and consider their content as empty', () => {
+        mocksSandbox.fs.stubs.readFile.returns(new Error())
+        return config[method]()
+          .then((configuration) => {
+            return Promise.all([
+              test.expect(mocksSandbox.logs.stubs.configNotFound.getCall(0).args[0].filePath).to.not.be.undefined()
+            ])
+          })
+      })
+    })
+  }
+
+  test.describe('standard method', () => {
+    fileReadTests('standard')
+  })
+})
+/*
 test.describe.skip('config', () => {
   test.describe('get method', () => {
     const fooDefaultConfigPath = '/fooDefaultConfig'
@@ -44,49 +125,6 @@ test.describe.skip('config', () => {
       return test.expect(config.get()).to.be.an.instanceof(Promise)
     })
 
-    test.it('should calculate configuration only once, no matter how many times is called', () => {
-      return getConfigClean()
-        .then(config.get)
-        .then(config.get)
-        .then(() => {
-          return test.expect(fsMocks.stubs.readFile).to.have.been.calledTwice()
-        })
-    })
-
-    test.it('should calculate configuration again if states are reset', () => {
-      return getConfigClean()
-        .then(config.get)
-        .then(getConfigClean)
-        .then(() => {
-          return test.expect(fsMocks.stubs.readFile.callCount).to.equal(4)
-        })
-    })
-
-    test.it('should calculate configuration based on custom package configuration and on default Narval configuration', () => {
-      const fooFilesContent = 'fooContent'
-      fsMocks.stubs.readFile.returns(null, fooFilesContent)
-      return getConfigClean()
-        .then(() => {
-          return Promise.all([
-            test.expect(fsMocks.stubs.readFile).to.have.been.calledWith(fooDefaultConfigPath),
-            test.expect(fsMocks.stubs.readFile).to.have.been.calledWith(fooCustomConfigPath),
-            test.expect(yaml.safeLoad.callCount).to.equal(2),
-            test.expect(yaml.safeLoad).to.have.been.calledWith(fooFilesContent)
-          ])
-        })
-    })
-
-    test.it('should ignore errors reading files, log a warn, and consider their content as empty', () => {
-      fsMocks.stubs.readFile.returns(new Error())
-      return getConfigClean()
-        .then((configuration) => {
-          return Promise.all([
-            test.expect(configuration).to.deep.equal(fixtures.config.emptyResult),
-            test.expect(tracerMock.stubs.warn.getCall(0).args[0]).to.include('not found')
-          ])
-        })
-    })
-
     test.it('should return suites from custom config if it is provided', () => {
       yaml.safeLoad.onCall(0).returns(fixtures.config.customConfig)
       yaml.safeLoad.onCall(1).returns(fixtures.config.defaultSuites)
@@ -110,7 +148,6 @@ test.describe.skip('config', () => {
   })
 })
 
-/*
 test.it.skip('should set empty environment variables for all configured docker containers', () => {
       return docker.downVolumes()
         .then(() => {
@@ -251,9 +288,9 @@ test.describe.skip('istanbul-mocha', () => {
             test.expect(local.Runner).to.have.been.called()
           ])
         })
-    }) */
+    })
 
-/* test.describe('when an specific suite to be executed is defined in options', () => {
+    test.describe('when an specific suite to be executed is defined in options', () => {
       test.it('should skip all other suites executions, and execute that one', () => {
         options.get.resolves(fixtures.options.suite)
         return suites.run()
