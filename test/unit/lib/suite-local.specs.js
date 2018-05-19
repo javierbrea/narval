@@ -1,18 +1,14 @@
 
 const Boom = require('boom')
-// const mochaSinonChaiRunner = require('mocha-sinon-chai/runner')
+const mochaSinonChaiRunner = require('mocha-sinon-chai/runner')
 
 const childProcess = require('child_process')
 
 const test = require('../../../index')
 const mocks = require('../mocks')
-// const fixtures = require('../fixtures')
 
+const states = require('../../../lib/states')
 const suiteLocal = require('../../../lib/suite-local')
-
-/* const deepClone = function (obj) {
-  return JSON.parse(JSON.stringify(obj))
-} */
 
 const StdinOnFake = function (options) {
   options = options || {}
@@ -61,6 +57,10 @@ test.describe('suite-local', () => {
   })
 
   test.describe('Runner constructor', () => {
+    const fooCommand = 'foo-command'
+    const fooServiceName = 'foo-service'
+    const fooSuiteName = 'foo name'
+    const fooTypeName = 'foo type name'
     let runner
     let configMock
     let loggerMock
@@ -81,6 +81,17 @@ test.describe('suite-local', () => {
         logs: new mocksSandbox.processes.stubs.Handler()
       })
       mocksSandbox.processes.stubs.fork.resolves(childProcess.fork())
+
+      configMock.name.returns(fooSuiteName)
+      configMock.typeName.returns(fooTypeName)
+      mocksSandbox.config.stubs.serviceResolver.command.returns(fooCommand)
+      mocksSandbox.config.stubs.serviceResolver.name.returns(fooServiceName)
+
+      process.env.fooProcessEnv = 'foo process env'
+    })
+
+    test.afterEach(() => {
+      delete process.env.fooProcessEnv
     })
 
     test.describe('when running a single service', () => {
@@ -89,27 +100,13 @@ test.describe('suite-local', () => {
       })
 
       test.it('should not execute the "before" command', () => {
-        runner = new suiteLocal.Runner(configMock, loggerMock)
-        return runner.run(configMock, loggerMock)
-          .then(() => {
-            return test.expect(mocksSandbox.commands.stubs.runBefore).to.not.have.been.called()
-          })
+        return run().then(() => {
+          return test.expect(mocksSandbox.commands.stubs.runBefore).to.not.have.been.called()
+        })
       })
     })
 
     test.describe('when running a service', () => {
-      const fooCommand = 'foo-command'
-      const fooServiceName = 'foo-service'
-      const fooSuiteName = 'foo name'
-      const fooTypeName = 'foo type name'
-
-      test.beforeEach(() => {
-        configMock.name.returns(fooSuiteName)
-        configMock.typeName.returns(fooTypeName)
-        mocksSandbox.config.stubs.serviceResolver.command.returns(fooCommand)
-        mocksSandbox.config.stubs.serviceResolver.name.returns(fooServiceName)
-      })
-
       test.it('should have executed the waitOn defined in config', () => {
         const fooWaitOn = 'foo-wait-on'
         mocksSandbox.config.stubs.serviceResolver.waitOn.returns(fooWaitOn)
@@ -132,6 +129,16 @@ test.describe('suite-local', () => {
             return test.expect(mocksSandbox.logs.stubs.suiteLogger.startService).to.have.been.calledWith({
               service: fooServiceName
             })
+          })
+        })
+
+        test.it('should resolve the promise if service has not command configured', () => {
+          mocksSandbox.config.stubs.serviceResolver.command.returns(undefined)
+          return run().then(() => {
+            return Promise.all([
+              test.expect(mocksSandbox.processes.stubs.fork).to.not.have.been.called(),
+              test.expect(mocksSandbox.commands.stubs.run).to.not.have.been.called()
+            ])
           })
         })
 
@@ -235,7 +242,11 @@ test.describe('suite-local', () => {
 
         test.it('should add istanbul configuration, environment variables and command arguments to the istanbul execution', () => {
           const fooIstanbulArgs = '--fooOption=foo --foo'
+          const fooEnvVar = 'foo value'
           configMock.istanbulArguments.returns(fooIstanbulArgs)
+          mocksSandbox.config.stubs.serviceResolver.envVars.returns({
+            fooEnv: fooEnvVar
+          })
           mocksSandbox.utils.stubs.commandArguments.returns({
             command: fooCommand,
             arguments: ['fooarg1', 'fooarg2']
@@ -243,7 +254,9 @@ test.describe('suite-local', () => {
           return run().then(() => {
             const forkArgs = mocksSandbox.processes.stubs.fork.getCall(0).args
             return Promise.all([
-              // TODO, environment vars
+              test.expect(forkArgs[1].options.env.servicePath).to.contain(fooCommand),
+              test.expect(forkArgs[1].options.env.fooProcessEnv).to.equal('foo process env'),
+              test.expect(forkArgs[1].options.env.fooEnv).to.equal(fooEnvVar),
               test.expect(forkArgs[1].args[0]).to.equal('--fooOption=foo'),
               test.expect(forkArgs[1].args[1]).to.equal('--foo'),
               test.expect(forkArgs[1].args[2]).to.equal('cover'),
@@ -283,15 +296,142 @@ test.describe('suite-local', () => {
           })
         })
 
-        test.describe.skip('when all suite is ran', () => {
+        test.describe('when all suite is ran', () => {
           test.it('should not set the process stdin to raw mode when all suite is ran', () => {
-            // TODO, set not single mode
+            mocksSandbox.processes.stubs.fork.onCall(1).resolves(0)
+            configMock.singleServiceToRun.returns(false)
             return run().then(() => {
               return Promise.all([
                 test.expect(process.stdin.setRawMode).to.not.have.been.called(),
                 test.expect(process.stdin.resume).to.not.have.been.called()
               ])
             })
+          })
+        })
+      })
+    })
+
+    test.describe('when running test', () => {
+      test.beforeEach(() => {
+        configMock.singleServiceToRun.returns(false)
+        configMock.runSingleTest.returns(true)
+        mocksSandbox.processes.stubs.fork.resolves(0)
+        sandbox.stub(states, 'set')
+        sandbox.stub(mochaSinonChaiRunner, 'run').resolves()
+      })
+
+      test.it('should not execute the "before" command when it is ran alone', () => {
+        return run().then(() => {
+          return test.expect(mocksSandbox.commands.stubs.runBefore).to.not.have.been.called()
+        })
+      })
+
+      test.it('should execute the "waitOn" specified in config', () => {
+        const fooTestConfig = {
+          fooConfig1: 'foo'
+        }
+        configMock.testWaitOn.returns(fooTestConfig)
+        return run().then(() => {
+          return test.expect(mocksSandbox.waiton.stubs.wait).to.have.been.calledWith(fooTestConfig)
+        })
+      })
+
+      test.it('should mark the process as failed and reject the promise if waitOn fails', () => {
+        const waitError = new Error('foo wait on error')
+        const fooErrorMessage = 'foo error message'
+        mocksSandbox.logs.stubs.suiteLogger.mochaFailed.returns(fooErrorMessage)
+        mocksSandbox.waiton.stubs.wait.rejects(waitError)
+        return run().then(() => {
+          return Promise.reject(new Error())
+        }).catch((err) => {
+          return Promise.all([
+            test.expect(states.set).to.have.been.calledWith('exit-with-error'),
+            test.expect(Boom.isBoom(err)).to.be.true(),
+            test.expect(err.message).to.equal(fooErrorMessage)
+          ])
+        })
+      })
+
+      test.describe('when running tests without coverage', () => {
+        test.it('should print a log when starts test execution', () => {
+          return run().then(() => {
+            return test.expect(mocksSandbox.logs.stubs.suiteLogger.startTestNotCoveraged).to.have.been.called()
+          })
+        })
+
+        test.it('should open a child process fork, passing the mocha configuration and environment variables', () => {
+          const fooMochaArgs = 'fooArg1=fooVal --fooArg2=foo'
+          const fooEnvVars = {
+            fooEnv1: 'fooVal1'
+          }
+          configMock.testEnvVars.returns(fooEnvVars)
+          configMock.mochaArguments.returns(fooMochaArgs)
+          return run().then(() => {
+            const forkArgs = mocksSandbox.processes.stubs.fork.getCall(0).args[1]
+            return Promise.all([
+              test.expect(forkArgs.args).to.deep.equal([
+                'fooArg1=fooVal',
+                '--fooArg2=foo'
+              ]),
+              test.expect(forkArgs.options.env.fooEnv1).to.equal('fooVal1'),
+              test.expect(forkArgs.options.env.fooProcessEnv).to.equal('foo process env')
+            ])
+          })
+        })
+
+        test.it('should reject the promise if the process ends with a code different to 0', () => {
+          const fooErrorMessage = 'foo error message 2'
+          mocksSandbox.processes.stubs.fork.resolves(1)
+          mocksSandbox.logs.stubs.suiteLogger.mochaFailed.returns(fooErrorMessage)
+          return run().then(() => {
+            return Promise.reject(new Error())
+          }).catch((err) => {
+            return Promise.all([
+              test.expect(Boom.isBoom(err)).to.be.true(),
+              test.expect(err.message).to.equal(fooErrorMessage)
+            ])
+          })
+        })
+      })
+
+      test.describe('when running tests with coverage', () => {
+        test.beforeEach(() => {
+          configMock.testIsCoveraged.returns(true)
+        })
+
+        test.it('should print a log when starts test execution', () => {
+          return run().then(() => {
+            return test.expect(mocksSandbox.logs.stubs.suiteLogger.startTestCoveraged).to.have.been.called()
+          })
+        })
+
+        test.it('should have ran mocha-sinon-chai passing the istanbul an mocha config, and environment variables from config', () => {
+          const fooEnvVars = {
+            fooEnv1: 'fooVal1'
+          }
+          configMock.testEnvVars.returns(fooEnvVars)
+          configMock.mochaArguments.returns('--fooMocha=foo')
+          configMock.istanbulArguments.returns('--fooIst=fooVal')
+          return run().then(() => {
+            const mochaArgs = mochaSinonChaiRunner.run.getCall(0).args
+            return Promise.all([
+              test.expect(mochaArgs[0]).to.equal('--istanbul --fooIst=fooVal --mocha --fooMocha=foo'),
+              test.expect(mochaArgs[1].env).to.equal(fooEnvVars)
+            ])
+          })
+        })
+
+        test.it('should reject the promise if mocha-sinon-chai fails', () => {
+          const fooErrorMessage = 'foo error message 3'
+          mochaSinonChaiRunner.run.rejects(new Error())
+          mocksSandbox.logs.stubs.suiteLogger.mochaFailed.returns(fooErrorMessage)
+          return run().then(() => {
+            return Promise.reject(new Error())
+          }).catch((err) => {
+            return Promise.all([
+              test.expect(Boom.isBoom(err)).to.be.true(),
+              test.expect(err.message).to.equal(fooErrorMessage)
+            ])
           })
         })
       })
