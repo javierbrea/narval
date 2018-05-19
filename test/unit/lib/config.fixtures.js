@@ -210,6 +210,103 @@ const dockerConfig = {
   ]
 }
 
+const fullConfig = {
+  standard: {},
+  'docker-images': dockerConfig.dockerImages,
+  'docker-containers': dockerConfig.dockerContainers,
+  suites: {
+    fooType: [{
+      name: 'fooDockerSuite',
+      before: {
+        docker: {
+          env: {
+            fooBeforeVar: 'foo'
+          }
+        }
+      },
+      services: [
+        {
+          name: 'fooService1',
+          docker: {
+            container: 'fooContainer1',
+            command: 'foo-docker-command2.js --fooParam1 --fooParam2',
+            env: {
+              fooService1Var: 'foo value'
+            },
+            exit_after: 10000
+          }
+        },
+        {
+          name: 'fooService2',
+          docker: {
+            container: 'fooContainer2',
+            env: {
+              fooService2Var: false
+            },
+            command: 'foo-docker-command'
+          }
+        }
+      ],
+      coverage: {
+        from: 'fooService1'
+      },
+      test: {
+        specs: 'foo2/specs',
+        docker: {
+          container: 'fooContainer3',
+          'wait-for': 'fooService1:3000',
+          env: {
+            fooTestVar: true,
+            fooService2Var: true
+          }
+        }
+      }
+    }],
+    fooType2: [{
+      name: 'fooDockerSuite2',
+      before: {
+      },
+      services: [
+        {
+          name: 'fooService1',
+          docker: {
+            container: 'fooContainer1',
+            command: 'foo-docker-command2.js --fooParam1 --fooParam2',
+            env: {
+              fooService1Var: 'foo value'
+            },
+            exit_after: 10000
+          }
+        },
+        {
+          name: 'fooService2',
+          docker: {
+            container: 'fooContainer2',
+            env: {
+              fooService2Var: false
+            },
+            command: 'foo-docker-command'
+          }
+        }
+      ],
+      coverage: {
+        from: 'fooService1'
+      },
+      test: {
+        specs: 'foo2/specs',
+        docker: {
+          container: 'fooContainer3',
+          'wait-for': 'fooService1:3000',
+          env: {
+            fooTestVar: true,
+            fooService2Var: true
+          }
+        }
+      }
+    }]
+  }
+}
+
 module.exports = {
   emptyResult: emptyResult,
   defaultSuites: defaultSuites,
@@ -232,5 +329,6 @@ module.exports = {
         'fooPath2/**/*.*'
       ]
     }
-  }
+  },
+  fullConfig: fullConfig
 }

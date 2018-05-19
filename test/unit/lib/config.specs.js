@@ -7,6 +7,7 @@ const mocks = require('../mocks')
 const fixtures = require('../fixtures')
 
 const config = require('../../../lib/config')
+const utils = require('../../../lib/utils')
 const states = require('../../../lib/states')
 
 test.describe('config', () => {
@@ -18,10 +19,12 @@ test.describe('config', () => {
     mocksSandbox = new mocks.Sandbox([
       'paths',
       'logs',
-      'utils',
       'waiton',
       'fs'
     ])
+    sandbox.stub(utils, 'extendProcessEnvVars').callsFake((vars) => {
+      return vars
+    })
     sandbox.stub(yaml, 'safeLoad')
   })
 
@@ -201,6 +204,77 @@ test.describe('config', () => {
             test.expect(dockerContainers).to.deep.equal(fooConfig['docker-containers'])
           ])
         })
+    })
+  })
+
+  test.describe('allDockerCustomEnvVars method', () => {
+    test.it('should return an array with all custom docker environment vars defined in all suites', () => {
+      returnsConfig(fixtures.config.fullConfig)
+      return config.allDockerCustomEnvVars()
+        .then((allDockerCustomEnvVars) => {
+          return test.expect(allDockerCustomEnvVars).to.deep.equal([
+            'fooTestVar',
+            'fooService2Var',
+            'fooBeforeVar',
+            'fooService1Var'
+          ])
+        })
+    })
+  })
+
+  test.describe('allComposeEnvVars method', () => {
+    test.it('should return an object containing all needed environment vars for docker compose, with an empty string as value', () => {
+      returnsConfig(fixtures.config.fullConfig)
+      return config.allComposeEnvVars()
+        .then((allComposeEnvVars) => {
+          return Promise.all([
+            test.expect(allComposeEnvVars).to.deep.equal({
+              'coverage_options': '',
+              'fooContainer1_command': '',
+              'fooContainer1_command_params': '',
+              'fooContainer1_coverage_enabled': '',
+              'fooContainer1_wait_on': '',
+              'fooContainer1_exit_after': '',
+              'fooContainer1_narval_suite_type': '',
+              'fooContainer1_narval_suite': '',
+              'fooContainer1_narval_service': '',
+              'fooContainer1_narval_is_docker': '',
+              'fooContainer1_fooTestVar': '',
+              'fooContainer1_fooService2Var': '',
+              'fooContainer1_fooBeforeVar': '',
+              'fooContainer1_fooService1Var': '',
+              'fooContainer2_command': '',
+              'fooContainer2_command_params': '',
+              'fooContainer2_coverage_enabled': '',
+              'fooContainer2_wait_on': '',
+              'fooContainer2_exit_after': '',
+              'fooContainer2_narval_suite_type': '',
+              'fooContainer2_narval_suite': '',
+              'fooContainer2_narval_service': '',
+              'fooContainer2_narval_is_docker': '',
+              'fooContainer2_fooTestVar': '',
+              'fooContainer2_fooService2Var': '',
+              'fooContainer2_fooBeforeVar': '',
+              'fooContainer2_fooService1Var': '',
+              'fooContainer3_command': '',
+              'fooContainer3_command_params': '',
+              'fooContainer3_coverage_enabled': '',
+              'fooContainer3_wait_on': '',
+              'fooContainer3_exit_after': '',
+              'fooContainer3_narval_suite_type': '',
+              'fooContainer3_narval_suite': '',
+              'fooContainer3_narval_service': '',
+              'fooContainer3_narval_is_docker': '',
+              'fooContainer3_fooTestVar': '',
+              'fooContainer3_fooService2Var': '',
+              'fooContainer3_fooBeforeVar': '',
+              'fooContainer3_fooService1Var': ''
+            })
+          ])
+        })
+    })
+
+    test.it('should extend all docker compose needed vars with proccess environment vars', () => {
     })
   })
 })
