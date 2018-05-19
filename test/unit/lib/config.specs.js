@@ -1,5 +1,6 @@
 
 const Promise = require('bluebird')
+const Boom = require('boom')
 const yaml = require('js-yaml')
 
 const test = require('../../../index')
@@ -287,9 +288,10 @@ test.describe('config', () => {
     let suiteResolver
     let fooOptions = {}
     let initResolver
-    let baseData = JSON.parse(JSON.stringify(fixtures.config.dockerSuite))
+    let baseData
 
     test.beforeEach(() => {
+      baseData = JSON.parse(JSON.stringify(fixtures.config.dockerSuite))
       initResolver = function (options = fooOptions, suiteTypeName = 'fooType', suitesByType = fixtures.config.dockerConfig.suitesByType) {
         suiteResolver = new config.SuiteResolver(baseData, suiteTypeName, options, suitesByType)
       }
@@ -376,6 +378,7 @@ test.describe('config', () => {
 
     test.describe('singleServiceToRun method', () => {
       test.it('should return a new serviceResolver of the service to run defined in options', () => {
+        baseData = fixtures.config.localSuite
         initResolver({
           local: 'fooService'
         })
@@ -404,6 +407,280 @@ test.describe('config', () => {
 
       test.it('should return false if it is not defined in options', () => {
         test.expect(suiteResolver.runSingleTest()).to.equal(false)
+      })
+    })
+
+    test.describe('testWaitOn method', () => {
+      const fooWaitConfig = {
+        foo: 'foo'
+      }
+
+      test.it('should return the test waitOn docker configuration if is docker', () => {
+        baseData.test.docker = {
+          'wait-on': fooWaitConfig
+        }
+        initResolver()
+        test.expect(suiteResolver.testWaitOn()).to.equal(fooWaitConfig)
+      })
+
+      test.it('should return the test waitOn docker configuration if is local', () => {
+        baseData.test.local = {
+          'wait-on': fooWaitConfig
+        }
+        initResolver({
+          local: true
+        })
+        test.expect(suiteResolver.testWaitOn()).to.equal(fooWaitConfig)
+      })
+    })
+
+    test.describe('testIsCoveraged method', () => {
+      test.it('should return true by default', () => {
+        delete baseData.coverage
+        test.expect(suiteResolver.testIsCoveraged()).to.equal(true)
+      })
+
+      test.it('should return true if it is explicitly configured', () => {
+        baseData.coverage.from = 'test'
+        test.expect(suiteResolver.testIsCoveraged()).to.equal(true)
+      })
+
+      test.it('should return false if it is configured to get coverage from another service', () => {
+        baseData.coverage.from = 'foo-service'
+        test.expect(suiteResolver.testIsCoveraged()).to.equal(false)
+      })
+
+      test.it('should return false if coverage is disabled', () => {
+        baseData.coverage.enabled = false
+        test.expect(suiteResolver.testIsCoveraged()).to.equal(false)
+      })
+    })
+
+    test.describe('testEnvVars method', () => {
+      test.it('should return all environment vars configured for the test', () => {
+        baseData.test.docker.env = {
+          fooVar: 'fooValue'
+        }
+        test.expect(suiteResolver.testEnvVars()).to.deep.equal({
+          narval_is_docker: true,
+          narval_service: 'test',
+          narval_suite: 'fooDockerSuite',
+          narval_suite_type: 'fooType',
+          fooVar: 'fooValue'
+        })
+      })
+    })
+
+    test.describe('testDockerContainer method', () => {
+      test.it('should return the name of the docker container configured for the test', () => {
+        test.expect(suiteResolver.testDockerContainer()).to.equal('fooContainer3')
+      })
+
+      test.it('should return undefined if no docker container is configured', () => {
+        delete baseData.test.docker
+        test.expect(suiteResolver.testDockerContainer()).to.be.undefined()
+      })
+    })
+
+    test.describe('beforeCommand method', () => {
+      const fooBeforeCommand = 'foo before command'
+
+      test.it('should return the docker before command configuration if it is docker', () => {
+        baseData.before = {
+          docker: {
+            command: fooBeforeCommand
+          }
+        }
+        initResolver()
+        test.expect(suiteResolver.beforeCommand()).to.equal(fooBeforeCommand)
+      })
+
+      test.it('should return the docker before command configuration if it is local', () => {
+        baseData.before = {
+          local: {
+            command: fooBeforeCommand
+          }
+        }
+        initResolver({
+          local: true
+        })
+        test.expect(suiteResolver.beforeCommand()).to.equal(fooBeforeCommand)
+      })
+    })
+
+    test.describe('beforeEnvVars method', () => {
+      test.it('should return all environment vars configured for the before command', () => {
+        baseData.before = {
+          docker: {
+            command: 'foo',
+            env: {
+              fooVar: 'foo before var'
+            }
+          }
+        }
+        initResolver()
+        test.expect(suiteResolver.beforeEnvVars()).to.deep.equal({
+          'fooVar': 'foo before var',
+          'narval_is_docker': true,
+          'narval_service': 'before',
+          'narval_suite': 'fooDockerSuite',
+          'narval_suite_type': 'fooType'
+        })
+      })
+    })
+
+    test.describe('services method', () => {
+      test.it('should return an array containing new Services resolvers for each configured service', () => {
+        const services = suiteResolver.services()
+        test.expect(services[0].name()).to.equal('fooService1')
+        test.expect(services[1].name()).to.equal('fooService2')
+      })
+    })
+
+    test.describe('runDownVolumes method', () => {
+      test.it('should return undefined by default', () => {
+        test.expect(suiteResolver.runDownVolumes()).to.be.undefined()
+      })
+
+      test.it('should return true if it is explicitly configured', () => {
+        baseData.before = {
+          docker: {
+            'down-volumes': true
+          }
+        }
+        initResolver()
+        test.expect(suiteResolver.runDownVolumes()).to.equal(true)
+      })
+    })
+
+    test.describe('buildDocker method', () => {
+      test.it('should return true if it is defined in options', () => {
+        initResolver({
+          build: true
+        })
+        test.expect(suiteResolver.buildDocker()).to.be.true()
+      })
+
+      test.it('should return false if it is not defined in options', () => {
+        initResolver()
+        test.expect(suiteResolver.buildDocker()).to.be.false()
+      })
+    })
+
+    test.describe('coverageFromService method', () => {
+      test.it('should return undefined by default', () => {
+        delete baseData.coverage
+        initResolver()
+        test.expect(suiteResolver.coverageFromService()).to.be.undefined()
+      })
+
+      test.it('should return false if it is explicitly configured to get coverage from test', () => {
+        baseData.coverage.from = 'test'
+        initResolver()
+        test.expect(suiteResolver.coverageFromService()).to.equal(false)
+      })
+
+      test.it('should return true if it is configured to get coverage from another service', () => {
+        baseData.coverage.from = 'foo-service'
+        initResolver()
+        test.expect(suiteResolver.coverageFromService()).to.equal(true)
+      })
+    })
+
+    test.describe('dockerEnvVars method', () => {
+      test.beforeEach(() => {
+        mocksSandbox.waiton.stubs.configToArguments.returns('foo wait')
+      })
+
+      test.it('should throw an error if docker container for test is not found', () => {
+        delete baseData.test.docker
+        initResolver()
+        try {
+          suiteResolver.dockerEnvVars()
+        } catch (err) {
+          test.expect(Boom.isBoom(err)).to.be.true()
+        }
+      })
+
+      test.it('should return all docker environment variables for the suite', () => {
+        baseData.coverage.config = {
+          dir: '.coverage/custom',
+          verbose: true,
+          print: 'detail',
+          report: 'text'
+        }
+        initResolver()
+        const envVars = suiteResolver.dockerEnvVars()
+        test.expect(utils.extendProcessEnvVars).to.have.been.called()
+        test.expect(envVars).to.deep.equal({
+          'coverage_options': '--include-all-sources --root=. --colors --print=detail --dir=.coverage/custom --verbose --report=text',
+          'fooContainer3_command': 'narval-default-test-command',
+          'fooContainer3_command_params': '--recursive --colors --reporter spec foo2/specs',
+          'fooContainer3_coverage_enabled': false,
+          'fooContainer3_exit_after': '',
+          'fooContainer3_narval_suite_type': 'fooType',
+          'fooContainer3_wait_on': 'foo wait',
+          'fooContainer3_narval_suite': 'fooDockerSuite',
+          'fooContainer3_narval_service': 'test',
+          'fooContainer3_narval_is_docker': true,
+          'fooContainer1_command': 'foo-docker-command2.js',
+          'fooContainer1_command_params': '-- --fooParam1 --fooParam2',
+          'fooContainer1_coverage_enabled': true,
+          'fooContainer1_exit_after': 10000,
+          'fooContainer1_narval_suite_type': 'fooType',
+          'fooContainer1_wait_on': 'foo wait',
+          'fooContainer1_narval_suite': 'fooDockerSuite',
+          'fooContainer1_narval_service': 'fooService1',
+          'fooContainer1_narval_is_docker': true,
+          'fooContainer1_fooVar': 'foo value',
+          'fooContainer2_command': 'foo-docker-command',
+          'fooContainer2_command_params': '',
+          'fooContainer2_coverage_enabled': false,
+          'fooContainer2_exit_after': '',
+          'fooContainer2_narval_suite_type': 'fooType',
+          'fooContainer2_wait_on': 'foo wait',
+          'fooContainer2_narval_suite': 'fooDockerSuite',
+          'fooContainer2_narval_service': 'fooService2',
+          'fooContainer2_narval_is_docker': true
+        })
+      })
+
+      test.it('should add extra dashes to command parameters for tests docker container if test coverage is enabled', () => {
+        delete baseData.coverage
+        initResolver()
+        const envVars = suiteResolver.dockerEnvVars()
+        test.expect(utils.extendProcessEnvVars).to.have.been.called()
+        test.expect(envVars).to.deep.equal({
+          'coverage_options': '--include-all-sources --root=. --colors --print=summary --dir=.coverage/fooType/fooDockerSuite',
+          'fooContainer3_command': 'narval-default-test-command',
+          'fooContainer3_command_params': '-- --recursive --colors --reporter spec foo2/specs',
+          'fooContainer3_coverage_enabled': true,
+          'fooContainer3_wait_on': 'foo wait',
+          'fooContainer3_exit_after': '',
+          'fooContainer3_narval_suite_type': 'fooType',
+          'fooContainer3_narval_suite': 'fooDockerSuite',
+          'fooContainer3_narval_service': 'test',
+          'fooContainer3_narval_is_docker': true,
+          'fooContainer1_command': 'foo-docker-command2.js',
+          'fooContainer1_command_params': '--fooParam1 --fooParam2',
+          'fooContainer1_coverage_enabled': undefined,
+          'fooContainer1_wait_on': 'foo wait',
+          'fooContainer1_exit_after': 10000,
+          'fooContainer1_narval_suite_type': 'fooType',
+          'fooContainer1_narval_suite': 'fooDockerSuite',
+          'fooContainer1_narval_service': 'fooService1',
+          'fooContainer1_narval_is_docker': true,
+          'fooContainer1_fooVar': 'foo value',
+          'fooContainer2_command': 'foo-docker-command',
+          'fooContainer2_command_params': '',
+          'fooContainer2_coverage_enabled': undefined,
+          'fooContainer2_wait_on': 'foo wait',
+          'fooContainer2_exit_after': '',
+          'fooContainer2_narval_suite_type': 'fooType',
+          'fooContainer2_narval_suite': 'fooDockerSuite',
+          'fooContainer2_narval_service': 'fooService2',
+          'fooContainer2_narval_is_docker': true
+        })
       })
     })
   })

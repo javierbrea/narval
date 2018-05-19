@@ -137,7 +137,7 @@ const dockerSuite = {
     specs: 'foo2/specs',
     docker: {
       container: 'fooContainer3',
-      'wait-for': 'fooService1:3000'
+      'wait-on': 'fooService1:3000'
     }
   },
   services: [
