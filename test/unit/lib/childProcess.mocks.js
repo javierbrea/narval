@@ -27,7 +27,8 @@ const Mock = function () {
 
   forkStub.on = {
     returns: forkOnFake.returns,
-    runOnRegister: forkOnFake.runOnRegister
+    runOnRegister: forkOnFake.runOnRegister,
+    run: forkOnFake.run
   }
 
   forkStub.send = forkSendFake

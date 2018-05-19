@@ -436,599 +436,87 @@ test.describe('suite-local', () => {
         })
       })
     })
-    /*
-    */
 
-    /* test.describe('when runs "before" command', () => {
-      const commandPath = 'fooBeforeLocalCommand'
-      const cleanEnv = {
-        fooEnv1: 'fooEnv1',
-        fooEnv2: 'fooEnv2'
-      }
-
+    test.describe('when running all services and test', () => {
       test.beforeEach(() => {
-        options.get.resolves({
-        })
-        localSuiteFixture.before = {
-          local: {
-            command: commandPath,
-            env: cleanEnv
-          }
-        }
+        configMock.singleServiceToRun.returns(false)
+        configMock.runSingleTest.returns(false)
+        sandbox.stub(mochaSinonChaiRunner, 'run').resolves()
+        mocksSandbox.processes.stubs.fork.resolves(0)
       })
 
-      test.it('should execute the "before" command if it is defined in suite', () => {
-        localSuiteFixture.before = {
-          local: {
-            command: commandPath
-          }
-        }
-        return runner.run(localSuiteFixture).then(() => {
-          return Promise.all([
-            test.expect(commands.run).to.have.been.calledWith(commandPath),
-            test.expect(commands.run.getCall(0).args[1].sync).to.be.true()
-          ])
+      test.it('should print a log when test execution ends', () => {
+        return run().then(() => {
+          return test.expect(mocksSandbox.logs.stubs.suiteLogger.testFinished).to.have.been.called()
         })
       })
 
-      test.it('should add custom environment variables', () => {
-        return runner.run(localSuiteFixture).then(() => {
-          const envValues = commands.run.getCall(0).args[1].env
-          return Promise.all([
-            test.expect(envValues.fooEnv1).to.equal(cleanEnv.fooEnv1),
-            test.expect(envValues.fooEnv2).to.equal(cleanEnv.fooEnv2)
-          ])
-        })
-      })
-    })
-
-    test.it('should execute only test if it is defined in "local" option', () => {
-      options.get.resolves({
-        local: 'test'
-      })
-      return runner.run(localSuiteFixture).then(() => {
-        return Promise.all([
-          test.expect(mochaSinonChaiRunner.run).to.have.been.called(),
-          test.expect(commands.run).to.not.have.been.called()
-        ])
-      })
-    })
-
-    test.it('should execute only an specific service if it is defined in "local" option', () => {
-      return runner.run(localSuiteFixture).then(() => {
-        return Promise.all([
-          test.expect(mochaSinonChaiRunner.run).to.not.have.been.called(),
-          test.expect(commands.run).to.have.been.calledOnce()
-        ])
-      })
-    })
-
-    test.it('should execute an specific service with coverage if "coverage.from" option is defined in configuration', () => {
-      const fakeServiceName = 'fooService2'
-      localSuiteFixture.coverage = {
-        from: fakeServiceName
-      }
-      options.get.resolves({
-        local: fakeServiceName
-      })
-      return runner.run(localSuiteFixture).then(() => {
-        return Promise.all([
-          test.expect(commands.run).to.not.have.been.called(),
-          test.expect(mochaSinonChaiRunner.run).to.not.have.been.called(),
-          test.expect(childProcessMock.stubs.fork).to.have.been.called()
-        ])
-      })
-    })
-
-    test.it('should execute an specific service without coverage if "coverage.enabled" option is false even when coverage.from is defined in configuration', () => {
-      const fakeServiceName = 'fooService2'
-      localSuiteFixture.coverage = {
-        from: fakeServiceName,
-        enabled: false
-      }
-      options.get.resolves({
-        local: fakeServiceName
-      })
-      return runner.run(localSuiteFixture).then(() => {
-        return Promise.all([
-          test.expect(commands.run).to.have.been.calledOnce(),
-          test.expect(mochaSinonChaiRunner.run).to.not.have.been.called(),
-          test.expect(childProcessMock.stubs.fork).to.not.have.been.called()
-        ])
-      })
-    })
-
-    test.it('should execute an specific service without coverage by default', () => {
-      return runner.run(localSuiteFixture).then(() => {
-        return Promise.all([
-          test.expect(commands.run).to.have.been.calledOnce(),
-          test.expect(commands.run.getCall(0).args[0]).to.equal('foo-local-command'),
-          test.expect(mochaSinonChaiRunner.run).to.not.have.been.called(),
-          test.expect(childProcessMock.stubs.fork).to.not.have.been.called()
-        ])
-      })
-    })
-
-    test.it('should trace an error and reject the promise with a controlled error if the specified service does not exist in suite', () => {
-      const fakeServiceName = 'fooFakeService2'
-      options.get.resolves({
-        local: fakeServiceName
-      })
-      return runner.run(localSuiteFixture)
-        .then(() => {
+      test.it('should reject the promise if the test execution ends with an error', () => {
+        const fooErrorMessage = 'foo error message 2'
+        mocksSandbox.processes.stubs.fork.resolves(1)
+        mocksSandbox.logs.stubs.suiteLogger.mochaFailed.returns(fooErrorMessage)
+        return run().then(() => {
           return Promise.reject(new Error())
-        }).catch((error) => {
+        }).catch((err) => {
           return Promise.all([
-            test.expect(Boom.isBoom(error)).to.be.true(),
-            test.expect(tracerMock.stubs.error.getCall(0).args[0]).to.contain(fakeServiceName),
-            test.expect(commands.run).to.not.have.been.called(),
-            test.expect(mochaSinonChaiRunner.run).to.not.have.been.called(),
-            test.expect(childProcessMock.stubs.fork).to.not.have.been.called()
+            test.expect(mocksSandbox.logs.stubs.suiteLogger.testFailed).to.have.been.called(),
+            test.expect(Boom.isBoom(err)).to.be.true(),
+            test.expect(err.message).to.equal(fooErrorMessage)
           ])
         })
-    })
-
-    test.it('should reject the promise with a controlled error if a service has not defined a command to execute in local', () => {
-      const fakeServiceName = 'fooService2'
-      localSuiteFixture.services = [
-        {
-          name: fakeServiceName
-        }
-      ]
-      options.get.resolves({
-        local: fakeServiceName
       })
-      return runner.run(localSuiteFixture)
-        .then(() => {
+
+      test.it('should reject the promise if the test execution ends ok, but a service with "abort-on-error" config fails', () => {
+        const fooErrorMessage = 'foo local service error message'
+        mocksSandbox.config.stubs.serviceResolver.abortOnError.returns(true)
+        configMock.testIsCoveraged.returns(true)
+        mocksSandbox.processes.stubs.fork.resolves(1)
+        mocksSandbox.logs.stubs.suiteLogger.localServiceError.returns(fooErrorMessage)
+        return run().then(() => {
           return Promise.reject(new Error())
-        })
-        .catch((err) => {
+        }).catch((err) => {
           return Promise.all([
-            test.expect(mochaSinonChaiRunner.run).to.not.have.been.called(),
-            test.expect(commands.run).to.not.have.been.called(),
-            test.expect(tracerMock.stubs.error.getCall(0).args[0]).to.contain(fakeServiceName),
-            test.expect(Boom.isBoom(err)).to.be.true()
-          ])
-        })
-    })
-
-    test.it('should print a debug trace when an specific service is defined in "local" option and it has finished', () => {
-      return runner.run(localSuiteFixture).then(() => {
-        return test.expect(tracerMock.stubs.debug.getCall(tracerMock.stubs.debug.callCount - 1).args[0]).to.contain(`Service "fooService" closed`)
-      })
-    })
-
-    test.it('should reject the promise if the service execution fails, adding the service name to the error message', () => {
-      childProcessMock.stubs.spawn.on.returns(1)
-      return runner.run(localSuiteFixture)
-        .then(() => {
-          return test.expect(false).to.be.true()
-        })
-        .catch((err) => {
-          return test.expect(err.message).to.contain('fooService')
-        })
-    })
-
-    test.it('should run all services and test when no specific test or service is defined in "local" option', () => {
-      options.get.resolves({})
-      return runner.run(localSuiteFixture).then(() => {
-        return Promise.all([
-          test.expect(mochaSinonChaiRunner.run).to.have.been.called(),
-          test.expect(commands.run).to.have.been.calledTwice()
-        ])
-      })
-    })
-
-    test.describe('when runs all services and test', () => {
-      const coveragedService = 'fooService2'
-      test.beforeEach(() => {
-        localSuiteFixture.coverage = {
-          from: coveragedService
-        }
-        localSuiteFixture.services = JSON.parse(JSON.stringify(localSuiteFixture.services)).concat([{
-          name: 'fooService3',
-          local: {
-            command: 'foo-local-command-3'
-          }
-        }])
-        options.get.resolves({})
-      })
-
-      test.it('should first start all services, then run test', () => {
-        return runner.run(localSuiteFixture).then(() => {
-          return Promise.all([
-            test.expect(commands.run).to.have.been.calledTwice(),
-            test.expect(childProcessMock.stubs.fork).to.have.been.calledTwice(),
-            test.expect(commands.run.getCall(0).args[0]).to.contain('foo-local-command'),
-            test.expect(childProcessMock.stubs.fork.getCall(0).args[0]).to.contain('msc-istanbul.js'),
-            test.expect(childProcessMock.stubs.fork.getCall(0).args[2].env.servicePath).to.contain('foo-local-command2.js'),
-            test.expect(childProcessMock.stubs.fork.getCall(1).args[0]).to.contain('msc_mocha.js')
+            test.expect(mocksSandbox.logs.stubs.suiteLogger.testFailed).to.not.have.been.called(),
+            test.expect(Boom.isBoom(err)).to.be.true(),
+            test.expect(err.message).to.equal(fooErrorMessage)
           ])
         })
       })
 
-      test.it('should run only test when suite has no services', () => {
-        return runner.run(localSuiteWithNoServiceFixture).then(() => {
-          return Promise.all([
-            test.expect(childProcessMock.stubs.fork).to.not.have.been.called(),
-            test.expect(commands.run).to.not.have.been.called(),
-            test.expect(mochaSinonChaiRunner.run).to.have.been.called()
-          ])
+      test.describe('when test execution has finished, but services are still running', () => {
+        test.beforeEach(() => {
+          configMock.testIsCoveraged.returns(true)
+          mocksSandbox.processes.stubs.childProcess.stubs.fork.on.runOnRegister(false)
+          mocksSandbox.config.stubs.serviceResolver.isCoveraged.returns(true)
+          mocksSandbox.processes.stubs.fork.resolves(childProcess.fork())
         })
-      })
 
-      test.it('should reject the promise if the test execution fails', () => {
-        mochaSinonChaiRunner.run.rejects(new Error())
-        return runner.run(localSuiteWithNoServiceFixture).then(() => {
-          return test.expect(false).to.be.true()
-        }).catch((error) => {
-          return Promise.all([
-            test.expect(Boom.isBoom(error)).to.be.true(),
-            test.expect(error.message).to.contain('fooLocalSuite2')
-          ])
-        })
-      })
-
-      test.it('should kill all not coveraged services when test finish', () => {
-        return runner.run(localSuiteFixture).then(() => {
-          return test.expect(libs.treeKill).to.have.been.calledTwice()
-        })
-      })
-
-      test.it('should send an exit signal to coveraged services when test finish', () => {
-        return runner.run(localSuiteFixture).then(() => {
-          return Promise.all([
-            test.expect(childProcessMock.stubs.fork.send).to.have.been.calledOnce(),
-            test.expect(childProcessMock.stubs.fork.send).to.have.been.calledWith({exit: true})
-          ])
-        })
-      })
-
-      test.it('should print a debug trace for each closed service', () => {
-        return runner.run(localSuiteFixture).then(() => {
-          return test.expect(tracerMock.stubs.debug.callCount).to.equal(8)
-        })
-      })
-    })
-
-    test.it('should run coveraged tests when coverage is not specified for a service in configuration', () => {
-      options.get.resolves({})
-      return runner.run(localSuiteWithNoServiceFixture).then(() => {
-        return Promise.all([
-          test.expect(mochaSinonChaiRunner.run).to.have.been.called(),
-          test.expect(childProcessMock.stubs.fork).to.not.have.been.called()
-        ])
-      })
-    })
-
-    test.it('should run coveraged tests when coverage is specified for test in configuration', () => {
-      localSuiteWithNoServiceFixture.coverage = {
-        from: 'test'
-      }
-      options.get.resolves({})
-      return runner.run(localSuiteWithNoServiceFixture).then(() => {
-        return Promise.all([
-          test.expect(mochaSinonChaiRunner.run).to.have.been.called(),
-          test.expect(childProcessMock.stubs.fork).to.not.have.been.called()
-        ])
-      })
-    })
-
-    test.it('should run not coveraged tests when coverage is disabled in configuration', () => {
-      localSuiteWithNoServiceFixture.coverage = {
-        enabled: false,
-        from: 'test'
-      }
-      options.get.resolves({})
-      return runner.run(localSuiteWithNoServiceFixture).then(() => {
-        return Promise.all([
-          test.expect(mochaSinonChaiRunner.run).to.not.have.been.called(),
-          test.expect(childProcessMock.stubs.fork).to.have.been.called()
-        ])
-      })
-    })
-
-    test.it('should reject the promise if the test execution fails, specifying it in the error message', () => {
-      options.get.resolves({})
-      mochaSinonChaiRunner.run.rejects(new Error())
-      return runner.run(localSuiteWithNoServiceFixture)
-        .then(() => {
-          return test.expect(false).to.be.true()
-        })
-        .catch((error) => {
-          return Promise.all([
-            test.expect(Boom.isBoom(error)).to.be.true(),
-            test.expect(error.message).to.contain('fooLocalSuite2')
-          ])
-        })
-    })
-
-    test.describe('when runs coveraged tests', () => {
-      const fooSuiteType = 'fooType'
-
-      test.beforeEach(() => {
-        options.get.resolves({})
-      })
-
-      test.it('should add the suite details to environment variables', () => {
-        return runner.run(localSuiteWithNoServiceFixture, fooSuiteType).then(() => {
-          let envValues = mochaSinonChaiRunner.run.getCall(0).args[1].env
-          return Promise.all([
-            test.expect(envValues.narval_is_docker).to.equal(false),
-            test.expect(envValues.narval_service).to.equal('test'),
-            test.expect(envValues.narval_suite).to.equal('fooLocalSuite2'),
-            test.expect(envValues.narval_suite_type).to.equal(fooSuiteType)
-          ])
-        })
-      })
-
-      test.it('should add custom environment variables', () => {
-        localSuiteWithNoServiceFixture.test.local = {
-          env: {
-            customVar: 'custom value'
-          }
-        }
-        return runner.run(localSuiteWithNoServiceFixture, fooSuiteType).then(() => {
-          return test.expect(mochaSinonChaiRunner.run.getCall(0).args[1].env.customVar).to.equal('custom value')
-        })
-      })
-
-      test.it('should print a debug message with details about execution type', () => {
-        return runner.run(localSuiteWithNoServiceFixture).then(() => {
-          return test.expect(tracerMock.stubs.debug.getCall(0).args[0]).to.contain('coverage enabled')
-        })
-      })
-
-      test.it('should call to mocha-sinon-chai runner, passing the istanbul and mocha configuration', () => {
-        localSuiteWithNoServiceFixture.test = {
-          specs: 'foo/path/specs',
-          config: {
-            fooMochaParam1: 'foo',
-            fooParam2: 'fake'
-          }
-        }
-        localSuiteWithNoServiceFixture.coverage = {
-          config: {
-            fooIstanbulParam: 'fooValue'
-          }
-        }
-        return runner.run(localSuiteWithNoServiceFixture).then(() => {
-          return Promise.all([
-            test.expect(mochaSinonChaiRunner.run).to.have.been.called(),
-            test.expect(mochaSinonChaiRunner.run.getCall(0).args[0]).to.equal('--istanbul --include-all-sources --root=. --colors --print=summary --dir=.coverage/fooLocalSuite2/fooLocalSuite2 --fooIstanbulParam=fooValue --mocha --recursive --colors --reporter spec --fooMochaParam1 foo --fooParam2 fake foo/path/specs')
-          ])
-        })
-      })
-    })
-
-    test.describe('when runs not coveraged tests', () => {
-      const fooSuiteType = 'foo-suite-type'
-      test.beforeEach(() => {
-        localSuiteWithNoServiceFixture.test = {
-          specs: 'foo2/specs',
-          config: {
-            fooMochaParam1: 'foo',
-            fooParam2: 'fake'
-          }
-        }
-        localSuiteWithNoServiceFixture.coverage = {
-          enabled: false
-        }
-        options.get.resolves({})
-      })
-
-      test.it('should add the suite details to environment variables', () => {
-        return runner.run(localSuiteWithNoServiceFixture, fooSuiteType).then(() => {
-          let envValues = childProcessMock.stubs.fork.getCall(0).args[2].env
-          return Promise.all([
-            test.expect(envValues.narval_is_docker).to.equal(false),
-            test.expect(envValues.narval_service).to.equal('test'),
-            test.expect(envValues.narval_suite).to.equal('fooLocalSuite2'),
-            test.expect(envValues.narval_suite_type).to.equal(fooSuiteType)
-          ])
-        })
-      })
-
-      test.it('should add custom environment variables', () => {
-        localSuiteWithNoServiceFixture.test.local = {
-          env: {
-            var1: 'value 1',
-            var2: 'value 2'
-          }
-        }
-        return runner.run(localSuiteWithNoServiceFixture, fooSuiteType).then(() => {
-          const envValues = childProcessMock.stubs.fork.getCall(0).args[2].env
-          return Promise.all([
-            test.expect(envValues.var1).to.equal('value 1'),
-            test.expect(envValues.var2).to.equal('value 2')
-          ])
-        })
-      })
-
-      test.it('should print a debug message with details about execution type', () => {
-        return runner.run(localSuiteWithNoServiceFixture).then(() => {
-          return test.expect(tracerMock.stubs.debug.getCall(0).args[0]).to.contain('without coverage')
-        })
-      })
-
-      test.it('should open a mocha child process fork, passing the mocha configuration', () => {
-        return runner.run(localSuiteWithNoServiceFixture).then(() => {
-          return Promise.all([
-            test.expect(childProcessMock.stubs.fork).to.have.been.calledOnce(),
-            test.expect(childProcessMock.stubs.fork.getCall(0).args[0]).to.contain('msc_mocha.js'),
-            test.expect(childProcessMock.stubs.fork.getCall(0).args[1]).to.deep.equal([
-              '--recursive',
-              '--colors',
-              '--reporter',
-              'spec',
-              '--fooMochaParam1',
-              'foo',
-              '--fooParam2',
-              'fake',
-              'foo2/specs'
-            ])
-          ])
-        })
-      })
-
-      test.it('should resolve the promise when mocha execution finish OK', () => {
-        return runner.run(localSuiteWithNoServiceFixture).then(() => {
-          return test.expect(true).to.be.true()
-        })
-      })
-
-      test.it('should reject the promise when mocha execution fails', () => {
-        childProcessMock.stubs.fork.on.returns(1)
-        return runner.run(localSuiteWithNoServiceFixture)
-          .then(() => {
-            return test.expect(false).to.be.true()
+        test.it('should send an exit signal to the service process if it is coveraged, and test has finished without error', () => {
+          setTimeout(() => {
+            mocksSandbox.processes.stubs.childProcess.stubs.fork.on.run(0)
+          }, 200)
+          return run().then(() => {
+            return test.expect(mocksSandbox.processes.stubs.childProcess.stubs.fork.send).to.have.been.calledWith({
+              exit: true
+            })
           })
-          .catch((error) => {
+        })
+
+        test.it('should force to exit processes if test has finished with error', () => {
+          mochaSinonChaiRunner.run.rejects(new Error())
+          setTimeout(() => {
+            mocksSandbox.processes.stubs.childProcess.stubs.fork.on.run(0)
+          }, 200)
+          return run().then(() => {
+            return Promise.reject(new Error())
+          }).catch(() => {
             return Promise.all([
-              test.expect(Boom.isBoom(error)).to.be.true(),
-              test.expect(error.message).to.contain('fooLocalSuite2')
+              test.expect(mocksSandbox.processes.stubs.childProcess.stubs.fork.send).to.not.have.been.called(),
+              test.expect(mocksSandbox.libs.stubs.treeKill).to.have.been.called()
             ])
           })
-      })
-    })
-
-    test.it('should not call to wait-on when test has not a wait-for property in configuration', () => {
-      return runner.run(localSuiteFixture)
-        .then(() => {
-          return test.expect(waitOnMock.stubs.wait).to.not.have.been.called()
-        })
-    })
-
-    test.describe('when test has a wait-for property in configuration', () => {
-      const fooServiceUrl = 'http://fake-service:3000'
-
-      test.beforeEach(() => {
-        localSuiteFixture.test = {
-          specs: 'foo/wait/specs',
-          local: {
-            'wait-for': fooServiceUrl
-          }
-        }
-        options.get.resolves({})
-      })
-
-      test.it('should print a debug trace', () => {
-        return runner.run(localSuiteFixture)
-          .then(() => {
-            return Promise.all([
-              test.expect(tracerMock.stubs.debug.getCall(2).args[0]).to.contain('Waiting'),
-              test.expect(tracerMock.stubs.debug.getCall(2).args[0]).to.contain(fooServiceUrl)
-            ])
-          })
-      })
-
-      test.it('should call to waitOn, passing the configuration', () => {
-        return runner.run(localSuiteFixture)
-          .then(() => {
-            return Promise.all([
-              test.expect(waitOnMock.stubs.wait).to.have.been.called(),
-              test.expect(waitOnMock.stubs.wait.getCall(0).args[0].resources[0]).to.equal(fooServiceUrl)
-            ])
-          })
-      })
-
-      test.it('should reject the promise if it receives an error from waitOn execution', () => {
-        const fooErrorMessage = 'Wait on error'
-        waitOnMock.stubs.wait.returns(new Error(fooErrorMessage))
-        return runner.run(localSuiteFixture)
-          .then(() => {
-            throw new Error()
-          })
-          .catch((error) => {
-            return Promise.all([
-              test.expect(Boom.isBoom(error)).to.be.true(),
-              test.expect(error.message).to.contain('fooLocalSuite')
-            ])
-          })
-      })
-    })
-
-    test.describe('when runs a not coveraged service', () => {
-      const fooSuiteTypeName = 'fooTypeName'
-
-      test.it('should add the suite details to environment variables', () => {
-        return runner.run(localSuiteFixture, fooSuiteTypeName).then(() => {
-          const envValues = commands.run.getCall(0).args[1].env
-          return Promise.all([
-            test.expect(commands.run).to.have.been.calledOnce(),
-            test.expect(commands.run.getCall(0).args[0]).to.equal('foo-local-command'),
-            test.expect(envValues.narval_is_docker).to.equal(false),
-            test.expect(envValues.narval_service).to.equal('fooService'),
-            test.expect(envValues.narval_suite).to.equal('fooLocalSuite'),
-            test.expect(envValues.narval_suite_type).to.equal(fooSuiteTypeName)
-          ])
-        })
-      })
-
-      test.it('should add custom environment variables', () => {
-        return runner.run(localSuiteFixture, fooSuiteTypeName).then(() => {
-          const envValues = commands.run.getCall(0).args[1].env
-          return Promise.all([
-            test.expect(envValues.fooEnvVar1).to.equal('fooEnvironment var 1'),
-            test.expect(envValues.fooEnvVar2).to.equal('fooEnv2')
-          ])
         })
       })
     })
-
-    test.describe('when runs a coveraged service', () => {
-      const fakeServiceName = 'fooService2'
-      const fooSuiteTypeName = 'FooType'
-
-      test.beforeEach(() => {
-        localSuiteFixture.coverage = {
-          from: fakeServiceName,
-          config: {
-            fooConfig1: 'config1',
-            fooConfig2: 'config2'
-          }
-        }
-        options.get.resolves({
-          local: fakeServiceName
-        })
-      })
-
-      test.it('should fork an istanbul child process, passing to it the istanbul and command arguments', () => {
-        return runner.run(localSuiteFixture).then(() => {
-          let forkCall = childProcessMock.stubs.fork.getCall(0)
-          return Promise.all([
-            test.expect(forkCall.args[0]).to.contain('msc-istanbul.js'),
-            test.expect(forkCall.args[1][5]).to.equal('--fooConfig1=config1'),
-            test.expect(forkCall.args[1][6]).to.equal('--fooConfig2=config2'),
-            test.expect(forkCall.args[1][7]).to.equal('cover'),
-            test.expect(forkCall.args[1][8]).to.contain('service-coverage-runner')
-          ])
-        })
-      })
-
-      test.it('should set the command path to be executed as "servicePath" environment variable, and pass it to the fork execution', () => {
-        return runner.run(localSuiteFixture).then(() => {
-          return test.expect(childProcessMock.stubs.fork.getCall(0).args[2].env.servicePath).to.contain('foo-local-command2.js')
-        })
-      })
-
-      test.it('should add the suite details to environment variables', () => {
-        return runner.run(localSuiteFixture, fooSuiteTypeName).then(() => {
-          const envValues = childProcessMock.stubs.fork.getCall(0).args[2].env
-          return Promise.all([
-            test.expect(envValues.narval_is_docker).to.equal(false),
-            test.expect(envValues.narval_service).to.equal('fooService2'),
-            test.expect(envValues.narval_suite).to.equal('fooLocalSuite'),
-            test.expect(envValues.narval_suite_type).to.equal(fooSuiteTypeName)
-          ])
-        })
-      })
-
-      test.it('should add custom environment variables', () => {
-        return runner.run(localSuiteFixture, fooSuiteTypeName).then(() => {
-          return test.expect(childProcessMock.stubs.fork.getCall(0).args[2].env.fooEnv).to.equal('fooEnv value')
-        })
-      })
-    }) */
   })
 })
