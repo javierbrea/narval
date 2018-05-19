@@ -4,7 +4,7 @@ const yaml = require('js-yaml')
 
 const test = require('../../../index')
 const mocks = require('../mocks')
-// const fixtures = require('../fixtures')
+const fixtures = require('../fixtures')
 
 const config = require('../../../lib/config')
 const states = require('../../../lib/states')
@@ -29,6 +29,12 @@ test.describe('config', () => {
     sandbox.restore()
     mocksSandbox.restore()
   })
+
+  const returnsConfig = function (conf) {
+    states.clean()
+    mocksSandbox.fs.stubs.readFile.returns(null, {})
+    yaml.safeLoad.returns(conf)
+  }
 
   const fileReadTests = function (method) {
     const fooDefaultConfigPath = '/fooDefaultConfig'
@@ -87,67 +93,118 @@ test.describe('config', () => {
 
   test.describe('standard method', () => {
     fileReadTests('standard')
+
+    test.it('should add the "directories" property if it is not defined', () => {
+      return config.standard()
+        .then((standard) => {
+          return test.expect(standard.directories).to.deep.equal([])
+        })
+    })
+
+    test.it('should convert the "directories" property to an array if it is an string', () => {
+      returnsConfig({
+        standard: {
+          directories: 'foo foo2 foo3'
+        }
+      })
+      return config.standard()
+        .then((standard) => {
+          return test.expect(standard.directories).to.deep.equal([
+            'foo',
+            'foo2',
+            'foo3'
+          ])
+        })
+    })
   })
-})
-/*
-test.describe.skip('config', () => {
-  test.describe('get method', () => {
-    const fooDefaultConfigPath = '/fooDefaultConfig'
-    const fooCustomConfigPath = '/fooCustomConfig'
-    const sandbox = test.sinon.sandbox.create()
 
-    const getConfigClean = function () {
-      states.clean()
-      return config.get()
-    }
+  test.describe('suitesByType method', () => {
+    fileReadTests('suitesByType')
 
-    let tracerMock
-    let pathsMock
-    let fsMocks
-
-    test.beforeEach(() => {
-      tracerMock = new mocks.Tracer()
-      pathsMock = new mocks.Paths()
-      pathsMock.stubs.defaultConfig.returns(fooDefaultConfigPath)
-      pathsMock.stubs.customConfig.returns(fooCustomConfigPath)
-      fsMocks = new mocks.Fs()
-      sandbox.stub(yaml, 'safeLoad')
-    })
-
-    test.afterEach(() => {
-      tracerMock.restore()
-      pathsMock.restore()
-      fsMocks.restore()
-      sandbox.restore()
-    })
-
-    test.it('should return a promise', () => {
-      return test.expect(config.get()).to.be.an.instanceof(Promise)
+    test.it('should return default config if there is no custom config', () => {
+      returnsConfig(null)
+      yaml.safeLoad.onCall(0).returns(fixtures.config.customConfig)
+      yaml.safeLoad.onCall(1).returns(null)
+      return config.suitesByType()
+        .then((suitesByType) => {
+          return test.expect(suitesByType).to.deep.equal(fixtures.config.customResult.suitesByType)
+        })
     })
 
     test.it('should return suites from custom config if it is provided', () => {
+      returnsConfig(null)
       yaml.safeLoad.onCall(0).returns(fixtures.config.customConfig)
       yaml.safeLoad.onCall(1).returns(fixtures.config.defaultSuites)
-      return getConfigClean()
-        .then((configuration) => {
+      return config.suitesByType()
+        .then((suitesByType) => {
           return Promise.all([
-            test.expect(configuration).to.deep.equal(fixtures.config.customResult)
+            test.expect(suitesByType).to.deep.equal(fixtures.config.customResult.suitesByType)
+          ])
+        })
+    })
+  })
+
+  test.describe('dockerImages method', () => {
+    fileReadTests('dockerImages')
+
+    test.it('should return an empty array if no custom config is provided', () => {
+      returnsConfig(null)
+      yaml.safeLoad.onCall(0).returns(fixtures.config.customConfig)
+      return config.dockerImages()
+        .then((dockerImages) => {
+          return Promise.all([
+            test.expect(dockerImages).to.deep.equal([])
           ])
         })
     })
 
-    test.it('should return suites from default config if no custom config is found', () => {
-      yaml.safeLoad.onCall(1).returns(fixtures.config.defaultSuites)
-      return getConfigClean()
-        .then((configuration) => {
+    test.it('should return dockerImages config', () => {
+      const fooConfig = {
+        'docker-images': {
+          foo: 'fooImage'
+        }
+      }
+      returnsConfig(fooConfig)
+      return config.dockerImages()
+        .then((dockerImages) => {
           return Promise.all([
-            test.expect(configuration).to.deep.equal(fixtures.config.defaultResult)
+            test.expect(dockerImages).to.deep.equal(fooConfig['docker-images'])
+          ])
+        })
+    })
+  })
+
+  test.describe('dockerContainers method', () => {
+    fileReadTests('dockerContainers')
+
+    test.it('should return an empty array if no custom config is provided', () => {
+      returnsConfig(null)
+      yaml.safeLoad.onCall(0).returns(fixtures.config.customConfig)
+      return config.dockerContainers()
+        .then((dockerContainers) => {
+          return Promise.all([
+            test.expect(dockerContainers).to.deep.equal([])
+          ])
+        })
+    })
+
+    test.it('should return dockerContainers config', () => {
+      const fooConfig = {
+        'docker-containers': {
+          foo: 'fooContainer'
+        }
+      }
+      returnsConfig(fooConfig)
+      return config.dockerContainers()
+        .then((dockerContainers) => {
+          return Promise.all([
+            test.expect(dockerContainers).to.deep.equal(fooConfig['docker-containers'])
           ])
         })
     })
   })
 })
-
+/*
 test.it.skip('should set empty environment variables for all configured docker containers', () => {
       return docker.downVolumes()
         .then(() => {
