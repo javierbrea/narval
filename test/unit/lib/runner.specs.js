@@ -4,13 +4,11 @@ const mockery = require('mockery')
 const Boom = require('boom')
 
 const test = require('../../../index')
-const fixtures = require('../fixtures')
 
 test.describe('runner', () => {
   const runnerPath = '../../../lib/runner'
   let sandbox
-  let config
-  let options
+  let states
   let tracer
   let standard
   let suites
@@ -25,16 +23,14 @@ test.describe('runner', () => {
 
     sandbox = test.sinon.sandbox.create()
 
-    config = require('../../../lib/config')
-    options = require('../../../lib/options')
     tracer = require('../../../lib/tracer')
+    states = require('../../../lib/states')
     standard = require('../../../lib/standard')
     suites = require('../../../lib/suites')
 
-    sandbox.stub(config, 'get').usingPromise().resolves(fixtures.config.customResult)
-    sandbox.stub(options, 'get').usingPromise().resolves(fixtures.options.standard)
     sandbox.stub(standard, 'run').usingPromise().resolves()
     sandbox.stub(suites, 'run').usingPromise().resolves()
+    sandbox.stub(states, 'get').returns(false)
     sandbox.stub(tracer, 'error')
     sandbox.stub(process, 'exit')
 
@@ -88,7 +84,6 @@ test.describe('runner', () => {
   })
 
   test.it('should mark process to exit with error when any error is received', () => {
-    process.env.forceExit = 'false'
     standard.run.rejects(new Error())
     require(runnerPath)
     return waitForFinish()
@@ -97,8 +92,8 @@ test.describe('runner', () => {
       })
   })
 
-  test.it('should exit process when any error is received and process has been marked to force exit', () => {
-    process.env.forceExit = 'true'
+  test.it('should exit process when any error is received and an state defines this behavior', () => {
+    states.get.returns(true)
     standard.run.rejects(new Error())
     require(runnerPath)
     return waitForFinish()

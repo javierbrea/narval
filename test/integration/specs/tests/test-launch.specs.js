@@ -13,9 +13,9 @@ test.describe('tests execution', () => {
       })
   })
 
-  test.it('should have print a log when starts execution', () => {
+  test.it('should have printed a log when starts execution', () => {
     return Promise.all([
-      test.expect(outerrLog).to.match(/\[Narval\] \[DEBUG\] Starting tests of suite "[\w|-]*" with(?:out)? coverage/)
+      test.expect(outerrLog).to.match(/\[Narval\] \[DEBUG\] Starting tests of "[\w|-]*" suite "[\w|-]*" with(?:out)? coverage/)
     ])
   })
 })

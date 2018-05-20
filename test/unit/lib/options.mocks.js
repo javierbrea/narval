@@ -1,14 +1,13 @@
 
 const test = require('../../../index')
 
-const waitOn = require('../../../lib/wait-on')
+const options = require('../../../lib/options')
 
 const Mock = function () {
   const sandbox = test.sinon.sandbox.create()
 
   const stubs = {
-    wait: sandbox.stub(waitOn, 'wait').usingPromise().resolves(),
-    configToArguments: sandbox.stub(waitOn, 'configToArguments')
+    get: sandbox.stub(options, 'get').usingPromise().resolves({})
   }
 
   const restore = function () {

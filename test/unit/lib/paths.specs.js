@@ -25,6 +25,13 @@ test.describe('paths', () => {
 
   const testRelativePathUtils = function (utilName, basePath, baseDescription) {
     test.describe(utilName, () => {
+      test.describe('base method', () => {
+        test.it(`should return the base ${baseDescription}`, () => {
+          const fooPath = path.resolve(basePath)
+          return test.expect(paths[utilName].base()).to.equal(fooPath)
+        })
+      })
+
       test.describe('ensureDir method', () => {
         let ensureDirStub
 
@@ -54,6 +61,30 @@ test.describe('paths', () => {
           return paths[utilName].ensureDir(fooTargetPath)
             .then(result => {
               return test.expect(result).to.equal(fooPath)
+            })
+        })
+      })
+
+      test.describe('remove method', () => {
+        let removeStub
+
+        test.beforeEach(() => {
+          removeStub = test.sinon.stub(fsExtra, 'remove').usingPromise().resolves()
+        })
+
+        test.afterEach(() => {
+          fsExtra.remove.restore()
+        })
+
+        test.it('should return a Promise', () => {
+          return test.expect(paths[utilName].remove('fooPath')).to.be.an.instanceof(Promise)
+        })
+
+        test.it(`should remove the path, taking as base ${baseDescription}`, () => {
+          const fooPath = path.resolve(basePath, 'fooPath', 'fooSubPath')
+          return paths[utilName].remove('fooPath', 'fooSubPath')
+            .then(() => {
+              return test.expect(removeStub).to.have.been.calledWith(fooPath)
             })
         })
       })
@@ -143,6 +174,13 @@ test.describe('paths', () => {
   testRelativePathUtils('cwd', process.cwd(), 'the process current working directory')
   testRelativePathUtils('package', path.resolve(__dirname, '..', '..', '..'), 'the process current working directory')
 
+  test.describe('logs method', () => {
+    test.it('should return the absolute path to the the narval logs folder in the current working directory path', () => {
+      const logsFolderPath = path.resolve(process.cwd(), '.narval', 'logs')
+      return test.expect(paths.logs()).to.equal(logsFolderPath)
+    })
+  })
+
   test.describe('defaultConfig method', () => {
     test.it('should return the absolute path to the default configuration file, located in this package', () => {
       const defaultConfigPath = path.resolve(__dirname, '..', '..', '..', 'default-config.yml')
@@ -154,6 +192,13 @@ test.describe('paths', () => {
     test.it('should return the absolute path to the configuration file found in the current working directory path', () => {
       const customConfigPath = path.resolve(process.cwd(), '.narval.yml')
       return test.expect(paths.customConfig()).to.equal(customConfigPath)
+    })
+  })
+
+  test.describe('docker method', () => {
+    test.it('should return the absolute path to the path where all docker files has to be written', () => {
+      const dockerPath = path.resolve(process.cwd(), '.narval', 'docker')
+      return test.expect(paths.docker()).to.equal(dockerPath)
     })
   })
 

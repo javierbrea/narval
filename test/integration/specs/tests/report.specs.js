@@ -13,7 +13,7 @@ test.describe('tests execution reports', () => {
       })
   })
 
-  test.it('should have print mocha spec report', () => {
+  test.it('should have printed mocha spec report', () => {
     return Promise.all([
       test.expect(outerrLog).to.include('✓ should'),
       test.expect(outerrLog).to.match(/\d passing/)

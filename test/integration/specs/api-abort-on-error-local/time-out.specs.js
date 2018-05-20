@@ -19,7 +19,7 @@ test.describe('api-abort-on-error local tests execution', () => {
   test.it('should have timed out waiting to execute tests', () => {
     return Promise.all([
       test.expect(outerrLog).to.include('Wait timed out. "tcp:localhost:3000" is not available.'),
-      test.expect(outerrLog).to.include('Error running tests of suite "logs" locally')
+      test.expect(outerrLog).to.include('Error running tests of "integration" suite "logs"')
     ])
   })
 

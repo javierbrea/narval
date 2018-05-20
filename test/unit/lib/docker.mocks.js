@@ -1,14 +1,14 @@
 
 const test = require('../../../index')
 
-const waitOn = require('../../../lib/wait-on')
+const docker = require('../../../lib/docker')
 
 const Mock = function () {
   const sandbox = test.sinon.sandbox.create()
 
-  const stubs = {
-    wait: sandbox.stub(waitOn, 'wait').usingPromise().resolves(),
-    configToArguments: sandbox.stub(waitOn, 'configToArguments')
+  let stubs = {
+    createFiles: sandbox.stub(docker, 'createFiles').usingPromise().resolves(),
+    downVolumes: sandbox.stub(docker, 'downVolumes').usingPromise().resolves()
   }
 
   const restore = function () {
