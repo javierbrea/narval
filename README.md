@@ -1,4 +1,4 @@
-# Narval
+# ![Narval Logo](assets/logo.png)
 
 Multi test suites runner for Node.js packages. Docker based.
 
