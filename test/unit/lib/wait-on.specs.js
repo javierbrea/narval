@@ -26,7 +26,7 @@ test.describe('wait-on', () => {
       }).then(() => {
         return test.expect(mocksSandbox.libs.stubs.waitOn).to.have.been.calledWith({
           interval: 100,
-          timeout: 30000,
+          timeout: 60000,
           resources: ['foo']
         })
       })
@@ -42,7 +42,7 @@ test.describe('wait-on', () => {
       return waitOn.wait('foo-resource testing').then(() => {
         return test.expect(mocksSandbox.libs.stubs.waitOn).to.have.been.calledWith({
           interval: 100,
-          timeout: 30000,
+          timeout: 60000,
           resources: ['foo-resource', 'testing']
         })
       })

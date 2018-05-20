@@ -10,6 +10,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 ### Removed
 
+## [1.0.0] - 2018-05-20
+### Added
+- 100% unit tests coverage.
+
+### Changed
+- Refactored
+- Increased default timeout in wait-on
+
+### Fixed
+- Minor fixes found during unit tests development.
+- Improved error handling in write logs process.
+
 ## [1.0.0-beta.6] - 2018-05-08
 ### Changed
 - Started refactor, and unit tests coverage increase.
