@@ -16,9 +16,10 @@ A clear and concise description of what you expected to happen.
 **Logs**
 If applicable, add logs to help explain your problem.
 
-**OS (please complete the following information):**
- - OS: [e.g. Ubuntu]
- - Version [e.g. 18.04]
+** Operating system, Node.js an npm versions (please complete the following information):**
+ - OS: [e.g. Ubuntu 18.04]
+ - Node.js: [e.g. 8.11.1]
+ - npm: [e.g. 5.6.0]
 
 **Additional context**
 Add any other context about the problem here.
