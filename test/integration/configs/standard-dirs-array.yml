@@ -1,4 +1,0 @@
-standard:
-  directories:
-    - index-ok.js
-    - lib/*.js
