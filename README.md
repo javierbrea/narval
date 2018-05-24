@@ -1,4 +1,4 @@
-# ![Narval Logo][logo-image]
+# ![Narval Logo][narval-logo-image]
 
 Multi test suites runner for Node.js packages. Docker based.
 
@@ -32,6 +32,7 @@ Multi test suites runner for Node.js packages. Docker based.
 	* [Services logs](#services-logs)
 	* [Environment variables](#environment-variables)
 * [Examples](#examples)
+* [Contributing](#contributing)
 
 ## Introduction
 
@@ -764,7 +765,17 @@ suites:
 
 [back to top](#table-of-contents)
 
-[logo-image]: https://javierbrea.github.io/narval/assets/logo-name.png
+## Contributing
+
+Contributions are welcome! Read the [contributing guide lines][narval-contributing-url] and [code of conduct][narval-code-of-conduct-url], check out the [issues][narval-issues-url] or the [PRs][narval-prs-url], and make your own if you want something that you don't see there. 
+
+[back to top](#table-of-contents)
+
+[narval-logo-image]: https://javierbrea.github.io/narval/assets/logo-name.png
+[narval-prs-url]: https://github.com/javierbrea/narval/pulls
+[narval-contributing-url]: https://github.com/javierbrea/narval/blob/master/.github/CONTRIBUTING.md
+[narval-code-of-conduct-url]: https://github.com/javierbrea/narval/blob/master/.github/CODE_OF_CONDUCT.md
+[narval-issues-url]: https://github.com/javierbrea/narval/issues
 
 [coveralls-image]: https://coveralls.io/repos/github/javierbrea/narval/badge.svg
 [coveralls-url]: https://coveralls.io/github/javierbrea/narval
