@@ -1,4 +1,15 @@
+.coverage
+.npmrc
+.scannerwork
+node_modules
+npm-debug.log
+package-lock.json
+.test
+/.narval
+!lib/docker-resources/.narval
 .github/
-.npmignore
+/test
+.gitignore
+.narval.yml
 .travis.yml
-CONTRIBUTING.md
+sonar-project.properties
