@@ -1,6 +1,0 @@
-Attaching to docker_api-container_1
-api-container_1      | WAITING FOR: tcp:mongodb-container:27017The api_container_api_host variable is not set. Defaulting to a blank string.
-The api_container_api_port variable is not set. Defaulting to a blank string.
-The mongodb_container_api_host variable is not set. Defaulting to a blank string.
-The mongodb_container_api_port variable is not set. Defaulting to a blank string.
-docker_api-container_1 exited with code 137

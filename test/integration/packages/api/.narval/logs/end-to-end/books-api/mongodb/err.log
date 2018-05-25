@@ -1,4 +1,0 @@
-The api_container_api_host variable is not set. Defaulting to a blank string.
-The api_container_api_port variable is not set. Defaulting to a blank string.
-The mongodb_container_api_host variable is not set. Defaulting to a blank string.
-The mongodb_container_api_port variable is not set. Defaulting to a blank string.
