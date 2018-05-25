@@ -1,0 +1,5 @@
+Narval is docker in before command: trueNarval suite in before command: books-api
+Narval suite type in before command: end-to-end
+Narval service in before command: before
+Custom environment var in before command: 
+Argument in before command:

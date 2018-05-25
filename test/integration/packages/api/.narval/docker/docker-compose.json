@@ -1,0 +1,151 @@
+{
+  "version": "3.5",
+  "volumes": {
+    "shared": {}
+  },
+  "services": {
+    "test-container": {
+      "build": {
+        "context": "./node-image"
+      },
+      "volumes": [
+        {
+          "type": "volume",
+          "source": "shared",
+          "target": "/narval/.shared"
+        },
+        {
+          "type": "bind",
+          "source": "../../.coverage",
+          "target": "/narval/.coverage"
+        },
+        {
+          "type": "bind",
+          "source": "../../.narval/logs",
+          "target": "/narval/.narval/logs"
+        },
+        {
+          "type": "bind",
+          "source": "../../lib",
+          "target": "/narval/lib"
+        },
+        {
+          "type": "bind",
+          "source": "../../test",
+          "target": "/narval/test"
+        },
+        {
+          "type": "bind",
+          "source": "../../server.js",
+          "target": "/narval/server.js"
+        }
+      ],
+      "environment": {
+        "command_to_run": "${test_container_command}",
+        "command_params": "${test_container_command_params}",
+        "coverage_options": "${coverage_options}",
+        "coverage_enabled": "${test_container_coverage_enabled}",
+        "wait_on": "${test_container_wait_on}",
+        "exit_after": "${test_container_exit_after}",
+        "narval_suite_type": "${test_container_narval_suite_type}",
+        "narval_suite": "${test_container_narval_suite}",
+        "narval_service": "${test_container_narval_service}",
+        "narval_is_docker": "${test_container_narval_is_docker}",
+        "api_host": "${test_container_api_host}",
+        "api_port": "${test_container_api_port}"
+      }
+    },
+    "api-container": {
+      "build": {
+        "context": "./node-image"
+      },
+      "volumes": [
+        {
+          "type": "volume",
+          "source": "shared",
+          "target": "/narval/.shared"
+        },
+        {
+          "type": "bind",
+          "source": "../../.coverage",
+          "target": "/narval/.coverage"
+        },
+        {
+          "type": "bind",
+          "source": "../../.narval/logs",
+          "target": "/narval/.narval/logs"
+        },
+        {
+          "type": "bind",
+          "source": "../../lib",
+          "target": "/narval/lib"
+        },
+        {
+          "type": "bind",
+          "source": "../../test",
+          "target": "/narval/test"
+        },
+        {
+          "type": "bind",
+          "source": "../../server.js",
+          "target": "/narval/server.js"
+        }
+      ],
+      "environment": {
+        "command_to_run": "${api_container_command}",
+        "command_params": "${api_container_command_params}",
+        "coverage_options": "${coverage_options}",
+        "coverage_enabled": "${api_container_coverage_enabled}",
+        "wait_on": "${api_container_wait_on}",
+        "exit_after": "${api_container_exit_after}",
+        "narval_suite_type": "${api_container_narval_suite_type}",
+        "narval_suite": "${api_container_narval_suite}",
+        "narval_service": "${api_container_narval_service}",
+        "narval_is_docker": "${api_container_narval_is_docker}",
+        "api_host": "${api_container_api_host}",
+        "api_port": "${api_container_api_port}"
+      }
+    },
+    "mongodb-container": {
+      "build": {
+        "context": "./mongodb-image"
+      },
+      "volumes": [
+        {
+          "type": "volume",
+          "source": "shared",
+          "target": "/narval/.shared"
+        },
+        {
+          "type": "bind",
+          "source": "../../.coverage",
+          "target": "/narval/.coverage"
+        },
+        {
+          "type": "bind",
+          "source": "../../.narval/logs",
+          "target": "/narval/.narval/logs"
+        },
+        {
+          "type": "bind",
+          "source": "../../test/commands",
+          "target": "/narval/test/commands"
+        }
+      ],
+      "environment": {
+        "command_to_run": "${mongodb_container_command}",
+        "command_params": "${mongodb_container_command_params}",
+        "coverage_options": "${coverage_options}",
+        "coverage_enabled": "${mongodb_container_coverage_enabled}",
+        "wait_on": "${mongodb_container_wait_on}",
+        "exit_after": "${mongodb_container_exit_after}",
+        "narval_suite_type": "${mongodb_container_narval_suite_type}",
+        "narval_suite": "${mongodb_container_narval_suite}",
+        "narval_service": "${mongodb_container_narval_service}",
+        "narval_is_docker": "${mongodb_container_narval_is_docker}",
+        "api_host": "${mongodb_container_api_host}",
+        "api_port": "${mongodb_container_api_port}"
+      }
+    }
+  }
+}

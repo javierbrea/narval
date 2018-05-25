@@ -1,0 +1,3 @@
+Attaching to docker_api-container_1
+api-container_1      | WAITING FOR: tcp:mongodb-container:27017
+docker_api-container_1 exited with code 137

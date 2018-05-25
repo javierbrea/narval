@@ -1,0 +1,5 @@
+Attaching to docker_mongodb-container_1
+mongodb-container_1  | ================================
+mongodb-container_1  | [Narval] [DEBUG] RUNNING COMMAND: test/commands/mongodb-docker-fake.sh 
+mongodb-container_1  | ./.narval/scripts/run-cmd.sh: line 54: ./test/commands/mongodb-docker-fake.sh: No such file or directory
+docker_mongodb-container_1 exited with code 127
