@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Documentation fixes.
 
 ### Fixed
+- Do not clean full logs folder. Clean each suite logs folder just before executing it. Clean only the log folder of the executed service when it is ran locally as a single service.
+
 ### Removed
 
 ## [1.0.0] - 2018-05-20

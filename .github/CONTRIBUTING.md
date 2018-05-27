@@ -50,7 +50,7 @@ or change.
 * Do not include issue numbers in the PR title.
 * Follow the [JavaScript styleguide](#javascript-styleguide).
 * Follow the [Specs styleguide](#specs-styleguide).
-* All enhancements and bug fixes must be accompanied with all needed new related regression test. Not only unit tests, integration or functional tests are mandatory too.
+* All enhancements and bug fixes must be accompanied with all needed new related regression test. Not only unit tests, integration or functional tests are also required.
 * Coverage of unit tests must remain 100%.
 * Run tests often. Tests are ran automatically with Travis when you push, but you still need to run them locally before pushing.
 * Document new features, or update documentation if changes affect to it.

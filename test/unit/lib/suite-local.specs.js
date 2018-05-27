@@ -40,6 +40,7 @@ test.describe('suite-local', () => {
       'logs',
       'waiton',
       'libs',
+      'paths',
       'utils',
       'processes'
     ])
