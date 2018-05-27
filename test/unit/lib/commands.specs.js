@@ -1,6 +1,7 @@
 
 const os = require('os')
 const Boom = require('boom')
+const path = require('path')
 
 const test = require('../../../index')
 const mocks = require('../mocks')
@@ -226,11 +227,31 @@ test.describe('commands', () => {
         })
     })
 
-    test.it('should run the "before" command retrieved from suite config resolver', () => {
+    test.it('should run the "before" command retrieved from suite config resolver, adding the cwd path to it', () => {
+      mocksSandbox.utils.stubs.commandArguments.returns({
+        command: beforeCommand,
+        joinedArguments: ''
+      })
+      sandbox.stub(process, 'cwd').returns('fooCwdPath')
+
       return commands.runBefore(configMock, loggerMock)
         .then(() => {
           const spawnArguments = mocksSandbox.processes.stubs.spawn.getCall(0).args
-          return test.expect(spawnArguments[1].args[spawnArguments[1].args.length - 1]).to.include(beforeCommand)
+          return test.expect(spawnArguments[1].args[spawnArguments[1].args.length - 1]).to.include(path.join('fooCwdPath', beforeCommand))
+        })
+    })
+
+    test.it('should respect the arguments of the command and pass them as they are, not changing folder separators', () => {
+      const joinedArguments = '//testing\\fol///der//paths\\seps/'
+      mocksSandbox.utils.stubs.commandArguments.returns({
+        command: beforeCommand,
+        joinedArguments: joinedArguments
+      })
+
+      return commands.runBefore(configMock, loggerMock)
+        .then(() => {
+          const spawnArguments = mocksSandbox.processes.stubs.spawn.getCall(0).args
+          return test.expect(spawnArguments[1].args[spawnArguments[1].args.length - 1]).to.include(joinedArguments)
         })
     })
 

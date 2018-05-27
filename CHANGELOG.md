@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Documentation fixes.
 
 ### Fixed
+- Pass command arguments just as were defined. Do not execute path.join on them. closes #18
+
 ### Removed
 
 ## [1.0.0] - 2018-05-20
