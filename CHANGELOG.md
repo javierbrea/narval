@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 - Do not clean full logs folder. Clean each suite logs folder just before executing it. Clean only the log folder of the executed service when it is ran locally as a single service.
+- Pass command arguments just as were defined. Do not execute path.join on them. closes #18
 
 ### Removed
 
