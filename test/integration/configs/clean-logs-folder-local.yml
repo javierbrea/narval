@@ -24,7 +24,5 @@ suites:
             command: test/commands/foo-command.sh
       test:
         specs: test/specs/functional
-        local:
-          wait-on: .narval/logs/functional/suite-2/service-2/exit-code.log
       coverage:
         enabled: false
