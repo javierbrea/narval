@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 - Pass command arguments just as were defined. Do not execute path.join on them. closes #18
+- Add local services "on.close" handlers just when each service is started. Do not wait until all services are started to add listeners.
 
 ### Removed
 
