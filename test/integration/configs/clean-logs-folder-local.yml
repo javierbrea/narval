@@ -8,15 +8,10 @@ suites:
         - name: service-2
           local:
             command: test/commands/foo-command.sh
-            wait-on: .narval/logs/functional/suite-1/service-1/exit-code.log
-        - name: service-3
-          local:
-            command: test/commands/foo-command.sh
-            wait-on: .narval/logs/functional/suite-1/service-2/exit-code.log
       test:
         specs: test/specs/functional
         local:
-          wait-on: .narval/logs/functional/suite-1/service-3/exit-code.log
+          wait-on: .narval/logs/functional/suite-1/service-2/exit-code.log
       coverage:
         enabled: false
     - name: suite-2
@@ -27,14 +22,9 @@ suites:
         - name: service-2
           local:
             command: test/commands/foo-command.sh
-            wait-on: .narval/logs/functional/suite-2/service-1/exit-code.log
-        - name: service-3
-          local:
-            command: test/commands/foo-command.sh
-            wait-on: .narval/logs/functional/suite-2/service-2/exit-code.log
       test:
         specs: test/specs/functional
         local:
-          wait-on: .narval/logs/functional/suite-2/service-3/exit-code.log
+          wait-on: .narval/logs/functional/suite-2/service-2/exit-code.log
       coverage:
         enabled: false
