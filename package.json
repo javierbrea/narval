@@ -1,6 +1,6 @@
 {
   "name": "narval",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Multi test suites runner for Node.js packages. Docker based",
   "main": "index.js",
   "keywords": [

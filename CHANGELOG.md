@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [unreleased]
 ### Added
+### Changed
+### Fixed
+### Removed
+
+## [1.0.1] - 2018-05-28
+### Added
 - Lighter npm distribution. Ignore not needed resources.
 
 ### Changed
@@ -16,8 +22,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Do not clean full logs folder. Clean each suite logs folder just before executing it. Clean only the log folder of the executed service when it is ran locally as a single service.
 - Pass command arguments just as were defined. Do not execute path.join on them. closes #18
 - Add local services "on.close" handlers just when each service is started. Do not wait until all services are started to add listeners.
-
-### Removed
 
 ## [1.0.0] - 2018-05-20
 ### Added
