@@ -408,6 +408,79 @@ suites:
             logs_folder: end-to-end/books-api
       coverage:
         enabled: false
+    - name: api-docker-custom-args
+      before:
+        local:
+          command: test/integration/commands/prepare-package.sh
+          env:
+            package_to_launch: api
+            narval_config: api-docker-custom-args
+      services:
+        - name: package-test
+          local:
+            command: test/integration/commands/launch-test.sh
+            env:
+              package_to_launch: api
+              narval_options: -- --suite=books-api
+      test:
+        specs:
+          - test/integration/specs/standard/standard-not-run.specs.js
+          - test/integration/specs/tests/test-ok.specs.js
+          - test/integration/specs/tests/unit-not-launched.specs.js
+          - test/integration/specs/docker/run.specs.js
+          - test/integration/specs/docker/not-build.specs.js
+          - test/integration/specs/docker/not-down-volumes.specs.js
+          - test/integration/specs/docker/shared.specs.js
+          - test/integration/specs/api-docker
+          - test/integration/specs/exit/exit-ok.specs.js
+          - test/integration/specs/environment/defaults.specs.js
+          - test/integration/specs/arguments/custom-docker.specs.js
+          - test/integration/specs/logs/service.logs.specs.js
+        local:
+          wait-on:
+            resources: 
+              - .narval/logs/integration/api-docker-custom-args/package-test/exit-code.log
+            timeout: 120000
+          env:
+            package_to_launch: api
+            logs_folder: end-to-end/books-api
+      coverage:
+        enabled: false
+    - name: api-local-custom-args
+      before:
+        local:
+          command: test/integration/commands/prepare-package.sh
+          env:
+            package_to_launch: api
+            narval_config: api-local-custom-args
+      services:
+        - name: package-test
+          local:
+            command: test/integration/commands/launch-test.sh
+            env:
+              package_to_launch: api
+              narval_options: -- --suite=books-api
+      test:
+        specs:
+          - test/integration/specs/standard/standard-not-run.specs.js
+          - test/integration/specs/tests/test-ok.specs.js
+          - test/integration/specs/tests/unit-not-launched.specs.js
+          - test/integration/specs/docker/not-run.specs.js
+          - test/integration/specs/api-integration-local
+          - test/integration/specs/exit/exit-ok.specs.js
+          - test/integration/specs/environment/defaults.specs.js
+          - test/integration/specs/arguments/custom-local.specs.js
+          - test/integration/specs/logs/service.local.logs.specs.js
+        local:
+          wait-on:
+            resources: 
+              - .narval/logs/integration/api-local-custom-args/package-test/exit-code.log
+            timeout: 120000
+          env:
+            package_to_launch: api
+            logs_folder: end-to-end/books-api
+      coverage:
+        enabled: false
     - name: api-local-custom-vars
       before:
         local:
@@ -972,5 +1045,74 @@ suites:
             package_to_launch: api
             coverage_dir: .coverage/end-to-end/books-api
             logs_folder: end-to-end/books-api
+      coverage:
+        enabled: false
+    - name: local-services-waiting-close
+      before:
+        local:
+          command: test/integration/commands/prepare-package.sh
+          env:
+            package_to_launch: simple-command
+            narval_config: local-services-waiting-close
+      services:
+        - name: package-test
+          local:
+            command: test/integration/commands/launch-test.sh
+            env:
+              package_to_launch: simple-command
+      test:
+        specs:
+          - test/integration/specs/exit/exit-ok.specs.js
+          - test/integration/specs/logs/local-services-waiting-close.specs.js
+        local:
+          wait-on:
+            resources: 
+              - .narval/logs/integration/local-services-waiting-close/package-test/exit-code.log
+            timeout: 120000
+      coverage:
+        enabled: false
+    - name: clean-logs-folder-local
+      before:
+        local:
+          command: test/integration/commands/prepare-package.sh
+          env:
+            package_to_launch: simple-command
+            narval_config: clean-logs-folder-local
+      services:
+        - name: package-test
+          local:
+            command: test/integration/commands/launch-test.sh
+            env:
+              package_to_launch: simple-command
+        - name: package-test-2
+          local:
+            command: test/integration/commands/launch-test.sh
+            env:
+              package_to_launch: simple-command
+              narval_options: -- --suite=suite-2
+            wait-on: .narval/logs/integration/clean-logs-folder-local/package-test/exit-code.log
+        - name: package-test-3
+          local:
+            command: test/integration/commands/launch-test.sh
+            env:
+              package_to_launch: simple-command
+              narval_options: -- --suite=suite-2 --local=service-2
+            wait-on: .narval/logs/integration/clean-logs-folder-local/package-test-2/exit-code.log
+        - name: package-test-4
+          local:
+            command: test/integration/commands/launch-test.sh
+            env:
+              package_to_launch: simple-command
+              narval_options: -- --suite=suite-2 --local=test
+            wait-on: .narval/logs/integration/clean-logs-folder-local/package-test-3/exit-code.log
+      test:
+        specs:
+          - test/integration/specs/exit/exit-ok.specs.js
+          - test/integration/specs/logs/clean-logs-folder-local.specs.js
+        local:
+          wait-on:
+            resources: 
+              - .narval/logs/integration/clean-logs-folder-local/package-test-4/exit-code.log
+            timeout: 120000
       coverage:
         enabled: false

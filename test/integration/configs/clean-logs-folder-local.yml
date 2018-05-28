@@ -1,0 +1,28 @@
+suites:
+  functional:
+    - name: suite-1
+      services:
+        - name: service-1
+          local:
+            command: test/commands/foo-command.sh
+        - name: service-2
+          local:
+            command: test/commands/foo-command.sh
+      test:
+        specs: test/specs/functional
+        local:
+          wait-on: .narval/logs/functional/suite-1/service-2/exit-code.log
+      coverage:
+        enabled: false
+    - name: suite-2
+      services:
+        - name: service-1
+          local:
+            command: test/commands/foo-command.sh
+        - name: service-2
+          local:
+            command: test/commands/foo-command.sh
+      test:
+        specs: test/specs/functional
+      coverage:
+        enabled: false

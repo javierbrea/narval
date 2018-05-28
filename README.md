@@ -1,4 +1,4 @@
-# ![Narval Logo](assets/logo.png)
+# ![Narval Logo][narval-logo-image]
 
 Multi test suites runner for Node.js packages. Docker based.
 
@@ -14,6 +14,7 @@ Multi test suites runner for Node.js packages. Docker based.
 * [Requirements](#requirements)
 * [Quick Start](#quick-start)
 * [Configuration](#configuration)
+	* [standard](#standard)
 	* [docker-images](#docker-images)
 	* [docker-containers](#docker-containers)
 	* [suites](#suites)
@@ -31,6 +32,7 @@ Multi test suites runner for Node.js packages. Docker based.
 	* [Services logs](#services-logs)
 	* [Environment variables](#environment-variables)
 * [Examples](#examples)
+* [Contributing](#contributing)
 
 ## Introduction
 
@@ -112,8 +114,8 @@ Create a `.narval.yml` file at the root of your project.
 ```yml
 standard:
   directories:
-    - "**/.js"
-    - "!test/integration/packages/**/*.js"
+    - "lib/**/.js"
+    - "test/integration/packages/**/*.js"
 ```
 
 ### docker-images
@@ -370,6 +372,7 @@ suites:
 * `from` `<String>`. By default, coverage will be executed over the [test](#test) defined in a suite, but, it is possible to get coverage from a service. Use this property to define a [service] name from which execution the coverage will be generated.
 * `config` `<Object>` containing Istanbul configuration arguments for coverage execution. All provided key value pairs will be translated into "--key=value" when Istanbul is executed. As examples, some available `config` keys are provided in this documentation. For further reference about all available arguments, [please read Istanbul usage documentation][istanbul-usage-url], or execute `./node_modules/.bin/istanbul help config cover`
 	* `root` `<String>` `default:.`. Path to folder containing sources to cover.
+	* `x` `<String>`. Glob defining folders to exclude from coverage.
 	* `include-all-sources` `<Boolean>` `default:true`. Show 0% coverage for files with no tests executed.
 	* `dir` `<String>` `default:.coverage/[suite-type]/[suite-name]`. Path to folder in which reports will be created.
 	* `report` `<String>` `default:lcov/html`. Type of Istanbul reports to generate.
@@ -761,6 +764,18 @@ suites:
 > NOTE: There are more files with many other configurations that may be useful as examples at the [integration tests folder of this repository][integration-tests-config-url]. All these Narval configuration files are used for testing Narval itself, and most of them are runned over the ["foo api package" in the integration tests folder][integration-tests-foo-package-url].
 
 [back to top](#table-of-contents)
+
+## Contributing
+
+Contributions are welcome! Read the [contributing guide lines][narval-contributing-url] and [code of conduct][narval-code-of-conduct-url], check out the [issues][narval-issues-url] or the [PRs][narval-prs-url], and make your own if you want something that you don't see there. 
+
+[back to top](#table-of-contents)
+
+[narval-logo-image]: https://javierbrea.github.io/narval/assets/logo-name.png
+[narval-prs-url]: https://github.com/javierbrea/narval/pulls
+[narval-contributing-url]: https://github.com/javierbrea/narval/blob/master/.github/CONTRIBUTING.md
+[narval-code-of-conduct-url]: https://github.com/javierbrea/narval/blob/master/.github/CODE_OF_CONDUCT.md
+[narval-issues-url]: https://github.com/javierbrea/narval/issues
 
 [coveralls-image]: https://coveralls.io/repos/github/javierbrea/narval/badge.svg
 [coveralls-url]: https://coveralls.io/github/javierbrea/narval

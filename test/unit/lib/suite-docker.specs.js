@@ -81,6 +81,12 @@ test.describe('suite-docker', () => {
       })
     })
 
+    test.it('should have cleaned all suite logs folder', () => {
+      return run().then(() => {
+        return test.expect(mocksSandbox.paths.stubs.cwd.cleanLogs).to.have.been.calledWith(fooTypeName, fooSuiteName)
+      })
+    })
+
     test.it('should have executed the before command, passing to it the config and the logger', () => {
       return run().then(() => {
         return test.expect(mocksSandbox.commands.stubs.runBefore).to.have.been.calledWith(configMock, loggerMock)
