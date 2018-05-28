@@ -32,7 +32,7 @@ const readPackageLogs = function (packageName, suiteType, suiteName, serviceName
   })
 }
 
-const expectServiceLog = function (serviceName, logFile, minLength, packageName = 'api', baseLogsFolder) {
+const expectServiceLog = function (serviceName, logFile, minLength, baseLogsFolder, packageName = 'api') {
   const logsFolder = baseLogsFolder || process.env.logs_folder
   const splittedFolder = logsFolder.split('/')
   const suiteType = splittedFolder[0]
@@ -55,10 +55,10 @@ const checkServiceLogs = function (serviceName, customMinLengths, packageName, b
     'exit-code': 0
   }
   minLengths = Object.assign({}, minLengths, customMinLengths)
-  expectServiceLog(serviceName, 'combined-outerr', minLengths.combined, packageName, baseLogsFolder)
-  expectServiceLog(serviceName, 'out', minLengths.out, packageName, baseLogsFolder)
-  expectServiceLog(serviceName, 'err', minLengths.err, packageName, baseLogsFolder)
-  expectServiceLog(serviceName, 'exit-code', minLengths['exit-code'], packageName, baseLogsFolder)
+  expectServiceLog(serviceName, 'combined-outerr', minLengths.combined, baseLogsFolder, packageName)
+  expectServiceLog(serviceName, 'out', minLengths.out, baseLogsFolder, packageName)
+  expectServiceLog(serviceName, 'err', minLengths.err, baseLogsFolder, packageName)
+  expectServiceLog(serviceName, 'exit-code', minLengths['exit-code'], baseLogsFolder, packageName)
 }
 
 module.exports = {
