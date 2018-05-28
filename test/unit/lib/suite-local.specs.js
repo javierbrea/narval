@@ -40,6 +40,7 @@ test.describe('suite-local', () => {
       'logs',
       'waiton',
       'libs',
+      'paths',
       'utils',
       'processes'
     ])
@@ -102,6 +103,12 @@ test.describe('suite-local', () => {
       test.it('should not execute the "before" command', () => {
         return run().then(() => {
           return test.expect(mocksSandbox.commands.stubs.runBefore).to.not.have.been.called()
+        })
+      })
+
+      test.it('should have cleaned the log folder of the service to execute', () => {
+        return run().then(() => {
+          return test.expect(mocksSandbox.paths.stubs.cwd.cleanLogs).to.have.been.calledWith(fooTypeName, fooSuiteName, fooServiceName)
         })
       })
     })
@@ -320,9 +327,17 @@ test.describe('suite-local', () => {
         sandbox.stub(mochaSinonChaiRunner, 'run').resolves()
       })
 
-      test.it('should not execute the "before" command when it is ran alone', () => {
-        return run().then(() => {
-          return test.expect(mocksSandbox.commands.stubs.runBefore).to.not.have.been.called()
+      test.describe('when test is executed "alone"', () => {
+        test.it('should not execute the "before" command', () => {
+          return run().then(() => {
+            return test.expect(mocksSandbox.commands.stubs.runBefore).to.not.have.been.called()
+          })
+        })
+
+        test.it('should have not cleaned any log folder', () => {
+          return run().then(() => {
+            return test.expect(mocksSandbox.paths.stubs.cwd.cleanLogs).to.not.have.been.called()
+          })
         })
       })
 
@@ -443,6 +458,12 @@ test.describe('suite-local', () => {
         configMock.runSingleTest.returns(false)
         sandbox.stub(mochaSinonChaiRunner, 'run').resolves()
         mocksSandbox.processes.stubs.fork.resolves(0)
+      })
+
+      test.it('should have cleaned all suite logs folder', () => {
+        return run().then(() => {
+          return test.expect(mocksSandbox.paths.stubs.cwd.cleanLogs).to.have.been.calledWith(fooTypeName, fooSuiteName)
+        })
       })
 
       test.it('should print a log when test execution ends', () => {

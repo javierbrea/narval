@@ -32,21 +32,22 @@ const readPackageLogs = function (packageName, suiteType, suiteName, serviceName
   })
 }
 
-const expectServiceLog = function (serviceName, logFile, minLength) {
-  const splittedFolder = process.env.logs_folder.split('/')
+const expectServiceLog = function (serviceName, logFile, minLength, packageName = 'api', baseLogsFolder) {
+  const logsFolder = baseLogsFolder || process.env.logs_folder
+  const splittedFolder = logsFolder.split('/')
   const suiteType = splittedFolder[0]
   const suite = splittedFolder[1]
 
   minLength = _.isUndefined(minLength) ? 0 : minLength
-  test.it(`should have written ${serviceName} service ${logFile} logs`, () => {
-    return readPackageLogs('api', suiteType, suite, serviceName, logFile)
+  test.it(`should have written log file "${logFile}.log" of service "${serviceName}", suite "${suite}", suite type "${suiteType}" of package "${packageName}"`, () => {
+    return readPackageLogs(packageName, suiteType, suite, serviceName, logFile)
       .then((log) => {
         return test.expect(log).to.have.lengthOf.above(minLength)
       })
   })
 }
 
-const checkServiceLogs = function (serviceName, customMinLengths) {
+const checkServiceLogs = function (serviceName, customMinLengths, packageName, baseLogsFolder) {
   let minLengths = {
     combined: 0,
     out: 0,
@@ -54,10 +55,10 @@ const checkServiceLogs = function (serviceName, customMinLengths) {
     'exit-code': 0
   }
   minLengths = Object.assign({}, minLengths, customMinLengths)
-  expectServiceLog(serviceName, 'combined-outerr', minLengths.combined)
-  expectServiceLog(serviceName, 'out', minLengths.out)
-  expectServiceLog(serviceName, 'err', minLengths.err)
-  expectServiceLog(serviceName, 'exit-code', minLengths['exit-code'])
+  expectServiceLog(serviceName, 'combined-outerr', minLengths.combined, packageName, baseLogsFolder)
+  expectServiceLog(serviceName, 'out', minLengths.out, packageName, baseLogsFolder)
+  expectServiceLog(serviceName, 'err', minLengths.err, packageName, baseLogsFolder)
+  expectServiceLog(serviceName, 'exit-code', minLengths['exit-code'], packageName, baseLogsFolder)
 }
 
 module.exports = {

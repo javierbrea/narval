@@ -19,7 +19,6 @@ test.describe('suites', () => {
         'suitedocker',
         'docker',
         'tracer',
-        'paths',
         'options',
         'config',
         'logs'
@@ -61,20 +60,6 @@ test.describe('suites', () => {
           return test.expect(mocksSandbox.logs.stubs.runningSuiteType).to.have.been.calledWith({
             type: 'fooType'
           })
-        })
-    })
-
-    test.it('should clean logs folder before executing suites', () => {
-      const fooLogsPath = 'fooPath'
-      mocksSandbox.options.stubs.get.resolves(fixtures.options.suite)
-      mocksSandbox.paths.stubs.logs.returns(fooLogsPath)
-      mocksSandbox.paths.stubs.cwd.remove.resolves()
-      return suites.run()
-        .then(() => {
-          return Promise.all([
-            test.expect(mocksSandbox.paths.stubs.cwd.remove).to.have.been.calledWith(fooLogsPath),
-            test.expect(mocksSandbox.paths.stubs.cwd.ensureDir).to.have.been.calledWith(fooLogsPath)
-          ])
         })
     })
 

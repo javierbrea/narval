@@ -174,6 +174,32 @@ test.describe('paths', () => {
   testRelativePathUtils('cwd', process.cwd(), 'the process current working directory')
   testRelativePathUtils('package', path.resolve(__dirname, '..', '..', '..'), 'the process current working directory')
 
+  test.describe('cwd.cleanLogs method', () => {
+    let ensureDirStub
+    let removeStub
+
+    test.beforeEach(() => {
+      ensureDirStub = test.sinon.stub(fsExtra, 'ensureDir').usingPromise().resolves()
+      removeStub = test.sinon.stub(fsExtra, 'remove').usingPromise().resolves()
+    })
+
+    test.afterEach(() => {
+      fsExtra.ensureDir.restore()
+      fsExtra.remove.restore()
+    })
+
+    test.it('should call to remove and then ensure the provided path, resolving it with under logs path', () => {
+      const fooPath = path.resolve(process.cwd(), '.narval', 'logs', 'fooPath', 'fooSubPath')
+      return paths.cwd.cleanLogs('fooPath', 'fooSubPath')
+        .then(() => {
+          return Promise.all([
+            test.expect(removeStub).to.have.been.calledWith(fooPath),
+            test.expect(ensureDirStub).to.have.been.calledWith(fooPath)
+          ])
+        })
+    })
+  })
+
   test.describe('logs method', () => {
     test.it('should return the absolute path to the the narval logs folder in the current working directory path', () => {
       const logsFolderPath = path.resolve(process.cwd(), '.narval', 'logs')

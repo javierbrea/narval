@@ -19,7 +19,9 @@ const Mock = function () {
   }
 
   const stubs = {
-    cwd: new PathMethods('cwd'),
+    cwd: Object.assign(new PathMethods('cwd'), {
+      cleanLogs: sandbox.stub(paths.cwd, 'cleanLogs').usingPromise().resolves()
+    }),
     package: new PathMethods('package'),
     defaultConfig: sandbox.stub(paths, 'defaultConfig'),
     customConfig: sandbox.stub(paths, 'customConfig'),

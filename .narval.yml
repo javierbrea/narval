@@ -1071,3 +1071,48 @@ suites:
             timeout: 120000
       coverage:
         enabled: false
+    - name: clean-logs-folder-local
+      before:
+        local:
+          command: test/integration/commands/prepare-package.sh
+          env:
+            package_to_launch: simple-command
+            narval_config: clean-logs-folder-local
+      services:
+        - name: package-test
+          local:
+            command: test/integration/commands/launch-test.sh
+            env:
+              package_to_launch: simple-command
+        - name: package-test-2
+          local:
+            command: test/integration/commands/launch-test.sh
+            env:
+              package_to_launch: simple-command
+              narval_options: -- --suite=suite-2
+            wait-on: .narval/logs/integration/clean-logs-folder-local/package-test/exit-code.log
+        - name: package-test-3
+          local:
+            command: test/integration/commands/launch-test.sh
+            env:
+              package_to_launch: simple-command
+              narval_options: -- --suite=suite-2 --local=service-2
+            wait-on: .narval/logs/integration/clean-logs-folder-local/package-test-2/exit-code.log
+        - name: package-test-4
+          local:
+            command: test/integration/commands/launch-test.sh
+            env:
+              package_to_launch: simple-command
+              narval_options: -- --suite=suite-2 --local=test
+            wait-on: .narval/logs/integration/clean-logs-folder-local/package-test-3/exit-code.log
+      test:
+        specs:
+          - test/integration/specs/exit/exit-ok.specs.js
+          - test/integration/specs/logs/clean-logs-folder-local.specs.js
+        local:
+          wait-on:
+            resources: 
+              - .narval/logs/integration/clean-logs-folder-local/package-test-4/exit-code.log
+            timeout: 120000
+      coverage:
+        enabled: false
