@@ -4,7 +4,7 @@ const test = require('../../../index')
 const config = require('../../../lib/config')
 
 const Mock = function () {
-  const sandbox = test.sinon.sandbox.create()
+  const sandbox = test.sinon.createSandbox()
 
   const serviceResolverStubs = {
     waitOn: sandbox.stub(),

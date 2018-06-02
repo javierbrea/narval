@@ -7,7 +7,7 @@ const suiteTypes = {
 }
 
 const Mock = function (mockToCreate) {
-  const sandbox = test.sinon.sandbox.create()
+  const sandbox = test.sinon.createSandbox()
 
   const runnerStubs = {
     run: sandbox.stub().usingPromise().resolves()

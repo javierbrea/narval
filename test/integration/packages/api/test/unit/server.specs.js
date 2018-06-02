@@ -7,7 +7,7 @@ test.describe('server', function () {
   let sandbox
 
   test.before(() => {
-    sandbox = test.sinon.sandbox.create()
+    sandbox = test.sinon.createSandbox()
     sandbox.stub(serverLib, 'start').usingPromise().resolves()
   })
 

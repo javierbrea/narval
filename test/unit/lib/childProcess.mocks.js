@@ -5,7 +5,7 @@ const test = require('../../../index')
 const utils = require('../utils')
 
 const Mock = function () {
-  const sandbox = test.sinon.sandbox.create()
+  const sandbox = test.sinon.createSandbox()
   let forkStub
   let forkOnFake
   let forkSendFake

@@ -4,7 +4,7 @@ const test = require('../../../index')
 const commands = require('../../../lib/commands')
 
 const Mock = function () {
-  const sandbox = test.sinon.sandbox.create()
+  const sandbox = test.sinon.createSandbox()
 
   let stubs = {
     run: sandbox.stub(commands, 'run').usingPromise().resolves(),

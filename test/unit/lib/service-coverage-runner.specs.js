@@ -6,7 +6,7 @@ const mocks = require('../mocks')
 test.describe('service coverage runner', () => {
   const fooServicePath = 'fooServicePath'
   const originalServicePath = process.env.servicePath
-  const sandbox = test.sinon.sandbox.create()
+  const sandbox = test.sinon.createSandbox()
   let requireError
   let tracerMock
   let processMock

@@ -13,7 +13,7 @@ test.describe('processes', () => {
   let childProcessMock
 
   test.beforeEach(() => {
-    sandbox = test.sinon.sandbox.create()
+    sandbox = test.sinon.createSandbox()
     sandbox.spy(console, 'log')
     mocksSandbox = new mocks.Sandbox([
       'paths',
