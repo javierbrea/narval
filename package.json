@@ -1,6 +1,6 @@
 {
   "name": "narval",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Multi test suites runner for Node.js packages. Docker based",
   "main": "index.js",
   "keywords": [
@@ -13,6 +13,7 @@
     "testing",
     "test suites",
     "unit test",
+    "acceptance test",
     "integration test",
     "end to end test",
     "standardjs",
@@ -40,7 +41,7 @@
     "handlebars": "4.0.11",
     "js-yaml": "3.11.0",
     "lodash": "4.17.10",
-    "mocha-sinon-chai": "2.3.0",
+    "mocha-sinon-chai": "2.4.0",
     "standard": "11.0.1",
     "tracer": "0.8.15",
     "tree-kill": "1.2.0",
@@ -51,13 +52,9 @@
     "coveralls": "3.0.1",
     "mockery": "2.1.0"
   },
-  "engines": {
-    "node": "8.11.1",
-    "npm": "5.6.0"
-  },
   "author": {
     "name": "Javier Brea",
-    "url": "http://javierbrea.com"
+    "url": "https://javierbrea.com"
   },
   "license": "MIT",
   "repository": "https://github.com/javierbrea/narval"

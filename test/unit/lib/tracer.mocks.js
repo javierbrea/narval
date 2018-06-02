@@ -4,7 +4,7 @@ const test = require('../../../index')
 const tracer = require('../../../lib/tracer')
 
 const Mock = function () {
-  const sandbox = test.sinon.sandbox.create()
+  const sandbox = test.sinon.createSandbox()
 
   const stubs = {
     log: sandbox.stub(tracer, 'log'),

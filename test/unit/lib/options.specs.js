@@ -39,7 +39,7 @@ test.describe('options', () => {
 
     test.beforeEach(() => {
       commanderMock = new CommanderMock()
-      sandbox = test.sinon.sandbox.create()
+      sandbox = test.sinon.createSandbox()
       sandbox.stub(commander, 'option').callsFake(commanderMock.option)
       sandbox.stub(states, 'get').returns(undefined)
       sandbox.stub(states, 'set')

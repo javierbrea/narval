@@ -8,7 +8,7 @@ const ChildProcessMocks = require('./childProcess.mocks')
 const utils = require('../utils')
 
 const Mock = function () {
-  const sandbox = test.sinon.sandbox.create()
+  const sandbox = test.sinon.createSandbox()
   const handlerOnFake = new utils.CallBackRunnerFake({
     runOnRegister: false
   })

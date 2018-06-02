@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 ### Removed
 
+## [1.1.0]
+### Changed
+- Upgrade mocha-sinon-chai version
+
 ## [1.0.1] - 2018-05-28
 ### Added
 - Lighter npm distribution. Ignore not needed resources.

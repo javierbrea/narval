@@ -21,7 +21,7 @@ test.describe('runner', () => {
       warnOnUnregistered: false
     })
 
-    sandbox = test.sinon.sandbox.create()
+    sandbox = test.sinon.createSandbox()
 
     tracer = require('../../../lib/tracer')
     states = require('../../../lib/states')

@@ -5,7 +5,7 @@ const test = require('../../../index')
 const logs = require('../../../lib/logs')
 
 const Mock = function () {
-  const sandbox = test.sinon.sandbox.create()
+  const sandbox = test.sinon.createSandbox()
 
   const suiteLoggerStubs = {
     skip: sandbox.stub(),

@@ -33,7 +33,7 @@ test.describe('suite-local', () => {
   let stdinOnFake
 
   test.beforeEach(() => {
-    sandbox = test.sinon.sandbox.create()
+    sandbox = test.sinon.createSandbox()
     mocksSandbox = new mocks.Sandbox([
       'commands',
       'config',

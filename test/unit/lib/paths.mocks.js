@@ -4,7 +4,7 @@ const test = require('../../../index')
 const paths = require('../../../lib/paths')
 
 const Mock = function () {
-  const sandbox = test.sinon.sandbox.create()
+  const sandbox = test.sinon.createSandbox()
 
   const PathMethods = function (base) {
     return {

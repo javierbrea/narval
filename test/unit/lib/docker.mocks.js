@@ -4,7 +4,7 @@ const test = require('../../../index')
 const docker = require('../../../lib/docker')
 
 const Mock = function () {
-  const sandbox = test.sinon.sandbox.create()
+  const sandbox = test.sinon.createSandbox()
 
   let stubs = {
     createFiles: sandbox.stub(docker, 'createFiles').usingPromise().resolves(),
