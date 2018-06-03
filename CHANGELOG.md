@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 ### Removed
 
-## [1.1.0]
+## [1.1.0] - 2018-06-03
 ### Added
 - Add new custom "wait-on" value to wait for a service to be finished: wait-on: exit:service-name
 
