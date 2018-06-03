@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 BASE_PATH="test/integration/packages"
-NARVAL_FOO_NODE_MODULES="$BASE_PATH/api/_node_modules"
+NARVAL_FOO_NODE_MODULES="$BASE_PATH/${package_to_launch}/_node_modules"
 NARVAL_LIB_DEST="${NARVAL_FOO_NODE_MODULES}/narval"
 NARVAL_FILE="$BASE_PATH/${package_to_launch}/.narval.yml"
 COVERAGE_FOLDER="$BASE_PATH/${package_to_launch}/.coverage"
@@ -22,7 +22,7 @@ if [ -f $NARVAL_FILE ]; then
   rm $NARVAL_FILE
 fi
 
-if [ ${package_to_launch} == "api" ]; then
+if [ ${package_to_launch} == "api" ] || [ ${package_to_launch} == "simple-command" ]; then
   # Copy Narval itself to the foo package. Link it in the package.json using "file:".
   # The installation folder is added to the Docker image, so they will use it from file system as well.
   rm -rf ${NARVAL_FOO_NODE_MODULES}
