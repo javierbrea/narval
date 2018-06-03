@@ -428,10 +428,10 @@ test.describe('config', () => {
         foo: 'foo'
       }
 
-      test.it('should return null if there is no waitOn configuration', () => {
+      test.it('should return undefined if there is no waitOn configuration', () => {
         baseData.test.docker = {}
         initResolver()
-        test.expect(suiteResolver.testWaitOn()).to.equal(null)
+        test.expect(suiteResolver.testWaitOn()).to.be.undefined()
       })
 
       test.it('should return resources when an string is provided as configuration, splitting them by blank spaces', () => {
@@ -620,10 +620,10 @@ test.describe('config', () => {
             })
           })
 
-          test.it('should return null if there is no waitOn configuration', () => {
+          test.it('should return undefined if there is no waitOn configuration', () => {
             baseData.services[0].docker = {}
             initResolver()
-            test.expect(service.waitOn()).to.equal(null)
+            test.expect(service.waitOn()).to.be.undefined()
           })
 
           test.it('should return resources when an string is provided as configuration, splitting them by blank spaces', () => {
