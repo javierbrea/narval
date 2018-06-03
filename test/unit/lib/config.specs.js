@@ -447,6 +447,21 @@ test.describe('config', () => {
         })
       })
 
+      test.it('should convert resources to an array when an string is provided', () => {
+        baseData.test.docker = {
+          'wait-on': {
+            resources: 'fooResource:1 fooResource2/foo'
+          }
+        }
+        initResolver()
+        test.expect(suiteResolver.testWaitOn()).to.deep.equal({
+          resources: [
+            'fooResource:1',
+            'fooResource2/foo'
+          ]
+        })
+      })
+
       test.it('should convert custom wait-on expression for waiting services to be finished to a path to the correspondant exit-code log file', () => {
         baseData.test.docker = {
           'wait-on': 'exit:fooService'
