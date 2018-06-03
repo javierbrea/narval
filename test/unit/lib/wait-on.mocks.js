@@ -4,7 +4,7 @@ const test = require('../../../index')
 const waitOn = require('../../../lib/wait-on')
 
 const Mock = function () {
-  const sandbox = test.sinon.sandbox.create()
+  const sandbox = test.sinon.createSandbox()
 
   const stubs = {
     wait: sandbox.stub(waitOn, 'wait').usingPromise().resolves(),

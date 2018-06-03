@@ -5,7 +5,7 @@
     "test": "narval"
   },
   "devDependencies": {
-    "narval": "file:../../../../"
+    "narval": "file:_node_modules/narval"
   },
   "repository": "foo-repository",
   "license": "MIT"

@@ -4,7 +4,7 @@ const test = require('../../../index')
 const utils = require('../../../lib/utils')
 
 const Mock = function () {
-  const sandbox = test.sinon.sandbox.create()
+  const sandbox = test.sinon.createSandbox()
 
   const stubs = {
     ObjectToArguments: sandbox.stub(utils, 'ObjectToArguments'),

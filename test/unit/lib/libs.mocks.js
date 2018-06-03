@@ -4,7 +4,7 @@ const test = require('../../../index')
 const libs = require('../../../lib/libs')
 
 const Mock = function () {
-  const sandbox = test.sinon.sandbox.create()
+  const sandbox = test.sinon.createSandbox()
   let waitFake
   let waitStub
   let treeKillStub

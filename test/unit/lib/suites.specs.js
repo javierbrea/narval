@@ -10,7 +10,7 @@ const suites = require('../../../lib/suites')
 
 test.describe('suites', () => {
   test.describe('run method', () => {
-    const sandbox = test.sinon.sandbox.create()
+    const sandbox = test.sinon.createSandbox()
     let mocksSandbox
 
     test.beforeEach(() => {

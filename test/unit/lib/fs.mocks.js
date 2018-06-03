@@ -4,7 +4,7 @@ const fs = require('fs')
 const test = require('../../../index')
 
 const Mock = function () {
-  const sandbox = test.sinon.sandbox.create()
+  const sandbox = test.sinon.createSandbox()
   let readFileFake
   let writeFileFake
   let readFileStub

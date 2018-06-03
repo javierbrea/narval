@@ -10,6 +10,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 ### Removed
 
+## [1.1.0] - 2018-06-03
+### Added
+- Add new custom "wait-on" value to wait for a service to be finished: wait-on: exit:service-name
+
+### Changed
+- Upgrade mocha-sinon-chai version
+
 ## [1.0.1] - 2018-05-28
 ### Added
 - Lighter npm distribution. Ignore not needed resources.

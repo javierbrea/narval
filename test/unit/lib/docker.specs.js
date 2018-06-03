@@ -14,7 +14,7 @@ test.describe('docker', () => {
   let mocksSandbox
 
   test.beforeEach(() => {
-    sandbox = test.sinon.sandbox.create()
+    sandbox = test.sinon.createSandbox()
     mocksSandbox = new mocks.Sandbox([
       'paths',
       'config',

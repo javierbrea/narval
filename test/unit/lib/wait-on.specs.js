@@ -38,16 +38,6 @@ test.describe('wait-on', () => {
       })
     })
 
-    test.it('should consider received config as "resources" if it is an string', () => {
-      return waitOn.wait('foo-resource testing').then(() => {
-        return test.expect(mocksSandbox.libs.stubs.waitOn).to.have.been.calledWith({
-          interval: 100,
-          timeout: 60000,
-          resources: ['foo-resource', 'testing']
-        })
-      })
-    })
-
     test.it('should print a log before launching waitOn, with information about the configuration', () => {
       return waitOn.wait({
         resources: ['foo resource', 'foo'],
@@ -99,11 +89,6 @@ test.describe('wait-on', () => {
   })
 
   test.describe('configToArguments method', () => {
-    test.it('should return the same value if an string is provided', () => {
-      const fooConfigValue = 'foo config value'
-      test.expect(waitOn.configToArguments(fooConfigValue)).to.equal(fooConfigValue)
-    })
-
     test.it('should return an string containing commands arguments for wait-on library based on the provided configuration object', () => {
       test.expect(waitOn.configToArguments({
         timeout: 3000,

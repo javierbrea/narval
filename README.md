@@ -1,10 +1,10 @@
 # ![Narval Logo][narval-logo-image]
 
-Multi test suites runner for Node.js packages. Docker based.
+Multi test suites runner for Node.js packages. Powered by [Docker][docker-url].
 
 [![Build status][travisci-image]][travisci-url] [![Coverage Status][coveralls-image]][coveralls-url] [![Quality Gate][quality-gate-image]][quality-gate-url] [![js-standard-style][standard-image]][standard-url]
 
-[![Node version][node-version-image]][node-version-url] [![NPM version][npm-image]][npm-url] [![NPM dependencies][npm-dependencies-image]][npm-dependencies-url] [![Last commit][last-commit-image]][last-commit-url] [![Last release][release-image]][release-url] 
+[![NPM dependencies][npm-dependencies-image]][npm-dependencies-url] [![Last commit][last-commit-image]][last-commit-url] [![Last release][release-image]][release-url] 
 
 [![NPM downloads][npm-downloads-image]][npm-downloads-url] [![License][license-image]][license-url]
 
@@ -252,7 +252,7 @@ suites:
 	* `container` `<String>`. Reference name of the [docker-container](#docker-container) in which the service is going to be executed.
 	* `command` `<String>`. Path to the command that will start the service.
 	* `wait-on` `<String>|<Object>` The service will not be started until the provided `wait-on` condition is ready. Narval uses [wait-on][wait-on-url] to provide this feature. If an `String` is provided, then it specifies the resource to wait. NOTE: If the host you are waiting for is a service hosted in a [docker-container](#docker-container), you must use that docker-container name as `host` in the `host:port` expression.
-		* `resources`. `<Array> of <String>`. Resources that will be waited for. Read about the available "resources" to be used as `wait-on` expressions in its [documentation][wait-on-url].
+		* `resources`. `<Array> of <String>`. Resources that will be waited for. Read about the available "resources" to be used as `wait-on` expressions in its [documentation][wait-on-url]. Narval also provides a custom `wait-on` property that allows to wait for a service to be finished. Use the `exit:[service-name]` expression, and it will wait until that service has finished.
 		* `timeout` `<Number>`. Maximum time in ms to wait before exiting with failure (1) code,
   default Infinity.
 		* `delay` `<Number>`. Initial delay before checking for resources in ms, default 0.
@@ -263,7 +263,7 @@ suites:
 * `local` `<Object>`. Contains instructions to execute the service locally.
 	* `command` `<String>`. Path to the command that will start the service.
 	* `wait-on` `<String>|<Object>` with format `protocol:host:port`, or path to a file. The service will not be started until the provided `protocol:host:port` is ready, or file exists. Narval uses [wait-on][wait-on-url] to provide this feature. If an `String` is provided, then it specifies the resource to wait.
-		* `resources`. `<Array> of <String>`. Resources that will be waited for. Read about the available "resources" to be used as `wait-on` expressions in its [documentation][wait-on-url].
+		* `resources`. `<Array> of <String>`. Resources that will be waited for. Read about the available "resources" to be used as `wait-on` expressions in its [documentation][wait-on-url].  Narval also provides a custom `wait-on` property that allows to wait for a service to be finished. Use the `exit:[service-name]` expression, and it will wait until that service has finished.
 		* `timeout` `<Number>`. Maximum time in ms to wait before exiting with failure (1) code,
   default Infinity.
 		* `delay` `<Number>`. Initial delay before checking for resources in ms, default 0.
@@ -308,6 +308,21 @@ suites:
             wait-on: tcp:localhost:27017
 ```
 
+> *Partial example of a service waiting until another has finished*
+```yml
+suites:
+  integration:
+    - name: api
+      services:
+        - name: foo-service
+          local:
+            command: test/commands/local/start-service
+        - name: foo-service-2 # This service will not start until the service "foo-service" has exited.
+          local:
+            command: test/commands/local/start-another-service
+            wait-on: exit:foo-service
+```
+
 ##### test
 
 `<Object>`. Object containing configuration for the test to be runned by a suite.
@@ -316,7 +331,7 @@ suites:
 * `docker` `<Object>`. If test suite is going to be executed using Docker, this objects contains the needed configuration.
 	* `container` `<String>`. Reference name of the [docker-container](#docker-container) in which the tests are going to be executed.
 	* `wait-on` `<String>|<Object>` The tests will not be executed until the provided `wait-on` condition is ready. Narval uses [wait-on][wait-on-url] to provide this feature. If an `String` is provided, then it specifies the resource to wait. NOTE: If the host you are waiting for is a service hosted in a [docker-container](#docker-container), you must use that docker-container name as `host` in the `host:port` expression.
-		* `resources`. `<Array> of <String>`. Resources that will be waited for. Read about the available "resources" to be used as `wait-on` expressions in its [documentation][wait-on-url].
+		* `resources`. `<Array> of <String>`. Resources that will be waited for. Read about the available "resources" to be used as `wait-on` expressions in its [documentation][wait-on-url].  Narval also provides a custom `wait-on` property that allows to wait for a service to be finished. Use the `exit:[service-name]` expression, and it will wait until that service has finished.
 		* `timeout` `<Number>`. Maximum time in ms to wait before exiting with failure (1) code,
   default Infinity.
 		* `delay` `<Number>`. Initial delay before checking for resources in ms, default 0.
@@ -362,6 +377,21 @@ suites:
         config:
           recursive: false
           reporter: list
+```
+
+> *Partial example of a test waiting to be launched until the service has finished*
+```yml
+suites:
+  integration:
+    - name: api # service configuration
+      services:
+        - name: foo-service
+          local:
+            command: test/commands/local/start-service
+      test: # test configuration
+        specs: test/integration/api
+        local:
+          wait-on: exit:foo-service # wait until service "foo-service" has exited
 ```
 
 ##### coverage
@@ -529,7 +559,7 @@ For each service, all these files are generated:
 * `out.log`. Contains service "out" logs.
 * `exit-code.log`. This file is created when service is closed, and contains the exit code of the service process.
 
-The `exit-code.log` can be useful to wait for a service to be finished before executing another service, or the tests. Using the `wait-on` property, you can wait for the creation of this file, which means that the service process has been closed.
+The `exit-code.log` is used internally to wait for a service to be finished before executing another service, or the tests. Using the `wait-on` property, you can wait for the exit of a service, with the `exit:[service-name]` expression:
 
 _In the next example, the tests will not be executed until the service "api" is closed:_
 
@@ -543,7 +573,7 @@ suites:
             command: test/commands/start-api.sh
       test:
         specs: test/integration
-        wait-on: .narval/logs/integration/api-closed/api/exit-code.log
+        wait-on: exit:api
 ```
 
 > Note: Log files are not generated for tests processes and for coveraged services processes when runned locally.
@@ -785,10 +815,7 @@ Contributions are welcome! Read the [contributing guide lines][narval-contributi
 [last-commit-url]: https://github.com/javierbrea/narval/commits
 [license-image]: https://img.shields.io/npm/l/narval.svg
 [license-url]: https://github.com/javierbrea/narval/blob/master/LICENSE
-[node-version-image]: https://img.shields.io/node/v/narval.svg
-[node-version-url]: https://github.com/javierbrea/narval/blob/master/package.json
-[npm-image]: https://img.shields.io/npm/v/narval.svg
-[npm-url]: https://www.npmjs.com/package/narval
+
 [npm-downloads-image]: https://img.shields.io/npm/dm/narval.svg
 [npm-downloads-url]: https://www.npmjs.com/package/narval
 [npm-dependencies-image]: https://img.shields.io/david/javierbrea/narval.svg
