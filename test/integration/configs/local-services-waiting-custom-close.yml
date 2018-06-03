@@ -1,0 +1,40 @@
+suites:
+  functional:
+    - name: suite-1
+      services:
+        - name: service-1
+          local:
+            command: test/commands/foo-command.sh
+        - name: service-2
+          local:
+            command: test/commands/foo-command.sh
+            wait-on: exit:service-1
+        - name: service-3
+          local:
+            command: test/commands/foo-command.sh
+            wait-on: exit:service-2
+      test:
+        specs: test/specs/functional
+        local:
+          wait-on: exit:service-3
+      coverage:
+        enabled: false
+    - name: suite-2
+      services:
+        - name: service-1
+          local:
+            command: test/commands/foo-command.sh
+        - name: service-2
+          local:
+            command: test/commands/foo-command.sh
+            wait-on: exit:service-1
+        - name: service-3
+          local:
+            command: test/commands/foo-command.sh
+            wait-on: exit:service-2
+      test:
+        specs: test/specs/functional
+        local:
+          wait-on: exit:service-3
+      coverage:
+        enabled: false

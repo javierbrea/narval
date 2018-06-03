@@ -1,0 +1,72 @@
+docker-images:
+  - name: node-simple-command-image
+    from: node:8.11.1
+    add:
+      - _node_modules
+      - package.json
+    install: test/commands/install.sh
+docker-containers:
+  - name: service-1-container
+    build: node-simple-command-image
+    bind:
+      - test
+  - name: service-2-container
+    build: node-simple-command-image
+    bind:
+      - test
+  - name: service-3-container
+    build: node-simple-command-image
+    bind:
+      - test
+  - name: test-container
+    build: node-simple-command-image
+    bind:
+      - test
+suites:
+  functional:
+    - name: suite-1
+      services:
+        - name: service-1
+          docker:
+            container: service-1-container
+            command: test/commands/foo-command.sh
+        - name: service-2
+          docker:
+            container: service-2-container
+            command: test/commands/foo-command.sh
+            wait-on: exit:service-1
+        - name: service-3
+          docker:
+            container: service-3-container
+            command: test/commands/foo-command.sh
+            wait-on: exit:service-2
+      test:
+        specs: test/specs/functional
+        docker:
+          container: test-container
+          wait-on: exit:service-3
+      coverage:
+        enabled: false
+    - name: suite-2
+      services:
+        - name: service-1
+          docker:
+            container: service-1-container
+            command: test/commands/foo-command.sh
+        - name: service-2
+          docker:
+            container: service-2-container
+            command: test/commands/foo-command.sh
+            wait-on: exit:service-1
+        - name: service-3
+          docker:
+            container: service-3-container
+            command: test/commands/foo-command.sh
+            wait-on: exit:service-2
+      test:
+        specs: test/specs/functional
+        docker:
+          container: test-container
+          wait-on: exit:service-3
+      coverage:
+        enabled: false

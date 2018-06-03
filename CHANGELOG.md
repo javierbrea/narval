@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Removed
 
 ## [1.1.0]
+### Added
+- Add new custom "wait-on" value to wait for a service to be finished: wait-on: exit:service-name
+
 ### Changed
 - Upgrade mocha-sinon-chai version
 

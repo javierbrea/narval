@@ -1,2 +1,4 @@
+_node_modules
+.shared
 .narval.yml
 .narval
