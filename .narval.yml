@@ -1071,6 +1071,27 @@ suites:
             timeout: 120000
       coverage:
         enabled: false
+    - name: local-services-waiting-custom-close
+      before:
+        local:
+          command: test/integration/commands/prepare-package.sh
+          env:
+            package_to_launch: simple-command
+            narval_config: local-services-waiting-custom-close
+      services:
+        - name: package-test
+          local:
+            command: test/integration/commands/launch-test.sh
+            env:
+              package_to_launch: simple-command
+      test:
+        specs:
+          - test/integration/specs/exit/exit-ok.specs.js
+          - test/integration/specs/logs/local-services-waiting-close.specs.js
+        local:
+          wait-on: exit:package-test
+      coverage:
+        enabled: false
     - name: clean-logs-folder-local
       before:
         local:
