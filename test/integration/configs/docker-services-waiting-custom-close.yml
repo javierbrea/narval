@@ -7,19 +7,19 @@ docker-images:
     install: test/commands/install.sh
 docker-containers:
   - name: service-1-container
-    build: node-image
+    build: node-simple-command-image
     bind:
       - test
   - name: service-2-container
-    build: node-image
+    build: node-simple-command-image
     bind:
       - test
   - name: service-3-container
-    build: node-image
+    build: node-simple-command-image
     bind:
       - test
   - name: test-container
-    build: node-image
+    build: node-simple-command-image
     bind:
       - test
 suites:
