@@ -1,4 +1,6 @@
 
+const path = require('path')
+
 const Promise = require('bluebird')
 const Boom = require('boom')
 const yaml = require('js-yaml')
@@ -426,6 +428,60 @@ test.describe('config', () => {
         foo: 'foo'
       }
 
+      test.it('should return null if there is no waitOn configuration', () => {
+        baseData.test.docker = {}
+        initResolver()
+        test.expect(suiteResolver.testWaitOn()).to.equal(null)
+      })
+
+      test.it('should return resources when an string is provided as configuration, splitting them by blank spaces', () => {
+        baseData.test.docker = {
+          'wait-on': 'fooResource:1 fooResource2/foo'
+        }
+        initResolver()
+        test.expect(suiteResolver.testWaitOn()).to.deep.equal({
+          resources: [
+            'fooResource:1',
+            'fooResource2/foo'
+          ]
+        })
+      })
+
+      test.it('should convert custom wait-on expression for waiting services to be finished to a path to the correspondant exit-code log file', () => {
+        baseData.test.docker = {
+          'wait-on': 'exit:fooService'
+        }
+        initResolver()
+        test.expect(suiteResolver.testWaitOn()).to.deep.equal({
+          resources: [path.join('.narval', 'logs', 'fooType', 'fooDockerSuite', 'fooService', 'exit-code.log')]
+        })
+      })
+
+      test.it('should convert custom wait-on expression for waiting services to be finished to a path to the correspondant exit-code log file, even when many resources are defined', () => {
+        baseData.test.docker = {
+          'wait-on': {
+            resources: [
+              'fooResource:1',
+              'exit:fooService'
+            ]
+          }
+        }
+        initResolver()
+        test.expect(suiteResolver.testWaitOn()).to.deep.equal({
+          resources: ['fooResource:1', path.join('.narval', 'logs', 'fooType', 'fooDockerSuite', 'fooService', 'exit-code.log')]
+        })
+      })
+
+      test.it('should convert custom wait-on expression for waiting services to be finished to a path to the correspondant exit-code log file, even when many resources are defined as string', () => {
+        baseData.test.docker = {
+          'wait-on': 'fooResource:1 exit:fooService'
+        }
+        initResolver()
+        test.expect(suiteResolver.testWaitOn()).to.deep.equal({
+          resources: ['fooResource:1', path.join('.narval', 'logs', 'fooType', 'fooDockerSuite', 'fooService', 'exit-code.log')]
+        })
+      })
+
       test.it('should return the test waitOn docker configuration if is docker', () => {
         baseData.test.docker = {
           'wait-on': fooWaitConfig
@@ -556,11 +612,65 @@ test.describe('config', () => {
         test.describe('waitOn method', () => {
           test.it('should return the wait-on config of the service', () => {
             baseData.services[0].docker['wait-on'] = {
-              resources: 'foo'
+              resources: ['foo']
             }
             service = suiteResolver.services()[0]
             test.expect(service.waitOn()).to.deep.equal({
-              resources: 'foo'
+              resources: ['foo']
+            })
+          })
+
+          test.it('should return null if there is no waitOn configuration', () => {
+            baseData.services[0].docker = {}
+            initResolver()
+            test.expect(service.waitOn()).to.equal(null)
+          })
+
+          test.it('should return resources when an string is provided as configuration, splitting them by blank spaces', () => {
+            baseData.services[0].docker = {
+              'wait-on': 'fooResource:1 fooResource2/foo'
+            }
+            initResolver()
+            test.expect(service.waitOn()).to.deep.equal({
+              resources: [
+                'fooResource:1',
+                'fooResource2/foo'
+              ]
+            })
+          })
+
+          test.it('should convert custom wait-on expression for waiting services to be finished to a path to the correspondant exit-code log file', () => {
+            baseData.services[0].docker = {
+              'wait-on': 'exit:fooService'
+            }
+            initResolver()
+            test.expect(service.waitOn()).to.deep.equal({
+              resources: [path.join('.narval', 'logs', 'fooType', 'fooDockerSuite', 'fooService', 'exit-code.log')]
+            })
+          })
+
+          test.it('should convert custom wait-on expression for waiting services to be finished to a path to the correspondant exit-code log file, even when many resources are defined', () => {
+            baseData.services[0].docker = {
+              'wait-on': {
+                resources: [
+                  'fooResource:1',
+                  'exit:fooService'
+                ]
+              }
+            }
+            initResolver()
+            test.expect(service.waitOn()).to.deep.equal({
+              resources: ['fooResource:1', path.join('.narval', 'logs', 'fooType', 'fooDockerSuite', 'fooService', 'exit-code.log')]
+            })
+          })
+
+          test.it('should convert custom wait-on expression for waiting services to be finished to a path to the correspondant exit-code log file, even when many resources are defined as string', () => {
+            baseData.services[0].docker = {
+              'wait-on': 'fooResource:1 exit:fooService'
+            }
+            initResolver()
+            test.expect(service.waitOn()).to.deep.equal({
+              resources: ['fooResource:1', path.join('.narval', 'logs', 'fooType', 'fooDockerSuite', 'fooService', 'exit-code.log')]
             })
           })
         })
