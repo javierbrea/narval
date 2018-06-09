@@ -1,0 +1,3 @@
+suites:
+  unitary:
+    - !!inc/file ../../configs/include-file-content.yml

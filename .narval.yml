@@ -1160,3 +1160,35 @@ suites:
             timeout: 120000
       coverage:
         enabled: false
+
+    - name: tests-file-includes
+      describe: should import files in .narval.yml
+      before:
+        local:
+          command: test/integration/commands/prepare-package.sh
+          env:
+            package_to_launch: sum
+            narval_config: include-file-base
+      services:
+        - name: package-test
+          local:
+            command: test/integration/commands/launch-test.sh
+            env:
+              package_to_launch: sum
+      test:
+        specs:
+          - test/integration/specs/standard/standard-run.specs.js
+          - test/integration/specs/standard/standard-ok.specs.js
+          - test/integration/specs/tests/test-launch.specs.js
+          - test/integration/specs/tests/test-ok.specs.js
+          - test/integration/specs/coverage/json.specs.js
+          - test/integration/specs/coverage/details.specs.js
+          - test/integration/specs/tests-config
+          - test/integration/specs/exit/exit-ok.specs.js
+        local:
+          wait-on: .narval/logs/integration/tests-file-includes/package-test/exit-code.log
+          env:
+            package_to_launch: sum
+            coverage_dir: .coverage/included
+      coverage:
+        enabled: false
