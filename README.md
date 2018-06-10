@@ -22,6 +22,7 @@ Multi test suites runner for Node.js packages. Powered by [Docker][docker-url].
 		* [services](#service)
 		* [test](#test)
 		* [coverage](#coverage)
+	* [includes] (#includes)
 * [Usage](#usage)
 	* [Command line options](#command-line-options)
 	* [Developing commands](#developing-commands)
@@ -421,6 +422,17 @@ suites:
         from: api-service
         config:
           print: both
+```
+### includes
+
+Narval support [`yam-includes`](https://www.npmjs.com/package/yaml-include). This package provides support custom tags in a `.narval.yml` document that facilitate separation of configuration in different files.
+
+> *Partial example of a include one file per test suite*
+```yml
+suites:
+  integration:
+    - !!inc/file configs/integration/foo.yml
+    - !!inc/file configs/integration/bar.yml
 ```
 
 [back to top](#table-of-contents)
