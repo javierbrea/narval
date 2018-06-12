@@ -1160,7 +1160,6 @@ suites:
             timeout: 120000
       coverage:
         enabled: false
-
     - name: tests-file-includes
       describe: should import files in .narval.yml
       before:
