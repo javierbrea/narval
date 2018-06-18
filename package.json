@@ -41,7 +41,7 @@
     "handlebars": "4.0.11",
     "js-yaml": "3.12.0",
     "lodash": "4.17.10",
-    "mocha-sinon-chai": "2.5.0",
+    "mocha-sinon-chai": "2.6.0",
     "standard": "11.0.1",
     "tracer": "0.9.0",
     "tree-kill": "1.2.0",
