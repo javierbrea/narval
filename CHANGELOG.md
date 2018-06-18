@@ -7,10 +7,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [unreleased]
 ### Added
 ### Changed
-- Upgrade dependencies
-
 ### Fixed
 ### Removed
+
+## [1.2.0] - 2018-06-18
+### Changed
+- Upgrade mocha-sinon-chai to version 2.6.0, which provides the `assert` chai method.
+- Upgrade all other dependencies.
 
 ## [1.1.0] - 2018-06-03
 ### Added
