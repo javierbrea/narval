@@ -9,8 +9,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 Add support for "include" yaml feature, that allows to split configuration into many partial files.
 
 ### Changed
+- Upgrade dependencies to latest versions
+
 ### Fixed
 ### Removed
+### BREAKING CHANGES
+- Unit tests coverage can decrease because new version of Istanbul is more strict with branches. Now it checks default function parameters.
 
 ## [1.2.0] - 2018-06-18
 ### Changed

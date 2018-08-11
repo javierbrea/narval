@@ -2,9 +2,13 @@
 
 const mongoose = require('mongoose')
 
-const bookSchema = mongoose.Schema({
+const schema = {
   author: String,
   title: String
+}
+
+const bookSchema = mongoose.Schema({
+  ...schema // Added this only to test istanbul support for js spread syntax
 })
 
 const Book = mongoose.model('Book', bookSchema)

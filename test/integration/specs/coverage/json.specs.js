@@ -11,7 +11,7 @@ test.describe('coverage json file reports', () => {
     return test.expect(fs.existsSync(coveragePath)).to.be.true()
   })
 
-  test.it('coverage.json file should exist', () => {
-    return test.expect(fs.existsSync(path.join(coveragePath, 'coverage.json'))).to.be.true()
+  test.it('coverage.raw.json file should exist', () => {
+    return test.expect(fs.existsSync(path.join(coveragePath, 'coverage.raw.json'))).to.be.true()
   })
 })
