@@ -14,6 +14,6 @@ test.describe('coverage detail reports', () => {
   })
 
   test.it('should have printed istanbul report in detail mode', () => {
-    return test.expect(outerrLog).to.include('File             |  % Stmts | % Branch |  % Funcs |  % Lines |Uncovered Lines |')
+    return test.expect(outerrLog).to.include('File             |  % Stmts | % Branch |  % Funcs |  % Lines | Uncovered Line #s |')
   })
 })
