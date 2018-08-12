@@ -43,10 +43,11 @@
     "lodash": "4.17.10",
     "mocha-sinon-chai": "3.0.0",
     "standard": "11.0.1",
+    "strip-ansi": "4.0.0",
     "tracer": "0.9.1",
     "tree-kill": "1.2.0",
     "wait-on": "2.1.0",
-    "strip-ansi": "4.0.0"
+    "yaml-include": "1.2.0"
   },
   "devDependencies": {
     "coveralls": "3.0.2",

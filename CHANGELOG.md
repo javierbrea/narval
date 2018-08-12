@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [unreleased]
 ### Added
+Add support for "include" yaml feature, that allows to split configuration into many partial files.
+
 ### Changed
 - Upgrade dependencies to latest versions
 
