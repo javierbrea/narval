@@ -1,0 +1,13 @@
+name: unit
+test:
+  specs: test/subtest
+  config:
+    recursive: false
+    reporter: list
+    grep: grepped
+coverage:
+  config:
+    dir: .coverage/included
+    verbose: true
+    print: detail
+    report: text

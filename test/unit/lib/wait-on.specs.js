@@ -114,5 +114,9 @@ test.describe('wait-on', () => {
         resources: 'fooValue'
       })).to.equal('fooValue')
     })
+
+    test.it('should return an empty string if no config is provided', () => {
+      test.expect(waitOn.configToArguments()).to.equal('')
+    })
   })
 })

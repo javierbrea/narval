@@ -2,7 +2,7 @@
 
 const mongoose = require('mongoose')
 
-var connect = function (mongodb) {
+const connectAsPromise = mongodb => {
   if (mongodb === 'avoid') {
     return Promise.resolve(null)
   }
@@ -27,6 +27,8 @@ var connect = function (mongodb) {
     })
 }
 
+const connect = async (mongodb) => connectAsPromise(mongodb)
+
 module.exports = {
-  connect: connect
+  connect
 }

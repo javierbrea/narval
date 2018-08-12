@@ -223,6 +223,21 @@ test.describe('config', () => {
           ])
         })
     })
+
+    test.it('should not throw an error if no test, before or services are defined', () => {
+      returnsConfig({
+        suites: {
+          fooType: [{
+            name: 'fooDockerSuite'
+          }]
+        }
+      })
+      return config.allDockerCustomEnvVars()
+        .then((allDockerCustomEnvVars) => {
+          return test.expect(allDockerCustomEnvVars).to.deep.equal([
+          ])
+        })
+    })
   })
 
   test.describe('allComposeEnvVars method', () => {

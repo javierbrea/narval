@@ -31,6 +31,7 @@ Multi test suites runner for Node.js packages. Powered by [Docker][docker-url].
 		* [Docker shared volume](#docker-shared-volume)
 	* [Services logs](#services-logs)
 	* [Environment variables](#environment-variables)
+  * [Optimizing configuration](#optimizing-configuration)
 * [Examples](#examples)
 * [Contributing](#contributing)
 
@@ -40,8 +41,7 @@ Multi test suites runner for Node.js packages. Powered by [Docker][docker-url].
 It uses Docker to start services and run tests, so, the isolation of each test suite execution is guaranteed.
 Define your services and tests in a `yaml` file, and Narval will do the rest for you.**
 
- Split your tests into "tests", that contains the specs and are executed with [Mocha][mocha-url]/[Istanbul][istanbul-url], and "services", which contains the commands and configurations needed to start the dependendant services of the tests battery. In this way, it is possible to reuse different services configurations and run different tests over different combinations of them, or run the same tests battery 
- upon services started with different configurations, for example.
+Split your tests into "tests", that contains the specs and are executed with [Mocha][mocha-url]/[Istanbul][istanbul-url], and "services", which contains the commands and configurations needed to start the dependendant services of the tests battery. In this way, it is possible to reuse different services configurations and run different tests over different combinations of them, or run the same tests battery upon services started with different configurations, for example.
 
 Each "service" is started using [Docker][docker-url], so it will not have conflicts with the environment in which the tests are executed, and can be executed "locally" as well, if your development platform don´t supports Docker, or in order to make easier the tests development process.
 
@@ -80,7 +80,7 @@ Add narval to your package.json dependencies, and an npm script to run the tests
     "test": "narval" 
   },
   "devDependencies": {
-    "narval": "1.x"
+    "narval": "2.x"
   }
 }
 ```
@@ -102,7 +102,9 @@ npm run test -- --suite=unit
 
 ## Configuration
 
-Create a `.narval.yml` file at the root of your project.
+Create a `.narval.yml` file at the root of your project. This file will contain all your tests suites and `standard` configuration, read this chapter to learn how to define them.
+
+> As, depending of your project size, this file could grow too much, Narval supports [`yaml-include`][yaml-include-url], that makes able to split your configuration in different files if needed. You can read more tips about [how optimize your configuration file here](#optimizing-configuration).
 
 ### standard
 
@@ -626,6 +628,24 @@ Now, you can write a test that can be runned locally, for development purposes, 
   })
 ```
 
+### Optimizing configuration
+
+#### Use includes
+
+If your `.narval.yml` file grows too much, you can use the `include` feature to split it into one file per test suite, or one file per suite type, for example.
+
+> *Partial example of a include one file per test suite*
+```yml
+suites:
+  integration:
+    - !!inc/file-configs/integration/foo.yml
+    - !!inc/file-configs/integration/bar.yml
+```
+
+#### Use anchors and references to reuse yaml code.
+
+Use the [`yaml` native support for anchors, references, or extensions][yaml-anchors-url] to improve the reusability in your `.narval.yml` file.
+
 [back to top](#table-of-contents)
 
 ## Examples
@@ -838,3 +858,5 @@ Contributions are welcome! Read the [contributing guide lines][narval-contributi
 [integration-tests-foo-package-url]: https://github.com/javierbrea/narval/tree/master/test/integration/packages/api
 [shebang-url]: https://en.wikipedia.org/wiki/Shebang_(Unix)
 [child-process-url]: https://nodejs.org/docs/latest-v8.x/api/child_process.html#child_process_child_process_execfile_file_args_options_callback
+[yaml-include-url]: https://www.npmjs.com/package/yaml-include
+[yaml-anchors-url]: https://blog.daemonl.com/2016/02/yaml.html
