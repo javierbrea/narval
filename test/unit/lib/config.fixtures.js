@@ -130,6 +130,7 @@ const localSuiteWithNoService = {
 
 const dockerSuite = {
   name: 'fooDockerSuite',
+  describe: 'Foo description',
   coverage: {
     from: 'fooService1'
   },

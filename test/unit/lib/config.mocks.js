@@ -20,6 +20,7 @@ const Mock = function () {
   const suiteResolverStubs = {
     typeName: sandbox.stub(),
     name: sandbox.stub(),
+    describe: sandbox.stub(),
     hasToRun: sandbox.stub(),
     isDocker: sandbox.stub(),
     istanbulArguments: sandbox.stub().returns(''),
