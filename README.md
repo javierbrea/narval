@@ -80,7 +80,7 @@ Add narval to your package.json dependencies, and an npm script to run the tests
     "test": "narval" 
   },
   "devDependencies": {
-    "narval": "1.x"
+    "narval": "2.x"
   }
 }
 ```

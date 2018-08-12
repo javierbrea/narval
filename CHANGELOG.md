@@ -6,13 +6,19 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [unreleased]
 ### Added
-Add support for "include" yaml feature, that allows to split configuration into many partial files.
-
 ### Changed
-- Upgrade dependencies to latest versions
-
 ### Fixed
 ### Removed
+### BREAKING CHANGES
+
+## [2.0.0] - 2018-08-12
+### Added
+- Add support for "include" yaml feature, that allows to split configuration into many partial files.
+
+### Changed
+- Upgrade dependencies to latest versions.
+- Upgrade Istanbul to 1.1.0-alpha.1 version, which provides compatibility with some features of latest ecmascript versions.
+
 ### BREAKING CHANGES
 - Unit tests coverage can decrease because new version of Istanbul is more strict with branches. Now it checks default function parameters.
 
