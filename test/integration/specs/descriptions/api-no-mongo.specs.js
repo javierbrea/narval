@@ -13,11 +13,11 @@ test.describe('descriptions', () => {
       })
   })
 
-  test.it('should have printed the unit tests description', () => {
-    return test.expect(outerrLog).to.include(`Running "unit" suite "unit": Unitary tests`)
+  test.it('should have not printed unit tests description', () => {
+    return test.expect(outerrLog).to.include(`Running "unit" suite "unit": \n`)
   })
 
   test.it('should have printed the books-api suite description', () => {
-    return test.expect(outerrLog).to.include(`Running "end-to-end" suite "books-api": Books api should work and save data to database`)
+    return test.expect(outerrLog).to.include(`Running "end-to-end" suite "books-api": Books api should work without database`)
   })
 })
