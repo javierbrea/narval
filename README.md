@@ -450,6 +450,7 @@ Available options are:
 
 option | description | alias 
 --- | --- | ---
+`--logLevel` | Define log level. Available levels are "log", "trace", "debug", "info", "warn" and "error". Default is "info" | `--log`
 `--standard` | Run only Standard linter | `-s`
 `--fix` | Fix Standard errors | `-f`
 `--type <type>` | Run only test suites of provided `<type>` | 
@@ -465,6 +466,9 @@ npm test -- --standard
 
 npm test -- --type=integration
 # Run all test suites of type "integration" defined in the configuration
+
+npm test -- --logLevel=debug
+# Run tests, only print logs with level debug or upper.
 
 npm test -- --type=integration --local
 # Run locally all test suites of type "integration"
