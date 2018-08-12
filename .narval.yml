@@ -254,6 +254,7 @@ suites:
           - test/integration/specs/api-docker
           - test/integration/specs/exit/exit-ok.specs.js
           - test/integration/specs/environment/defaults.specs.js
+          - test/integration/specs/descriptions/api.specs.js
         local:
           wait-on:
             resources: 
