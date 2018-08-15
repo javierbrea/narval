@@ -307,6 +307,28 @@ test.describe('commands', () => {
         })
     })
 
+    test.it('should configure the stdio to print logs if options log level is lower than trace', () => {
+      mocksSandbox.options.stubs.get.resolves({
+        logLevel: 0
+      })
+      return commands.runComposeSync(fooCommand)
+        .then(() => {
+          const execSyncArguments = mocksSandbox.processes.stubs.execSync.getCall(0).args
+          return test.expect(execSyncArguments[1].stdio).to.deep.equal([0, 1, 2])
+        })
+    })
+
+    test.it('should configure the stdio to not print logs if options log level is upper than trace', () => {
+      mocksSandbox.options.stubs.get.resolves({
+        logLevel: 1
+      })
+      return commands.runComposeSync(fooCommand)
+        .then(() => {
+          const execSyncArguments = mocksSandbox.processes.stubs.execSync.getCall(0).args
+          return test.expect(execSyncArguments[1].stdio).to.deep.equal([0, 'pipe', 'pipe'])
+        })
+    })
+
     test.it('should extend the base docker options with the received options', () => {
       const fooOptionVal = 'foo value'
       const fooDockerPath = 'foo docker path'
