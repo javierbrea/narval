@@ -8,8 +8,10 @@ test.describe('tracer', () => {
     let preprocessCb
     let format
     let dateFormat
+    let filters
 
     const fakeColorConsole = function (options) {
+      filters = options.filters
       preprocessCb = options.preprocess
       format = options.format
       dateFormat = options.dateformat
@@ -27,11 +29,16 @@ test.describe('tracer', () => {
       return dateFormat
     }
 
+    const getFilters = function () {
+      return filters
+    }
+
     return {
-      fakeColorConsole: fakeColorConsole,
-      preprocess: preprocess,
-      getFormat: getFormat,
-      getDateFormat: getDateFormat
+      getFilters,
+      fakeColorConsole,
+      preprocess,
+      getFormat,
+      getDateFormat
     }
   }
   const tracerLibMock = new TracerLibMock()
@@ -44,6 +51,7 @@ test.describe('tracer', () => {
       warnOnUnregistered: false
     })
     tracerLib = require('tracer')
+
     test.sinon.stub(tracerLib, 'colorConsole').callsFake(tracerLibMock.fakeColorConsole)
     require('../../../lib/tracer')
   })
@@ -101,5 +109,15 @@ test.describe('tracer', () => {
     tracerLibMock.preprocess(data)
     test.expect(tracerLibMock.getFormat()[1].error).to.contain('{{stack}}')
     test.expect(data.stack).to.contain(fooErrorStack)
+  })
+
+  test.it('should not apply colors to traces after <narval-no-tracer-color> string', () => {
+    const result = tracerLibMock.getFilters().info('Foo trace <narval-no-tracer-color> foo without color')
+    test.expect(result).to.equal('\u001b[32mFoo trace \u001b[39m foo without color')
+  })
+
+  test.it('should only print with colors if no colored string is received', () => {
+    const result = tracerLibMock.getFilters().info('Foo trace')
+    test.expect(result).to.equal('\u001b[32mFoo trace\u001b[39m')
   })
 })
