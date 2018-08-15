@@ -47,6 +47,10 @@ test.describe('utils', () => {
       objectToArgs = new utils.ObjectToArguments()
     })
 
+    test.it('should return an empty string if no object is provided', () => {
+      test.expect(objectToArgs()).to.equal('')
+    })
+
     test.it('given an object, should return an string with the equivalent converted to command line arguments', () => {
       test.expect(objectToArgs({
         fooVar1: 'fooVal1',
