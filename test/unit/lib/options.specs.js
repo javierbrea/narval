@@ -84,7 +84,7 @@ test.describe('options', () => {
     test.it('should set default log level as "info" if it is not specified', () => {
       return options.get()
         .then((opts) => {
-          return test.expect(opts.logLevel).to.equal('info')
+          return test.expect(opts.logLevel).to.equal(3)
         })
     })
 
