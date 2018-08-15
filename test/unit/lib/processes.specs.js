@@ -195,6 +195,26 @@ test.describe('processes', () => {
       })
     })
 
+    test.it('should not write process output log lines that are empty', (done) => {
+      childProcessMock.stubs.spawn.stdout.on.returns(' foo \n     \nfoo2')
+      handler = new processes.Handler(fooProcess, fooSuiteData)
+      handler.on('close', () => {
+        test.expect(mocksSandbox.logs.stubs.serviceLog).to.have.been.calledWith({
+          log: 'foo ',
+          service: 'fooService'
+        })
+        test.expect(mocksSandbox.logs.stubs.serviceLog).to.have.been.calledWith({
+          log: 'foo2',
+          service: 'fooService'
+        })
+        test.expect(mocksSandbox.logs.stubs.serviceLog).to.not.have.been.calledWith({
+          log: '',
+          service: 'fooService'
+        })
+        done()
+      })
+    })
+
     test.it('should write a file with the end code if the option close is received', function (done) {
       this.timeout(5000)
       childProcessMock.stubs.spawn.on.runOnRegister(false)
