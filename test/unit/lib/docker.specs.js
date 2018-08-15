@@ -18,6 +18,7 @@ test.describe('docker', () => {
     mocksSandbox = new mocks.Sandbox([
       'paths',
       'config',
+      'logs',
       'utils',
       'commands'
     ])
