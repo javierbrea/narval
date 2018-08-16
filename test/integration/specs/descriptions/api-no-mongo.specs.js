@@ -14,7 +14,7 @@ test.describe('descriptions', () => {
   })
 
   test.it('should have not printed unit tests description', () => {
-    return test.expect(outerrLog).to.include(`Running "unit" suite "unit": \n`)
+    return test.expect(outerrLog).to.include(`Running "unit" suite "unit":\n`)
   })
 
   test.it('should have printed the books-api suite description', () => {
