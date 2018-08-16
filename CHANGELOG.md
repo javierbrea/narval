@@ -6,12 +6,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [unreleased]
 ### Added
-- Add logLevel option
-- Add describe property to suites. Log the description when suite starts.
 ### Changed
 ### Fixed
 ### Removed
 ### BREAKING CHANGES
+
+## [2.1.0] - 2018-08-17
+### Added
+- Add logLevel option.
+- Add describe property to suites. Log the description when suite starts.
 
 ## [2.0.0] - 2018-08-12
 ### Added

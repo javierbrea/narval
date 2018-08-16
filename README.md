@@ -1,6 +1,6 @@
 # ![Narval Logo][narval-logo-image]
 
-Multi test suites runner for Node.js packages. Powered by [Docker][docker-url].
+Multi test suites runner for Node.js packages. Define your suites including dependant services, Narval will start all using Docker, isolating each suite execution.
 
 [![Build status][travisci-image]][travisci-url] [![Coverage Status][coveralls-image]][coveralls-url] [![Quality Gate][quality-gate-image]][quality-gate-url] [![js-standard-style][standard-image]][standard-url]
 
