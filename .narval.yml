@@ -1211,6 +1211,7 @@ suites:
       coverage:
         enabled: false
     - name: log-level-log
+      describe: Should print all logs when option logLevel is "log"
       before:
         local:
           command: test/integration/commands/prepare-package.sh
@@ -1239,6 +1240,7 @@ suites:
       coverage:
         enabled: false
     - name: log-level-trace
+      describe: Should print only logs with log level "trace" or upper when option logLevel is "trace"
       before:
         local:
           command: test/integration/commands/prepare-package.sh
@@ -1267,6 +1269,7 @@ suites:
       coverage:
         enabled: false
     - name: log-level-debug
+      describe: Should print only logs with log level "debug" or upper when option logLevel is "debug"
       before:
         local:
           command: test/integration/commands/prepare-package.sh
@@ -1295,6 +1298,7 @@ suites:
       coverage:
         enabled: false
     - name: log-level-info
+      describe: Should print only logs with log level "info" or upper when option logLevel is "info"
       before:
         local:
           command: test/integration/commands/prepare-package.sh
@@ -1322,6 +1326,7 @@ suites:
       coverage:
         enabled: false
     - name: log-level-warn
+      describe: Should print only logs with log levels "warn" or "error" when option logLevel is "warn"
       before:
         local:
           command: test/integration/commands/prepare-package.sh
@@ -1350,6 +1355,7 @@ suites:
       coverage:
         enabled: false
     - name: log-level-error
+      describe: Should print only logs with log level "error" when option logLevel is "error"
       before:
         local:
           command: test/integration/commands/prepare-package.sh
