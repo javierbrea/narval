@@ -1208,3 +1208,171 @@ suites:
             coverage_dir: .coverage/included
       coverage:
         enabled: false
+    - name: log-level-log
+      before:
+        local:
+          command: test/integration/commands/prepare-package.sh
+          env:
+            package_to_launch: api
+            narval_config: api
+      services:
+        - name: package-test
+          local:
+            command: test/integration/commands/launch-test.sh
+            env:
+              package_to_launch: api
+              narval_options: -- --logLevel=log
+      test:
+        specs:
+          - test/integration/specs/log-levels/api-log.specs.js
+          - test/integration/specs/exit/exit-ok.specs.js
+        local:
+          wait-on:
+            resources: 
+              - exit:package-test
+            timeout: 1200000
+          env:
+            package_to_launch: api
+            coverage_dir: .coverage/unit
+      coverage:
+        enabled: false
+    - name: log-level-trace
+      before:
+        local:
+          command: test/integration/commands/prepare-package.sh
+          env:
+            package_to_launch: api
+            narval_config: api
+      services:
+        - name: package-test
+          local:
+            command: test/integration/commands/launch-test.sh
+            env:
+              package_to_launch: api
+              narval_options: -- --logLevel=trace
+      test:
+        specs:
+          - test/integration/specs/log-levels/api-trace.specs.js
+          - test/integration/specs/exit/exit-ok.specs.js
+        local:
+          wait-on:
+            resources: 
+              - exit:package-test
+            timeout: 1200000
+          env:
+            package_to_launch: api
+            coverage_dir: .coverage/unit
+      coverage:
+        enabled: false
+    - name: log-level-debug
+      before:
+        local:
+          command: test/integration/commands/prepare-package.sh
+          env:
+            package_to_launch: api
+            narval_config: api
+      services:
+        - name: package-test
+          local:
+            command: test/integration/commands/launch-test.sh
+            env:
+              package_to_launch: api
+              narval_options: -- --logLevel=debug
+      test:
+        specs:
+          - test/integration/specs/log-levels/api-debug.specs.js
+          - test/integration/specs/exit/exit-ok.specs.js
+        local:
+          wait-on:
+            resources: 
+              - exit:package-test
+            timeout: 1200000
+          env:
+            package_to_launch: api
+            coverage_dir: .coverage/unit
+      coverage:
+        enabled: false
+    - name: log-level-info
+      before:
+        local:
+          command: test/integration/commands/prepare-package.sh
+          env:
+            package_to_launch: api
+            narval_config: api
+      services:
+        - name: package-test
+          local:
+            command: test/integration/commands/launch-test.sh
+            env:
+              package_to_launch: api
+      test:
+        specs:
+          - test/integration/specs/log-levels/api-info.specs.js
+          - test/integration/specs/exit/exit-ok.specs.js
+        local:
+          wait-on:
+            resources: 
+              - exit:package-test
+            timeout: 1200000
+          env:
+            package_to_launch: api
+            coverage_dir: .coverage/unit
+      coverage:
+        enabled: false
+    - name: log-level-warn
+      before:
+        local:
+          command: test/integration/commands/prepare-package.sh
+          env:
+            package_to_launch: api
+            narval_config: api
+      services:
+        - name: package-test
+          local:
+            command: test/integration/commands/launch-test.sh
+            env:
+              package_to_launch: api
+              narval_options: -- --logLevel=warn
+      test:
+        specs:
+          - test/integration/specs/log-levels/api-warn.specs.js
+          - test/integration/specs/exit/exit-ok.specs.js
+        local:
+          wait-on:
+            resources: 
+              - exit:package-test
+            timeout: 1200000
+          env:
+            package_to_launch: api
+            coverage_dir: .coverage/unit
+      coverage:
+        enabled: false
+    - name: log-level-error
+      before:
+        local:
+          command: test/integration/commands/prepare-package.sh
+          env:
+            package_to_launch: api
+            narval_config: api
+      services:
+        - name: package-test
+          local:
+            command: test/integration/commands/launch-test.sh
+            env:
+              package_to_launch: api
+              narval_options: -- --logLevel=error
+      test:
+        specs:
+          - test/integration/specs/log-levels/api-error.specs.js
+          - test/integration/specs/exit/exit-ok.specs.js
+        local:
+          wait-on:
+            resources: 
+              - exit:package-test
+            timeout: 1200000
+          env:
+            package_to_launch: api
+            coverage_dir: .coverage/unit
+      coverage:
+        enabled: false
+
