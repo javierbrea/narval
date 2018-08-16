@@ -18,10 +18,8 @@ test.describe('services logs', () => {
 
   const expects = (logDefinitions, log) => {
     _.each(logDefinitions, (definition) => {
-      console.log(definition)
       test.it(`should have logged ${definition.it}`, () => {
         _.each(definition.expects, (expect) => {
-          console.log(expect)
           test.expect(outerrLog).to.include(expect)
         })
       })
