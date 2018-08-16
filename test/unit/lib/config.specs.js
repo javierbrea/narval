@@ -327,6 +327,18 @@ test.describe('config', () => {
       })
     })
 
+    test.describe('describe method', () => {
+      test.it('should return the description of the suite', () => {
+        test.expect(suiteResolver.describe()).to.equal('Foo description')
+      })
+
+      test.it('should return an empty string if the suite has no describe field', () => {
+        delete baseData.describe
+        initResolver()
+        test.expect(suiteResolver.describe()).to.equal('')
+      })
+    })
+
     test.describe('hasToRun method', () => {
       test.it('should return true if no suite option is received', () => {
         test.expect(suiteResolver.hasToRun()).to.equal(true)

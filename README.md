@@ -187,6 +187,7 @@ docker-containers:
 `<Object>`. Object containing the test suite configuration.
 
 * `name` `<String>`. Reference for the test suite.
+* `describe` `<String>`. Description of the suite. Printed in logs when suite starts.
 * `before` `<Object>`. [before object](#before) containing configuration for commands that will be executed before running the test suite. Useful to clean or prepare your environment.
 * `services` `<Array>` of [service objects](#service). Defines services to be started before running the tests.
 * `test` `<Object>`. [test object](#test) containing configuration of the test to be runned by this suite.
@@ -697,6 +698,7 @@ docker-containers:
 suites:
   unit: 
     - name: unit
+      describe: Unitary tests
       test:
         specs: test/unit
       coverage:
@@ -704,6 +706,7 @@ suites:
           dir: .coverage/unit
   end-to-end:
     - name: books-api
+      describe: Books api should work and save data to mongodb.
       before:
         docker:
           down-volumes: true
@@ -737,6 +740,7 @@ suites:
         from: api-server
   integration:
     - name: logs
+      describe: Books api logs should work and print logs when an api request is received.
       services:
         - name: mongodb
           docker:
@@ -778,6 +782,7 @@ suites:
       coverage:
         enabled: false
     - name: commands
+      describe: Books api command should work and write all books to a file in json format.
       services:
         - name: mongodb
           docker:
@@ -813,6 +818,7 @@ suites:
             api_port: 4000
       coverage:
         enabled: false
+
 ```
 
 > NOTE: There are more files with many other configurations that may be useful as examples at the [integration tests folder of this repository][integration-tests-config-url]. All these Narval configuration files are used for testing Narval itself, and most of them are runned over the ["foo api package" in the integration tests folder][integration-tests-foo-package-url].

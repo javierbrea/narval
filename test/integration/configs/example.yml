@@ -30,6 +30,7 @@ docker-containers:
 suites:
   unit: 
     - name: unit
+      describe: Unitary tests
       test:
         specs: test/unit
       coverage:
@@ -37,6 +38,7 @@ suites:
           dir: .coverage/unit
   end-to-end:
     - name: books-api
+      describe: Books api should work and save data to mongodb.
       before:
         docker:
           down-volumes: true
@@ -70,6 +72,7 @@ suites:
         from: api-server
   integration:
     - name: logs
+      describe: Books api logs should work and print logs when an api request is received.
       services:
         - name: mongodb
           docker:
@@ -111,6 +114,7 @@ suites:
       coverage:
         enabled: false
     - name: commands
+      describe: Books api command should work and write all books to a file in json format.
       services:
         - name: mongodb
           docker:
