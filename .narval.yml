@@ -19,6 +19,7 @@ suites:
             command: test/integration/commands/launch-test.sh
             env:
               package_to_launch: sum
+              narval_options: -- --logLevel=log
       test:
         specs:
           - test/integration/specs/standard/standard-run.specs.js
@@ -73,7 +74,7 @@ suites:
             command: test/integration/commands/launch-test.sh
             env:
               package_to_launch: standard-ko
-              narval_options: -- --standard
+              narval_options: -- --standard --logLevel=log
       test:
         specs:
           - test/integration/specs/standard/standard-run.specs.js
@@ -98,7 +99,7 @@ suites:
             command: test/integration/commands/launch-test.sh
             env:
               package_to_launch: standard-ko
-              narval_options: -- --fix
+              narval_options: -- --fix --logLevel=log
       test:
         specs:
           - test/integration/specs/standard/standard-run.specs.js
@@ -124,6 +125,7 @@ suites:
             command: test/integration/commands/launch-test.sh
             env:
               package_to_launch: standard-ko
+              narval_options: -- --logLevel=log
       test:
         specs:
           - test/integration/specs/standard/standard-run.specs.js
@@ -148,6 +150,7 @@ suites:
             command: test/integration/commands/launch-test.sh
             env:
               package_to_launch: sum
+              narval_options: -- --logLevel=log
       test:
         specs:
           - test/integration/specs/standard/standard-run.specs.js
@@ -178,6 +181,7 @@ suites:
             command: test/integration/commands/launch-test.sh
             env:
               package_to_launch: sum
+              narval_options: -- --logLevel=log
       test:
         specs:
           - test/integration/specs/standard/standard-run.specs.js
@@ -208,6 +212,7 @@ suites:
             command: test/integration/commands/launch-test.sh
             env:
               package_to_launch: sum
+              narval_options: -- --logLevel=log
       test:
         specs:
           - test/integration/specs/standard/standard-run.specs.js
@@ -237,7 +242,7 @@ suites:
             command: test/integration/commands/launch-test.sh
             env:
               package_to_launch: api
-              narval_options: -- --build
+              narval_options: -- --build --logLevel=log
       test:
         specs:
           - test/integration/specs/standard/standard-run.specs.js
@@ -254,6 +259,7 @@ suites:
           - test/integration/specs/api-docker
           - test/integration/specs/exit/exit-ok.specs.js
           - test/integration/specs/environment/defaults.specs.js
+          - test/integration/specs/descriptions/api.specs.js
         local:
           wait-on:
             resources: 
@@ -277,7 +283,7 @@ suites:
             command: test/integration/commands/launch-test.sh
             env:
               package_to_launch: api
-              narval_options: -- --local
+              narval_options: -- --local --logLevel=log
       test:
         specs:
           - test/integration/specs/standard/standard-run.specs.js
@@ -292,6 +298,7 @@ suites:
           - test/integration/specs/api-local
           - test/integration/specs/exit/exit-ok.specs.js
           - test/integration/specs/environment/defaults.specs.js
+          - test/integration/specs/descriptions/api-no-mongo.specs.js
         local:
           wait-on:
             resources: 
@@ -315,7 +322,7 @@ suites:
             command: test/integration/commands/launch-test.sh
             env:
               package_to_launch: api
-              narval_options: -- --suite=books-api --local --shell=/foo/path/to/shell
+              narval_options: -- --suite=books-api --local --shell=/foo/path/to/shell --logLevel=log
       test:
         specs:
           - test/integration/specs/standard/standard-not-run.specs.js
@@ -344,6 +351,7 @@ suites:
             command: test/integration/commands/launch-test.sh
             env:
               package_to_launch: api
+              narval_options: -- --logLevel=log
       test:
         specs:
           - test/integration/specs/standard/standard-run.specs.js
@@ -383,7 +391,7 @@ suites:
             command: test/integration/commands/launch-test.sh
             env:
               package_to_launch: api
-              narval_options: -- --suite=books-api
+              narval_options: -- --suite=books-api --logLevel=log
       test:
         specs:
           - test/integration/specs/standard/standard-not-run.specs.js
@@ -421,7 +429,7 @@ suites:
             command: test/integration/commands/launch-test.sh
             env:
               package_to_launch: api
-              narval_options: -- --suite=books-api
+              narval_options: -- --suite=books-api --logLevel=log
       test:
         specs:
           - test/integration/specs/standard/standard-not-run.specs.js
@@ -459,7 +467,7 @@ suites:
             command: test/integration/commands/launch-test.sh
             env:
               package_to_launch: api
-              narval_options: -- --suite=books-api
+              narval_options: -- --suite=books-api --logLevel=log
       test:
         specs:
           - test/integration/specs/standard/standard-not-run.specs.js
@@ -494,7 +502,7 @@ suites:
             command: test/integration/commands/launch-test.sh
             env:
               package_to_launch: api
-              narval_options: -- --suite=books-api
+              narval_options: -- --suite=books-api --logLevel=log
       test:
         specs:
           - test/integration/specs/standard/standard-not-run.specs.js
@@ -529,7 +537,7 @@ suites:
             command: test/integration/commands/launch-test.sh
             env:
               package_to_launch: api
-              narval_options: -- --type=integration
+              narval_options: -- --type=integration --logLevel=log
       test:
         specs:
           - test/integration/specs/standard/standard-not-run.specs.js
@@ -563,7 +571,7 @@ suites:
             command: test/integration/commands/launch-test.sh
             env:
               package_to_launch: api
-              narval_options: -- --type=integration --local
+              narval_options: -- --type=integration --local --logLevel=log
       test:
         specs:
           - test/integration/specs/standard/standard-not-run.specs.js
@@ -595,6 +603,7 @@ suites:
             command: test/integration/commands/launch-test.sh
             env:
               package_to_launch: api
+              narval_options: -- --logLevel=log
       test:
         specs:
           - test/integration/specs/docker/not-build.specs.js
@@ -626,7 +635,7 @@ suites:
             command: test/integration/commands/launch-test.sh
             env:
               package_to_launch: api
-              narval_options: -- --local
+              narval_options: -- --local --logLevel=log
       test:
         specs:
           - test/integration/specs/docker/not-run.specs.js
@@ -656,7 +665,7 @@ suites:
             command: test/integration/commands/launch-test.sh
             env:
               package_to_launch: api
-              narval_options: -- --local
+              narval_options: -- --local --logLevel=log
       test:
         specs:
           - test/integration/specs/docker/not-run.specs.js
@@ -686,6 +695,7 @@ suites:
             command: test/integration/commands/launch-test.sh
             env:
               package_to_launch: api
+              narval_options: -- --logLevel=log
       test:
         specs:
           - test/integration/specs/exit/exit-ok.specs.js
@@ -719,7 +729,7 @@ suites:
             command: test/integration/commands/launch-test.sh
             env:
               package_to_launch: api
-              narval_options: -- --local
+              narval_options: -- --local --logLevel=log
       test:
         specs:
           - test/integration/specs/exit/exit-ok.specs.js
@@ -753,6 +763,7 @@ suites:
             command: test/integration/commands/launch-test.sh
             env:
               package_to_launch: api
+              narval_options: -- --logLevel=log
       test:
         specs:
           - test/integration/specs/exit/exit-ko.specs.js
@@ -784,7 +795,7 @@ suites:
             command: test/integration/commands/launch-test.sh
             env:
               package_to_launch: api
-              narval_options: -- --local
+              narval_options: -- --local --logLevel=log
       test:
         specs:
           - test/integration/specs/exit/exit-ko.specs.js
@@ -816,6 +827,7 @@ suites:
             command: test/integration/commands/launch-test.sh
             env:
               package_to_launch: api
+              narval_options: -- --logLevel=log
       test:
         specs:
           - test/integration/specs/exit/exit-ko.specs.js
@@ -848,7 +860,7 @@ suites:
             command: test/integration/commands/launch-test.sh
             env:
               package_to_launch: api
-              narval_options: -- --local
+              narval_options: -- --local --logLevel=log
       test:
         specs:
           - test/integration/specs/exit/exit-ko.specs.js
@@ -882,7 +894,7 @@ suites:
             command: test/integration/commands/launch-test.sh
             env:
               package_to_launch: api
-              narval_options: -- --local
+              narval_options: -- --local --logLevel=log
       test:
         specs:
           - test/integration/specs/exit/exit-ko.specs.js
@@ -915,7 +927,7 @@ suites:
             command: test/integration/commands/launch-test.sh
             env:
               package_to_launch: api
-              narval_options: -- --local=api-server
+              narval_options: -- --local=api-server --logLevel=log
       test:
         specs:
           - test/integration/packages/api/test/end-to-end/books
@@ -942,7 +954,7 @@ suites:
             command: test/integration/commands/launch-test.sh
             env:
               package_to_launch: api
-              narval_options: -- --local=test
+              narval_options: -- --local=test --logLevel=log
       test:
         specs:
           - test/integration/specs/exit/exit-ko.specs.js
@@ -967,13 +979,13 @@ suites:
             command: test/integration/commands/launch-test.sh
             env:
               package_to_launch: api
-              narval_options: -- --local=api-server
+              narval_options: -- --local=api-server --logLevel=log
         - name: package-test
           local:
             command: test/integration/commands/launch-test.sh
             env:
               package_to_launch: api
-              narval_options: -- --local=test
+              narval_options: -- --local=test --logLevel=log
       test:
         specs:
           - test/integration/specs/exit/exit-ok.specs.js
@@ -998,6 +1010,7 @@ suites:
             command: test/integration/commands/launch-test.sh
             env:
               package_to_launch: api
+              narval_options: -- --logLevel=log
       test:
         specs:
           - test/integration/specs/exit/exit-ko.specs.js
@@ -1030,6 +1043,7 @@ suites:
             command: test/integration/commands/launch-test.sh
             env:
               package_to_launch: api
+              narval_options: -- --logLevel=log
       test:
         specs:
           - test/integration/specs/exit/exit-ko.specs.js
@@ -1060,6 +1074,7 @@ suites:
             command: test/integration/commands/launch-test.sh
             env:
               package_to_launch: simple-command
+              narval_options: -- --logLevel=log
       test:
         specs:
           - test/integration/specs/exit/exit-ok.specs.js
@@ -1084,6 +1099,7 @@ suites:
             command: test/integration/commands/launch-test.sh
             env:
               package_to_launch: simple-command
+              narval_options: -- --logLevel=log
       test:
         specs:
           - test/integration/specs/exit/exit-ok.specs.js
@@ -1105,6 +1121,7 @@ suites:
             command: test/integration/commands/launch-test.sh
             env:
               package_to_launch: simple-command
+              narval_options: -- --logLevel=log
       test:
         specs:
           - test/integration/specs/exit/exit-ok.specs.js
@@ -1128,26 +1145,27 @@ suites:
             command: test/integration/commands/launch-test.sh
             env:
               package_to_launch: simple-command
+              narval_options: -- --logLevel=log
         - name: package-test-2
           local:
             command: test/integration/commands/launch-test.sh
             env:
               package_to_launch: simple-command
-              narval_options: -- --suite=suite-2
+              narval_options: -- --suite=suite-2 --logLevel=log
             wait-on: .narval/logs/integration/clean-logs-folder-local/package-test/exit-code.log
         - name: package-test-3
           local:
             command: test/integration/commands/launch-test.sh
             env:
               package_to_launch: simple-command
-              narval_options: -- --suite=suite-2 --local=service-2
+              narval_options: -- --suite=suite-2 --local=service-2 --logLevel=log
             wait-on: .narval/logs/integration/clean-logs-folder-local/package-test-2/exit-code.log
         - name: package-test-4
           local:
             command: test/integration/commands/launch-test.sh
             env:
               package_to_launch: simple-command
-              narval_options: -- --suite=suite-2 --local=test
+              narval_options: -- --suite=suite-2 --local=test --logLevel=log
             wait-on: .narval/logs/integration/clean-logs-folder-local/package-test-3/exit-code.log
       test:
         specs:
@@ -1174,6 +1192,7 @@ suites:
             command: test/integration/commands/launch-test.sh
             env:
               package_to_launch: sum
+              narval_options: -- --logLevel=log
       test:
         specs:
           - test/integration/specs/standard/standard-run.specs.js
@@ -1191,3 +1210,177 @@ suites:
             coverage_dir: .coverage/included
       coverage:
         enabled: false
+    - name: log-level-log
+      describe: Should print all logs when option logLevel is "log"
+      before:
+        local:
+          command: test/integration/commands/prepare-package.sh
+          env:
+            package_to_launch: api
+            narval_config: api
+      services:
+        - name: package-test
+          local:
+            command: test/integration/commands/launch-test.sh
+            env:
+              package_to_launch: api
+              narval_options: -- --logLevel=log
+      test:
+        specs:
+          - test/integration/specs/log-levels/api-log.specs.js
+          - test/integration/specs/exit/exit-ok.specs.js
+        local:
+          wait-on:
+            resources: 
+              - exit:package-test
+            timeout: 1200000
+          env:
+            package_to_launch: api
+            coverage_dir: .coverage/unit
+      coverage:
+        enabled: false
+    - name: log-level-trace
+      describe: Should print only logs with log level "trace" or upper when option logLevel is "trace"
+      before:
+        local:
+          command: test/integration/commands/prepare-package.sh
+          env:
+            package_to_launch: api
+            narval_config: api
+      services:
+        - name: package-test
+          local:
+            command: test/integration/commands/launch-test.sh
+            env:
+              package_to_launch: api
+              narval_options: -- --logLevel=trace
+      test:
+        specs:
+          - test/integration/specs/log-levels/api-trace.specs.js
+          - test/integration/specs/exit/exit-ok.specs.js
+        local:
+          wait-on:
+            resources: 
+              - exit:package-test
+            timeout: 1200000
+          env:
+            package_to_launch: api
+            coverage_dir: .coverage/unit
+      coverage:
+        enabled: false
+    - name: log-level-debug
+      describe: Should print only logs with log level "debug" or upper when option logLevel is "debug"
+      before:
+        local:
+          command: test/integration/commands/prepare-package.sh
+          env:
+            package_to_launch: api
+            narval_config: api
+      services:
+        - name: package-test
+          local:
+            command: test/integration/commands/launch-test.sh
+            env:
+              package_to_launch: api
+              narval_options: -- --logLevel=debug
+      test:
+        specs:
+          - test/integration/specs/log-levels/api-debug.specs.js
+          - test/integration/specs/exit/exit-ok.specs.js
+        local:
+          wait-on:
+            resources: 
+              - exit:package-test
+            timeout: 1200000
+          env:
+            package_to_launch: api
+            coverage_dir: .coverage/unit
+      coverage:
+        enabled: false
+    - name: log-level-info
+      describe: Should print only logs with log level "info" or upper when option logLevel is "info"
+      before:
+        local:
+          command: test/integration/commands/prepare-package.sh
+          env:
+            package_to_launch: api
+            narval_config: api
+      services:
+        - name: package-test
+          local:
+            command: test/integration/commands/launch-test.sh
+            env:
+              package_to_launch: api
+      test:
+        specs:
+          - test/integration/specs/log-levels/api-info.specs.js
+          - test/integration/specs/exit/exit-ok.specs.js
+        local:
+          wait-on:
+            resources: 
+              - exit:package-test
+            timeout: 1200000
+          env:
+            package_to_launch: api
+            coverage_dir: .coverage/unit
+      coverage:
+        enabled: false
+    - name: log-level-warn
+      describe: Should print only logs with log levels "warn" or "error" when option logLevel is "warn"
+      before:
+        local:
+          command: test/integration/commands/prepare-package.sh
+          env:
+            package_to_launch: api
+            narval_config: api
+      services:
+        - name: package-test
+          local:
+            command: test/integration/commands/launch-test.sh
+            env:
+              package_to_launch: api
+              narval_options: -- --logLevel=warn
+      test:
+        specs:
+          - test/integration/specs/log-levels/api-warn.specs.js
+          - test/integration/specs/exit/exit-ok.specs.js
+        local:
+          wait-on:
+            resources: 
+              - exit:package-test
+            timeout: 1200000
+          env:
+            package_to_launch: api
+            coverage_dir: .coverage/unit
+      coverage:
+        enabled: false
+    - name: log-level-error
+      describe: Should print only logs with log level "error" when option logLevel is "error"
+      before:
+        local:
+          command: test/integration/commands/prepare-package.sh
+          env:
+            package_to_launch: api
+            narval_config: api
+      services:
+        - name: package-test
+          local:
+            command: test/integration/commands/launch-test.sh
+            env:
+              package_to_launch: api
+              narval_options: -- --logLevel=error
+      test:
+        specs:
+          - test/integration/specs/log-levels/api-error.specs.js
+          - test/integration/specs/exit/exit-ok.specs.js
+        local:
+          wait-on:
+            resources: 
+              - exit:package-test
+            timeout: 1200000
+          env:
+            package_to_launch: api
+            coverage_dir: .coverage/unit
+      coverage:
+        enabled: false
+

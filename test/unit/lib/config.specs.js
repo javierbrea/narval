@@ -327,6 +327,18 @@ test.describe('config', () => {
       })
     })
 
+    test.describe('describe method', () => {
+      test.it('should return the description of the suite', () => {
+        test.expect(suiteResolver.describe()).to.equal('Foo description')
+      })
+
+      test.it('should return an empty string if the suite has no describe field', () => {
+        delete baseData.describe
+        initResolver()
+        test.expect(suiteResolver.describe()).to.equal('')
+      })
+    })
+
     test.describe('hasToRun method', () => {
       test.it('should return true if no suite option is received', () => {
         test.expect(suiteResolver.hasToRun()).to.equal(true)
@@ -378,6 +390,35 @@ test.describe('config', () => {
         initResolver()
         test.expect(suiteResolver.istanbulArguments()).to.equal('--include-all-sources --root=. --colors --print=detail --dir=.coverage/custom --verbose --report=text')
       })
+
+      test.it('should add a print=none option to istanbul arguments if logLevel is upper to info', () => {
+        baseData.coverage = {
+          config: {
+            dir: '.coverage/custom',
+            verbose: true,
+            report: 'text'
+          }
+        }
+        initResolver({
+          logLevel: 4
+        })
+        test.expect(suiteResolver.istanbulArguments()).to.equal('--include-all-sources --root=. --colors --print=none --dir=.coverage/custom --verbose --report=text')
+      })
+
+      test.it('should not add a print=none option to istanbul arguments if config has defined an explicit print', () => {
+        baseData.coverage = {
+          config: {
+            dir: '.coverage/custom',
+            verbose: true,
+            print: 'detail',
+            report: 'text'
+          }
+        }
+        initResolver({
+          logLevel: 4
+        })
+        test.expect(suiteResolver.istanbulArguments()).to.equal('--include-all-sources --root=. --colors --print=detail --dir=.coverage/custom --verbose --report=text')
+      })
     })
 
     test.describe('mochaArguments method', () => {
@@ -389,6 +430,31 @@ test.describe('config', () => {
           grep: 'grepped'
         }
         initResolver()
+        test.expect(suiteResolver.mochaArguments()).to.equal('--colors --reporter list --grep grepped foo/path/specs')
+      })
+
+      test.it('should add a silent reporter to mocha arguments if logLevel is upper to info', () => {
+        baseData = fixtures.config.localSuite
+        baseData.test.config = {
+          recursive: false,
+          grep: 'grepped'
+        }
+        initResolver({
+          logLevel: 4
+        })
+        test.expect(suiteResolver.mochaArguments()).to.equal('--colors --reporter mocha-silent-reporter --grep grepped foo/path/specs')
+      })
+
+      test.it('should not add a silent reporter to mocha arguments if config has defined an explicit reporter', () => {
+        baseData = fixtures.config.localSuite
+        baseData.test.config = {
+          recursive: false,
+          reporter: 'list',
+          grep: 'grepped'
+        }
+        initResolver({
+          logLevel: 4
+        })
         test.expect(suiteResolver.mochaArguments()).to.equal('--colors --reporter list --grep grepped foo/path/specs')
       })
     })

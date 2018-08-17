@@ -1,6 +1,8 @@
 
 const commander = require('commander')
 const Promise = require('bluebird')
+const tracer = require('tracer')
+const Boom = require('boom')
 
 const test = require('../../../index')
 
@@ -40,6 +42,7 @@ test.describe('options', () => {
     test.beforeEach(() => {
       commanderMock = new CommanderMock()
       sandbox = test.sinon.createSandbox()
+      sandbox.stub(tracer, 'setLevel')
       sandbox.stub(commander, 'option').callsFake(commanderMock.option)
       sandbox.stub(states, 'get').returns(undefined)
       sandbox.stub(states, 'set')
@@ -53,11 +56,11 @@ test.describe('options', () => {
       return test.expect(options.get()).to.be.an.instanceof(Promise)
     })
 
-    test.it('should get the seven available options from command line arguments', () => {
+    test.it('should get the eight available options from command line arguments', () => {
       return options.get()
         .then(() => {
           return Promise.all([
-            test.expect(commanderMock.option.callCount).to.equal(7),
+            test.expect(commanderMock.option.callCount).to.equal(8),
             test.expect(commanderMock.parse.callCount).to.equal(1),
             test.expect(commanderMock.parse).to.have.been.calledWith(process.argv)
           ])
@@ -68,6 +71,32 @@ test.describe('options', () => {
       return options.get()
         .then(() => {
           return test.expect(states.set).to.have.been.called()
+        })
+    })
+
+    test.it('should call to tracer setLevel method to set the current log level', () => {
+      return options.get()
+        .then(() => {
+          return test.expect(tracer.setLevel).to.have.been.called()
+        })
+    })
+
+    test.it('should set default log level as "info" if it is not specified', () => {
+      return options.get()
+        .then((opts) => {
+          return test.expect(opts.logLevel).to.equal(3)
+        })
+    })
+
+    test.it('should reject the promise if log level option is not valid', () => {
+      commanderMock.returns({
+        logLevel: 'foo'
+      })
+      return options.get()
+        .then((opts) => {
+          return test.assert.fail()
+        }, (err) => {
+          return test.expect(Boom.isBoom(err)).to.be.true()
         })
     })
 

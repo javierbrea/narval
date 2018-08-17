@@ -186,8 +186,31 @@ test.describe('processes', () => {
       childProcessMock.stubs.spawn.stdout.on.returns(`  ${fooData}`)
       handler = new processes.Handler(fooProcess, fooSuiteData)
       handler.on('close', () => {
-        test.expect(console.log).to.have.been.calledWith(fooData)
+        test.expect(mocksSandbox.logs.stubs.serviceLog).to.have.been.calledWith({
+          log: 'foo data',
+          service: 'fooService'
+        })
         test.expect(mocksSandbox.fs.stubs.appendFile.getCall(0).args[1]).to.contain(fooData)
+        done()
+      })
+    })
+
+    test.it('should not write process output log lines that are empty', (done) => {
+      childProcessMock.stubs.spawn.stdout.on.returns(' foo \n     \nfoo2')
+      handler = new processes.Handler(fooProcess, fooSuiteData)
+      handler.on('close', () => {
+        test.expect(mocksSandbox.logs.stubs.serviceLog).to.have.been.calledWith({
+          log: 'foo ',
+          service: 'fooService'
+        })
+        test.expect(mocksSandbox.logs.stubs.serviceLog).to.have.been.calledWith({
+          log: 'foo2',
+          service: 'fooService'
+        })
+        test.expect(mocksSandbox.logs.stubs.serviceLog).to.not.have.been.calledWith({
+          log: '',
+          service: 'fooService'
+        })
         done()
       })
     })
@@ -208,7 +231,10 @@ test.describe('processes', () => {
       handler.on('close', (data) => {
         test.expect(data.lastLog).to.equal(fooData)
         test.expect(data.processCode).to.equal(0)
-        test.expect(console.log).to.have.been.calledWith(fooData)
+        test.expect(mocksSandbox.logs.stubs.serviceLog).to.have.been.calledWith({
+          log: 'foo data',
+          service: 'fooService'
+        })
         test.expect(fsExtra.remove).to.have.been.calledWith(fooCloseFile)
         test.expect(mocksSandbox.fs.stubs.writeFileSync.getCall(0).args[1]).to.equal(0)
         done()
@@ -227,8 +253,14 @@ test.describe('processes', () => {
       handler.on('close', (data) => {
         test.expect(data.lastLog).to.equal(fooError)
         test.expect(data.processCode).to.equal(0)
-        test.expect(console.log).to.have.been.calledWith(fooData)
-        test.expect(console.log).to.have.been.calledWith(fooError)
+        test.expect(mocksSandbox.logs.stubs.serviceLog).to.have.been.calledWith({
+          log: 'foo data',
+          service: 'fooService'
+        })
+        test.expect(mocksSandbox.logs.stubs.serviceLog).to.have.been.calledWith({
+          log: fooError,
+          service: 'fooService'
+        })
         test.expect(fsExtra.remove).to.have.been.calledWith(fooCloseFile)
         test.expect(mocksSandbox.fs.stubs.writeFileSync.getCall(0).args[1]).to.equal(0)
         done()
@@ -241,7 +273,10 @@ test.describe('processes', () => {
       childProcessMock.stubs.spawn.stderr.on.runOnRegister(true)
       handler = new processes.Handler(fooProcess, fooSuiteData)
       handler.on('close', () => {
-        test.expect(console.log).to.have.been.calledWith(fooErrorData)
+        test.expect(mocksSandbox.logs.stubs.serviceLog).to.have.been.calledWith({
+          log: fooErrorData,
+          service: 'fooService'
+        })
         test.expect(mocksSandbox.fs.stubs.appendFile.getCall(0).args[1]).to.contain(fooErrorData)
         done()
       })

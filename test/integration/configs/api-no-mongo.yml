@@ -40,6 +40,7 @@ suites:
           x: "**/_node_modules/**"
   end-to-end:
     - name: books-api
+      describe: Books api should work without database
       before:
         docker:
           down-volumes: true

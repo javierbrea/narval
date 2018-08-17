@@ -32,6 +32,7 @@ docker-containers:
 suites:
   unit: 
     - name: unit
+      describe: Unitary tests
       test:
         specs: test/unit
       coverage:
@@ -40,6 +41,7 @@ suites:
           x: "**/_node_modules/**"
   end-to-end:
     - name: books-api
+      describe: Books api should work and save data to database
       before:
         docker:
           down-volumes: true
