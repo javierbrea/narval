@@ -5,12 +5,8 @@ const utils = require('../../../../utils')
 test.describe('api-docker tests execution', () => {
   let outerrLog
 
-  test.before((done) => {
-    utils.logs.combined('package-test')
-      .then((log) => {
-        outerrLog = log
-        done()
-      })
+  test.before(async () => {
+    outerrLog = await utils.logs.combined('package-test')
   })
 
   test.it('should have available the foo file inside Docker container', () => {

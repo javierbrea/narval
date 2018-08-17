@@ -5,21 +5,6 @@ const fs = require('fs')
 const _ = require('lodash')
 const test = require('../../../index')
 
-const ReadLogs = function (fileName) {
-  return function (serviceName) {
-    serviceName = serviceName || 'package-test'
-    return new Promise((resolve, reject) => {
-      fs.readFile(path.resolve(__dirname, '..', '..', '..', '.narval', 'logs', 'integration', process.env.narval_suite, serviceName, `${fileName}.log`), 'utf8', (err, data) => {
-        if (err) {
-          reject(err)
-        } else {
-          resolve(data)
-        }
-      })
-    })
-  }
-}
-
 const readPackageLogs = function (packageName, suiteType, suiteName, serviceName, fileName) {
   return new Promise((resolve, reject) => {
     fs.readFile(path.resolve(__dirname, '..', 'packages', packageName, '.narval', 'logs', suiteType, suiteName, serviceName, `${fileName}.log`), 'utf8', (err, data) => {
@@ -62,8 +47,6 @@ const checkServiceLogs = function (serviceName, customMinLengths, packageName, b
 }
 
 module.exports = {
-  readOutErr: new ReadLogs('combined-outerr'),
-  readExitCode: new ReadLogs('exit-code'),
   readPackageLogs: readPackageLogs,
   checkServiceLogs: checkServiceLogs
 }

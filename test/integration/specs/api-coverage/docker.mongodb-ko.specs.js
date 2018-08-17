@@ -1,16 +1,12 @@
 
 const test = require('../../../../index')
-const utils = require('../utils')
+const utils = require('../../../../utils')
 
 test.describe('api-docker-coverage suite execution mongodb failing', () => {
   let outerrLog
 
-  test.before((done) => {
-    utils.readOutErr()
-      .then((log) => {
-        outerrLog = log
-        done()
-      })
+  test.before(async () => {
+    outerrLog = await utils.logs.combined('package-test')
   })
 
   test.it('should have not waited until "exit_after" time for exiting api', () => {
