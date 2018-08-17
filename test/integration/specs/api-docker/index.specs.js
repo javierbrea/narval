@@ -1,12 +1,12 @@
 
 const test = require('../../../../index')
-const utils = require('../utils')
+const utils = require('../../../../utils')
 
 test.describe('api-docker tests execution', () => {
   let outerrLog
 
   test.before((done) => {
-    utils.readOutErr()
+    utils.logs.combined('package-test')
       .then((log) => {
         outerrLog = log
         done()
