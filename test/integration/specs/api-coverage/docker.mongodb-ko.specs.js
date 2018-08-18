@@ -20,7 +20,7 @@ test.describe('api-docker-coverage suite execution mongodb failing', () => {
   test.it('should have exited started api service and exited with an error, after timeout waiting for mongodb', () => {
     return Promise.all([
       test.expect(outerrLog).to.include('Error: Timeout'),
-      test.expect(outerrLog).to.include('[Narval] [DEBUG] RUNNING COMMAND: node_modules/.bin/narval-msc-istanbul'),
+      test.expect(outerrLog).to.include('RUNNING COMMAND: node_modules/.bin/narval-msc-istanbul'),
       test.expect(outerrLog).to.include('[Narval] [ERROR] Docker container "api-container" of service "api-server" exited with code "1"')
     ])
   })

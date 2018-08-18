@@ -39,7 +39,7 @@ module.exports = {
       expects: [
         'I CONTROL  [initandlisten] MongoDB starting',
         'WAITING FOR: tcp:mongodb-container:27017',
-        '[Narval] [DEBUG] RUNNING COMMAND: test/commands/start-server.sh',
+        'RUNNING COMMAND: test/commands/start-server.sh',
         'Connecting to database mongodb://mongodb-container/narval-api-test',
         'WAITING FOR: tcp:api-container:4000',
         '{"title":"The Sun Also Rises","author":"Ernest Hemingway"}',

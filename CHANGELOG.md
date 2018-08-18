@@ -11,6 +11,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Removed
 ### BREAKING CHANGES
 
+## [2.2.1] - 2018-08-18
+### Added
+- Allow arrays in test and coverage configurations. Arrays are converted into same argument repeated with different values as many times as elements has the array.
+
+### Fixed
+- Print logs of tests executed inside docker with log level info.
+
 ## [2.2.0] - 2018-08-18
 ### Added
 - Add utilities for reading services logs.
