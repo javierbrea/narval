@@ -7,8 +7,8 @@ coverage_enabled=$4
 wait_on=$5
 exit_after=$6
 
-log_title="[Narval] [DEBUG]"
-log_sep="================================"
+log_title="[Narval] [TRACE]"
+log_sep="[Narval] [TRACE]================================"
 
 # echo "$log_sep"
 # echo "$log_title RUN COMMAND OPTIONS:"
@@ -21,10 +21,10 @@ log_sep="================================"
 
 if [ -z "$command_to_run" ]; then
   if [ "$exit_after" == "" ]; then
-    echo "There is no command defined to be run. Container will wait until killed"
+    echo "${log_title}There is no command defined to be run. Container will wait until killed"
     ./.narval/scripts/empty-interval.js
   else
-    echo "There is no command defined to be run. Exiting..."
+    echo "${log_title}There is no command defined to be run. Exiting..."
   fi
 else
   if [ "$command_to_run" == "narval-default-test-command" ]; then
@@ -44,12 +44,12 @@ else
   fi
 
   if [ "$wait_on" != "" ]; then
-    echo "WAITING FOR: $wait_on"
+    echo "${log_title}WAITING FOR: $wait_on"
     wait-on $wait_on
   fi
       
   echo "$log_sep"
-  echo "$log_title RUNNING COMMAND: $command_to_run"
+  echo "${log_title}RUNNING COMMAND: $command_to_run"
 
   ./$command_to_run
 fi
