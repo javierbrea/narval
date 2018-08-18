@@ -200,7 +200,7 @@ test.describe('processes', () => {
       handler = new processes.Handler(fooProcess, fooSuiteData)
       handler.on('close', () => {
         test.expect(mocksSandbox.logs.stubs.serviceLog).to.have.been.calledWith({
-          log: 'foo ',
+          log: 'foo',
           service: 'fooService'
         })
         test.expect(mocksSandbox.logs.stubs.serviceLog).to.have.been.calledWith({
@@ -209,6 +209,32 @@ test.describe('processes', () => {
         })
         test.expect(mocksSandbox.logs.stubs.serviceLog).to.not.have.been.calledWith({
           log: '',
+          service: 'fooService'
+        })
+        done()
+      })
+    })
+
+    test.it('should console processes logs that belongs to test services', (done) => {
+      childProcessMock.stubs.spawn.stdout.on.returns('test-container_1     | foo \ntest-container_1     | foo 2 ')
+      handler = new processes.Handler(fooProcess, fooSuiteData)
+      handler.on('close', () => {
+        test.expect(console.log).to.have.been.calledWith(' foo')
+        test.expect(console.log).to.have.been.calledWith(' foo 2')
+        done()
+      })
+    })
+
+    test.it('should trace processes logs that belongs to test services, but have a [trace] identifier', (done) => {
+      childProcessMock.stubs.spawn.stdout.on.returns('test-container_1     |[Narval] [TRACE]foo \ntest-container_1     |[Narval] [TRACE] foo 2 ')
+      handler = new processes.Handler(fooProcess, fooSuiteData)
+      handler.on('close', () => {
+        test.expect(mocksSandbox.logs.stubs.serviceLog).to.have.been.calledWith({
+          log: 'foo',
+          service: 'fooService'
+        })
+        test.expect(mocksSandbox.logs.stubs.serviceLog).to.have.been.calledWith({
+          log: ' foo 2',
           service: 'fooService'
         })
         done()
