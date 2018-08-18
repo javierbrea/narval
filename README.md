@@ -459,7 +459,7 @@ test.describe(('narval') => {
 
 ### Tests utilities
 
-It also provides a set of tools that make easier to perform some actions that are commonly repeated in tests when are developed using Narval, such as access to [services logs](#services-logs):
+It also provides a set of tools that make easier to perform some actions that are commonly repeated in tests when are developed using Narval, such as reading [services logs](#services-logs):
 
 * `logs` `<Object>`. Contains methods for reading [services logs](#services-logs).
 	* `out` `<Function>`
