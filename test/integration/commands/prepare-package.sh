@@ -31,6 +31,7 @@ if [ ${package_to_launch} == "api" ] || [ ${package_to_launch} == "simple-comman
   cp -r bin ${NARVAL_LIB_DEST}/bin
   cp -r lib ${NARVAL_LIB_DEST}/lib
   cp package.json ${NARVAL_LIB_DEST}/package.json
+  cp utils.js ${NARVAL_LIB_DEST}/utils.js
   cp index.js ${NARVAL_LIB_DEST}/index.js
   cp default-config.yml ${NARVAL_LIB_DEST}/default-config.yml
 fi
