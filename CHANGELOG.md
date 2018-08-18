@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Removed
 ### BREAKING CHANGES
 
+## [2.2.0] - 2018-08-18
+### Added
+- Add utilities for reading services logs.
+
 ## [2.1.0] - 2018-08-17
 ### Added
 - Add logLevel option.

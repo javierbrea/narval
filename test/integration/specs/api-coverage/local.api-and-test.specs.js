@@ -1,6 +1,6 @@
 
 const test = require('../../../../index')
-const utils = require('../utils')
+const utils = require('../../../../utils')
 
 test.describe('api-local-coverage suite running api and test in different services', () => {
   const startTestLog = 'Starting tests of "end-to-end" suite "books-api"'
@@ -8,15 +8,9 @@ test.describe('api-local-coverage suite running api and test in different servic
   let outerrLogTest
   let outerrLogApi
 
-  test.before((done) => {
-    Promise.all([
-      utils.readOutErr(),
-      utils.readOutErr('package-api')
-    ]).then((logs) => {
-      outerrLogTest = logs[0]
-      outerrLogApi = logs[1]
-      done()
-    })
+  test.before(async () => {
+    outerrLogTest = await utils.logs.combined('package-test')
+    outerrLogApi = await utils.logs.combined('package-api')
   })
 
   test.describe('test service', () => {

@@ -1,17 +1,13 @@
 
 const test = require('../../../../index')
 
-const utils = require('../utils')
+const utils = require('../../../../utils')
 
 test.describe('services logs', () => {
   let outerrLog
 
-  test.before((done) => {
-    utils.readOutErr()
-      .then((log) => {
-        outerrLog = log
-        done()
-      })
+  test.before(async () => {
+    outerrLog = await utils.logs.combined('package-test')
   })
 
   const expectServiceSuite = function (suiteNumber, serviceNumber) {

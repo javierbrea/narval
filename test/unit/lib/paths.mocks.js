@@ -11,9 +11,9 @@ const Mock = function () {
       base: sandbox.stub(paths[base], 'base'),
       ensureDir: sandbox.stub(paths[base], 'ensureDir').usingPromise().resolves(),
       existsSync: sandbox.stub(paths[base], 'existsSync'),
-      readFile: sandbox.stub(paths[base], 'readFile'),
+      readFile: sandbox.stub(paths[base], 'readFile').usingPromise().resolves(),
       resolve: sandbox.stub(paths[base], 'resolve'),
-      writeFile: sandbox.stub(paths[base], 'writeFile'),
+      writeFile: sandbox.stub(paths[base], 'writeFile').usingPromise().resolves(),
       remove: sandbox.stub(paths[base], 'remove').usingPromise().resolves()
     }
   }

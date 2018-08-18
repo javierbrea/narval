@@ -1,16 +1,12 @@
 
 const test = require('../../../../index')
-const utils = require('../utils')
+const utils = require('../../../../utils')
 
 test.describe('docker', () => {
   let outerrLog
 
-  test.before((done) => {
-    utils.readOutErr()
-      .then((log) => {
-        outerrLog = log
-        done()
-      })
+  test.before(async () => {
+    outerrLog = await utils.logs.combined('package-test')
   })
 
   test.it('should have been executed to run services and tests', () => {

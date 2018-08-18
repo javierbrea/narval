@@ -23,6 +23,10 @@ Multi test suites runner for Node.js packages. Define your suites including depe
 		* [test](#test)
 		* [coverage](#coverage)
 * [Usage](#usage)
+	* [Quick setup](#quick-setup)
+	* [Tests development](#tests-development)
+	* [Tests utilities](#tests-utilities)
+	* [Execution](#execution)
 	* [Command line options](#command-line-options)
 	* [Developing commands](#developing-commands)
 		* [Commands languages](#commands-languages)
@@ -39,7 +43,7 @@ Multi test suites runner for Node.js packages. Define your suites including depe
 
 **Narval is a test suites runner that make easy to define, start, and reuse dependant services for each suite.\
 It uses Docker to start services and run tests, so, the isolation of each test suite execution is guaranteed.
-Define your services and tests in a `yaml` file, and Narval will do the rest for you.**
+Define your services and tests in a `yaml` file, use the provided [mocha-sinon-chai][mocha-sinon-chai-url] interface to develop your tests, and Narval will do the rest for you.**
 
 Split your tests into "tests", that contains the specs and are executed with [Mocha][mocha-url]/[Istanbul][istanbul-url], and "services", which contains the commands and configurations needed to start the dependendant services of the tests battery. In this way, it is possible to reuse different services configurations and run different tests over different combinations of them, or run the same tests battery upon services started with different configurations, for example.
 
@@ -430,10 +434,48 @@ suites:
 
 ## Usage
 
+### Quick setup
+
 * Add the "narval" dependency to your `package.json` file as described in the [quick start chapter](#quick-start).
 * Add the "test" script to your `package.json` file as described in the [quick start chapter](#quick-start).
 > From this point, all examples asume that the `package.json` file of your project contains a script called "test" that executes "narval". *If your script has another name, simply change `npm test` by `npm run your-script-name` in the examples*
 * Create a [configuration](#configuration) file named `.narval.yml` at the root of your repository.
+
+### Tests development
+
+Narval provides a tests development tools bundle, which gives you access to [mocha][mocha-url], [sinon][sinon-url] and [chai][chai-url] (preconfigured to use [sinon-chai][sinon-chai-url] and [dirty-chai][dirty-chai-url]). Read the [mocha-sinon-chai][mocha-sinon-chai-url] documentation for further info, as it is used underlayer to provide this interface.
+
+```js
+const test = require('narval')
+
+test.describe(('narval') => {
+  test.it('should provide tools for developing tests', () => {
+    test.expect(test.beforeEach).to.not.be.undefined()
+    test.expect(test.afterEach).to.not.be.undefined()
+    test.expect(test.sinon).to.not.be.undefined()
+  })
+})
+```
+
+### Tests utilities
+
+It also provides a set of tools that make easier to perform some actions that are commonly repeated in tests when are developed using Narval, such as reading [services logs](#services-logs):
+
+* `logs` `<Object>`. Contains methods for reading [services logs](#services-logs).
+	* `out` `<Function>`
+		* Arguments: (serviceName `<String>`)
+		* Resolves: Content of the `out.log` file of current suite and provided service as `<String>` 
+	* `err` `<Function>`.
+		* Arguments: (serviceName `<String>`)
+		* Resolves: Content of the `err.log` file of current suite and provided service as `<String>` 
+	* `combined` `<Function>`
+		* Arguments: (serviceName `<String>`)
+		* Resolves: Content of the `combined-outerr.log` file of current suite and provided service as `<String>` 
+	* `exitCode` `<Function>`
+		* Arguments: (serviceName `<String>`)
+		* Resolves: Content of the `exit-code.log` file of current suite and provided service as `<String>` 
+
+### Execution
 
 Run the next command to execute all your test suites and Standard linter:
 
@@ -565,6 +607,8 @@ For each service, all these files are generated:
 * `err.log`. Contains service "error" logs.
 * `out.log`. Contains service "out" logs.
 * `exit-code.log`. This file is created when service is closed, and contains the exit code of the service process.
+
+Narval api provides [utilities](#tests-utilities) for reading services logs inside your tests in an easy way.
 
 The `exit-code.log` is used internally to wait for a service to be finished before executing another service, or the tests. Using the `wait-on` property, you can wait for the exit of a service, with the `exit:[service-name]` expression:
 
@@ -861,7 +905,12 @@ Contributions are welcome! Read the [contributing guide lines][narval-contributi
 [docker-url]: https://www.docker.com/
 [istanbul-url]: https://istanbul.js.org/
 [istanbul-usage-url]: https://istanbul.js.org/
+[mocha-sinon-chai-url]: https://www.npmjs.com/package/mocha-sinon-chai
 [mocha-url]: https://mochajs.org
+[sinon-url]: http://sinonjs.org/
+[chai-url]: http://www.chaijs.com
+[sinon-chai-url]: https://www.npmjs.com/package/sinon-chai
+[dirty-chai-url]: https://www.npmjs.com/package/dirty-chai
 [mocha-usage-url]: https://mochajs.org/#usage
 [wait-on-url]: https://www.npmjs.com/package/wait-on
 [integration-tests-config-url]: https://github.com/javierbrea/narval/tree/master/test/integration/configs
