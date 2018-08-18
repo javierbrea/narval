@@ -8,7 +8,7 @@ wait_on=$5
 exit_after=$6
 
 log_title="[Narval] [TRACE]"
-log_sep="[Narval] [TRACE]================================"
+log_sep="${log_title}================================"
 
 # echo "$log_sep"
 # echo "$log_title RUN COMMAND OPTIONS:"
