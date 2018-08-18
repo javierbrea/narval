@@ -6,8 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [unreleased]
 ### Added
+- Allow arrays in test and coverage configurations. Arrays are converted into same argument repeated with different values as many times as elements has the array.
 ### Changed
 ### Fixed
+- Print logs of tests executed inside docker with log level info
 ### Removed
 ### BREAKING CHANGES
 

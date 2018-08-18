@@ -66,6 +66,19 @@ test.describe('utils', () => {
       })).to.equal('--fooVar1 fooVal1 --fooVar2 --fooVar3 testing')
     })
 
+    test.it('should convert array values, and add one argument for each element of the array', () => {
+      objectToArgs = new utils.ObjectToArguments({}, '=', ['x'])
+      test.expect(objectToArgs({
+        fooVar1: 'fooVal1',
+        fooVar2: true,
+        x: [
+          'testing',
+          'testing2',
+          'testing3'
+        ]
+      })).to.equal('--fooVar1=fooVal1 --fooVar2 -x=testing -x=testing2 -x=testing3')
+    })
+
     test.it('should use the defined equal to separate vars and values', () => {
       objectToArgs = new utils.ObjectToArguments({}, '=>')
       test.expect(objectToArgs({
