@@ -41,7 +41,7 @@
     "fs-extra": "7.0.0",
     "handlebars": "4.0.11",
     "js-yaml": "3.12.0",
-    "lodash": "4.17.10",
+    "lodash": "4.17.19",
     "mocha-silent-reporter": "1.0.0",
     "mocha-sinon-chai": "3.0.0",
     "standard": "11.0.1",
