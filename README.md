@@ -1,4 +1,8 @@
-# ![Narval Logo][narval-logo-image]
+# ⚠ Deprecation notice
+
+> This package is no longer maintained. As alternative, we suggest to use current monorepo tools providing task orchestration to start test dependent services and run test batteries. Using a monorepo approach would also allow to create docker-compose files in the root folder of the repository in order to configure and orchestrate different services for running tests.
+
+# Narval
 
 Multi test suites runner for Node.js packages. Define your suites including dependant services, Narval will start all using Docker, isolating each suite execution.
 
